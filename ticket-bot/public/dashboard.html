@@ -1,0 +1,938 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ticket Dashboard</title>
+<style>
+:root{
+  --ink:#0e1016; --slate:#141722; --raised:#1b1f2e; --rule:#262b3d; --rule2:#343b54;
+  --text:#e9ebf3; --muted:#8e95ab;
+  --gold:#f4c542; --gold-h:#ffd35e; --gold-ink:#241c05;
+  --ok:#46d39a; --bad:#ff5d6c;
+  --sans:"Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"Cascadia Mono","SF Mono",Consolas,monospace;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;background:var(--ink);color:var(--text);font:15px/1.55 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:inherit}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.muted{color:var(--muted)}
+.mono{font-family:var(--mono)}
+svg.ic{width:18px;height:18px;flex:none}
+
+/* ---------- Gerüst ---------- */
+.shell{display:grid;grid-template-columns:248px minmax(0,1fr);min-height:100vh}
+.rail{background:var(--slate);border-right:1px solid var(--rule);padding:18px 14px;display:flex;flex-direction:column;gap:16px;position:sticky;top:0;height:100vh}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px;padding:2px 8px;text-decoration:none}
+.brand svg{color:var(--gold);width:22px;height:22px}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav a{display:flex;align-items:center;gap:11px;padding:9px 10px;border-radius:8px;color:var(--muted);text-decoration:none;font-weight:500}
+.nav a:hover{background:var(--raised);color:var(--text)}
+.nav a.on{background:var(--raised);color:var(--text)}
+.nav a.on svg{color:var(--gold)}
+.nav hr{border:0;border-top:1px solid var(--rule);margin:8px 4px}
+.rail-foot{margin-top:auto;display:flex;align-items:center;gap:10px;padding:12px 8px 0;border-top:1px solid var(--rule)}
+.rail-foot img{width:30px;height:30px;border-radius:50%}
+.rail-foot .who{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+.rail-foot a{color:var(--muted);display:grid;place-items:center;padding:6px;border-radius:6px}
+.rail-foot a:hover{color:var(--text);background:var(--raised)}
+.main{padding:36px clamp(18px,4vw,56px) 120px;max-width:1100px;width:100%}
+@media(max-width:860px){
+  .shell{grid-template-columns:1fr}
+  .rail{position:static;height:auto;border-right:0;border-bottom:1px solid var(--rule);padding:12px}
+  .nav{flex-direction:row;overflow-x:auto}
+  .nav a span{white-space:nowrap}.nav hr{display:none}
+  .rail-foot{margin-top:0;padding-top:10px}
+}
+
+/* ---------- Seitenkopf ---------- */
+.head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:28px;flex-wrap:wrap}
+.head h1{font-size:26px;line-height:1.2;margin:0;letter-spacing:-.01em}
+.head p{margin:4px 0 0;color:var(--muted)}
+
+/* ---------- Buttons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid transparent;border-radius:8px;padding:8px 16px;font-weight:600;cursor:pointer;background:var(--gold);color:var(--gold-ink);text-decoration:none;transition:background .15s,border-color .15s}
+.btn:hover{background:var(--gold-h)}
+.btn.quiet{background:transparent;border-color:var(--rule2);color:var(--text)}
+.btn.quiet:hover{background:var(--raised)}
+.btn.bad{background:transparent;border-color:#5a2a33;color:var(--bad)}
+.btn.bad:hover{background:#2a1519}
+.btn.sm{padding:5px 11px;font-size:13px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn svg.ic{width:16px;height:16px}
+.icon-btn{background:none;border:0;color:var(--muted);cursor:pointer;padding:6px;border-radius:6px;display:grid;place-items:center}
+.icon-btn:hover{color:var(--text);background:var(--raised)}
+
+/* ---------- Formulare ---------- */
+.field{margin-bottom:18px}
+.field>label,.lbl{display:block;font-weight:600;font-size:13.5px;margin-bottom:6px}
+.hint,.field small{display:block;color:var(--muted);font-size:12.5px;margin-top:5px;line-height:1.45}
+input[type=text],input[type=number],input[type=url],select,textarea,.ms-btn{width:100%;background:var(--ink);border:1px solid var(--rule2);border-radius:8px;padding:9px 12px;transition:border-color .15s}
+input[type=text]:focus,input[type=number]:focus,input[type=url]:focus,select:focus,textarea:focus{border-color:var(--gold);outline:none}
+textarea{min-height:96px;resize:vertical}
+select{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238e95ab' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 12px center;padding-right:34px}
+input[type=color]{width:56px;height:38px;padding:3px;border:1px solid var(--rule2);border-radius:8px;background:var(--ink);cursor:pointer}
+.cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 16px}
+@media(max-width:700px){.cols{grid-template-columns:1fr}}
+.suffix{display:flex;align-items:center;gap:10px}.suffix input{max-width:110px}
+.phs{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.ph{background:var(--raised);border:1px solid var(--rule);border-radius:6px;padding:2px 8px;font-size:12px;cursor:pointer;color:var(--muted)}
+.ph:hover{color:var(--text);border-color:var(--rule2)}
+
+/* Schalter */
+.swrow{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:12px 0;border-bottom:1px solid var(--rule);cursor:pointer}
+.swrow:last-child{border-bottom:0}
+.swrow b{display:block;font-weight:600;font-size:14px}
+.swrow small{display:block;color:var(--muted);font-size:12.5px}
+.switch{position:relative;width:42px;height:24px;flex:none}
+.switch input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer}
+.switch i{position:absolute;inset:0;background:#3a4059;border-radius:24px;transition:background .2s;pointer-events:none}
+.switch i::after{content:"";position:absolute;left:3px;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .2s}
+.switch input:checked + i{background:var(--gold)}
+.switch input:checked + i::after{transform:translateX(18px);background:var(--gold-ink)}
+.switch input:focus-visible + i{outline:2px solid var(--gold);outline-offset:2px}
+
+/* Mehrfachauswahl (Dropdown) */
+.ms{position:relative}
+.ms-btn{display:flex;align-items:center;gap:8px;text-align:left;cursor:pointer;min-height:40px}
+.ms-label{flex:1;display:flex;flex-wrap:wrap;gap:5px;min-width:0}
+.ms-btn svg.ic{width:14px;height:14px;color:var(--muted);transition:transform .2s}
+.ms.open .ms-btn{border-color:var(--gold)}
+.ms.open .ms-btn svg.ic{transform:rotate(180deg)}
+.chip-s{background:var(--raised);border:1px solid var(--rule2);border-radius:6px;padding:0 8px;font-size:13px;line-height:22px}
+.ms-pop{display:none;position:absolute;z-index:30;left:0;right:0;top:calc(100% + 6px);background:var(--slate);border:1px solid var(--rule2);border-radius:10px;padding:8px;box-shadow:0 14px 40px rgba(0,0,0,.5)}
+.ms.open .ms-pop{display:block}
+.ms-search{margin-bottom:6px}
+.ms-list{max-height:220px;overflow:auto}
+.ms-opt{display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:6px;cursor:pointer}
+.ms-opt:hover{background:var(--raised)}
+.ms-opt input{accent-color:var(--gold);width:16px;height:16px}
+.ms-opt .dot{width:10px;height:10px;border-radius:50%;flex:none}
+.ms-empty{padding:10px;color:var(--muted)}
+
+/* ---------- Einstellungs-Gruppen ---------- */
+.group{display:grid;grid-template-columns:260px minmax(0,1fr);gap:32px;padding:28px 0;border-top:1px solid var(--rule)}
+.group:first-of-type{border-top:0;padding-top:4px}
+.g-text h2{font-size:16px;margin:0 0 4px}
+.g-text p{margin:0;color:var(--muted);font-size:13.5px}
+@media(max-width:860px){.group{grid-template-columns:1fr;gap:14px}}
+.tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.tag{display:inline-flex;align-items:center;gap:6px;background:var(--raised);border:1px solid var(--rule2);border-radius:6px;padding:2px 4px 2px 10px;font-size:13px}
+.tag button{background:none;border:0;color:var(--muted);cursor:pointer;padding:2px 4px;font-size:16px;line-height:1}
+.tag button:hover{color:var(--bad)}
+.add-row{display:flex;gap:10px}
+
+/* Speicherleiste */
+.savebar{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:40;display:flex;align-items:center;gap:20px;background:var(--raised);border:1px solid var(--rule2);border-radius:12px;padding:10px 12px 10px 18px;box-shadow:0 14px 40px rgba(0,0,0,.55)}
+.savebar div{display:flex;gap:8px}
+
+/* ---------- Übersicht ---------- */
+.ledger{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--rule);border-radius:10px;margin-bottom:32px}
+.fig{padding:18px 22px;border-left:1px solid var(--rule)}
+.fig:first-child{border-left:0}
+.fig b{display:block;font:600 30px/1.1 var(--mono);letter-spacing:-.02em}
+.fig span{color:var(--muted);font-size:13px}
+@media(max-width:700px){.ledger{grid-template-columns:repeat(2,1fr)}.fig:nth-child(3){border-left:0}.fig:nth-child(n+3){border-top:1px solid var(--rule)}}
+.two{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:40px;margin-bottom:34px}
+@media(max-width:860px){.two{grid-template-columns:1fr;gap:28px}}
+h3.sec{font-size:15px;margin:0 0 14px}
+.bars{display:flex;align-items:flex-end;gap:6px;height:130px;border-bottom:1px solid var(--rule2)}
+.bar{flex:1;background:var(--gold);border-radius:3px 3px 0 0;min-height:3px;position:relative}
+.bar.zero{background:var(--rule2)}
+.bar-axis{display:flex;justify-content:space-between;color:var(--muted);font-size:12px;margin-top:6px}
+.dist{display:grid;gap:12px}
+.dist-row{display:grid;grid-template-columns:minmax(0,1fr) 40px;gap:4px 10px;align-items:center;font-size:14px}
+.dist-row .tr{grid-column:1/-1;height:6px;background:var(--raised);border-radius:3px;overflow:hidden}
+.dist-row .tr i{display:block;height:100%;background:var(--gold)}
+.dist-row b{font:600 14px var(--mono);text-align:right}
+.todo{border:1px solid var(--rule);border-radius:10px;padding:6px 18px;margin-bottom:32px}
+.todo a{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule);text-decoration:none}
+.todo a:last-child{border-bottom:0}
+.todo a:hover b{color:var(--gold)}
+.box{width:20px;height:20px;border-radius:5px;border:2px solid var(--rule2);display:grid;place-items:center;flex:none}
+.box.done{background:var(--ok);border-color:var(--ok);color:#06251a}
+.box svg.ic{width:13px;height:13px;stroke-width:3.5}
+.todo .done-t{color:var(--muted);text-decoration:line-through}
+.empty{border:1px dashed var(--rule2);border-radius:10px;padding:34px 20px;text-align:center;color:var(--muted)}
+.empty b{display:block;color:var(--text);margin-bottom:4px}
+.empty .btn{margin-top:14px}
+
+/* ---------- Tabelle ---------- */
+.tbl{width:100%;border-collapse:collapse;font-size:14px}
+.tbl th{text-align:left;color:var(--muted);font-weight:500;font-size:13px;padding:8px 12px 8px 0;border-bottom:1px solid var(--rule2)}
+.tbl td{padding:12px 12px 12px 0;border-bottom:1px solid var(--rule);vertical-align:middle}
+.tbl td:last-child,.tbl th:last-child{text-align:right;padding-right:0}
+.st{display:inline-flex;align-items:center;gap:7px}
+.st::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor}
+.st.open{color:var(--ok)}.st.closed{color:var(--muted)}
+.filters{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.filters select{width:auto;min-width:150px}.filters input{max-width:280px}
+.pager{display:flex;align-items:center;justify-content:flex-end;gap:12px;margin-top:16px;color:var(--muted);font-size:13.5px}
+.scroll-x{overflow-x:auto}
+
+/* ---------- Ticket-Typen: der Abriss ---------- */
+.ticket{--x:88px;--n:9px;display:grid;grid-template-columns:var(--x) minmax(0,1fr);background:var(--slate);border:1px solid var(--rule);border-radius:12px;margin-bottom:14px;
+  -webkit-mask:radial-gradient(circle var(--n) at var(--x) 0,#0000 97%,#000) top/100% 51% no-repeat,radial-gradient(circle var(--n) at var(--x) 100%,#0000 97%,#000) bottom/100% 51% no-repeat;
+  mask:radial-gradient(circle var(--n) at var(--x) 0,#0000 97%,#000) top/100% 51% no-repeat,radial-gradient(circle var(--n) at var(--x) 100%,#0000 97%,#000) bottom/100% 51% no-repeat}
+.ticket.open{border-color:var(--rule2)}
+.t-main{min-width:0}
+.stub{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:16px 8px;border-right:2px dashed var(--rule2);background:linear-gradient(180deg,var(--raised),var(--slate))}
+.stub-emoji{font-size:30px;line-height:1}
+.stub-no{font-size:12px;color:var(--muted)}
+.t-head{display:flex;align-items:center;gap:16px;width:100%;background:none;border:0;padding:18px 20px;text-align:left;cursor:pointer}
+.t-head:hover{background:rgba(255,255,255,.02)}
+.t-title{flex:1;min-width:0}
+.t-title b{display:block;font-size:16px}
+.t-title small{display:block;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.t-meta{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
+.t-meta span{font-size:12.5px;color:var(--muted);border:1px solid var(--rule);border-radius:6px;padding:0 8px;line-height:22px;white-space:nowrap}
+.t-head .chev{color:var(--muted);transition:transform .2s}
+.ticket.open .t-head .chev{transform:rotate(180deg)}
+.t-body{display:none;padding:6px 22px 22px;border-top:1px solid var(--rule)}
+.ticket.open .t-body{display:block}
+.t-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px;padding-top:18px;border-top:1px solid var(--rule)}
+.t-actions .sp{flex:1}
+.qrow{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) auto auto auto;gap:10px;align-items:center;margin-bottom:10px}
+.qrow label.mini{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);white-space:nowrap;cursor:pointer}
+.qrow label.mini input{accent-color:var(--gold)}
+@media(max-width:860px){
+  .ticket{--x:60px}.stub-emoji{font-size:24px}
+  .t-meta{display:none}
+  .qrow{grid-template-columns:1fr 1fr}
+}
+
+/* ---------- Panels ---------- */
+.list{border:1px solid var(--rule);border-radius:10px}
+.li{display:flex;align-items:center;gap:16px;padding:16px 18px;border-bottom:1px solid var(--rule);flex-wrap:wrap}
+.li:last-child{border-bottom:0}
+.li .info{flex:1;min-width:200px}
+.li .info b{display:block}
+.li .info small{color:var(--muted)}
+.li .acts{display:flex;gap:8px;flex-wrap:wrap}
+
+/* Discord-Vorschau */
+.dc{background:#313338;border-radius:10px;padding:16px;font-family:"gg sans","Noto Sans","Segoe UI",sans-serif;color:#dbdee1}
+.dc-embed{background:#2b2d31;border-left:4px solid #5865f2;border-radius:4px;padding:10px 14px 12px;max-width:430px}
+.dc-title{font-weight:700;color:#fff;margin-bottom:4px}
+.dc-desc{font-size:14px;white-space:pre-wrap;word-break:break-word}
+.dc-img{display:block;max-width:100%;border-radius:4px;margin-top:10px}
+.dc-foot{font-size:12px;color:#b5bac1;margin-top:10px}
+.dc-btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;max-width:430px}
+.dc-btn{display:inline-flex;align-items:center;gap:6px;border-radius:4px;padding:5px 14px;font-size:14px;font-weight:500;color:#fff;white-space:nowrap}
+.bs-Primary{background:#5865f2}.bs-Secondary{background:#4e5058}.bs-Success{background:#248046}.bs-Danger{background:#da373c}
+.dc-select{margin-top:10px;max-width:430px;background:#1e1f22;border-radius:4px;padding:9px 12px;display:flex;justify-content:space-between;color:#b5bac1;font-size:14px}
+
+/* ---------- Dialog ---------- */
+dialog{background:var(--slate);color:var(--text);border:1px solid var(--rule2);border-radius:16px;padding:0;width:min(980px,94vw);max-height:92vh;overflow:auto}
+dialog.narrow{width:min(460px,94vw)}
+dialog::backdrop{background:rgba(5,6,10,.7)}
+.dlg-head{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid var(--rule)}
+.dlg-head h2{margin:0;font-size:18px}
+.dlg-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:32px;padding:24px}
+@media(max-width:860px){.dlg-grid{grid-template-columns:1fr}}
+.dlg-prev{position:sticky;top:0;align-self:start}
+.dlg-foot{display:flex;justify-content:flex-end;gap:10px;padding:16px 24px;border-top:1px solid var(--rule)}
+.dlg-pad{padding:22px 24px}
+
+/* ---------- Sonstiges ---------- */
+.center{display:grid;place-items:center;min-height:70vh;text-align:center;padding:24px}
+.center h1{margin:0 0 6px}
+.servers{max-width:760px;margin:0 auto;padding:40px 20px}
+.srow{display:flex;align-items:center;gap:14px;padding:14px 16px;border:1px solid var(--rule);border-radius:10px;margin-bottom:10px;cursor:pointer;text-decoration:none;background:var(--slate);transition:border-color .15s}
+.srow:hover{border-color:var(--gold)}
+.srow .sic{width:42px;height:42px;border-radius:50%;background:var(--raised);display:grid;place-items:center;font-weight:700;overflow:hidden;flex:none}
+.srow .sic img{width:100%;height:100%}
+.srow .go{margin-left:auto;color:var(--muted);font-size:13.5px}
+.top{display:flex;align-items:center;gap:12px;padding:14px 24px;border-bottom:1px solid var(--rule)}
+.top .sp{flex:1}
+#toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,90px);background:var(--raised);border:1px solid var(--rule2);border-left:4px solid var(--ok);padding:11px 18px;border-radius:10px;z-index:60;max-width:90vw;transition:transform .25s;box-shadow:0 14px 40px rgba(0,0,0,.5)}
+#toast.show{transform:translate(-50%,0)}
+#toast.err{border-left-color:var(--bad)}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<dialog id="dlg"></dialog>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+'use strict';
+
+/* =========================================================
+   Helfer
+   ========================================================= */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const root = $('#root');
+const dlg = $('#dlg');
+
+const ICONS = {
+  home: '<path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/>',
+  sliders: '<path d="M4 6h8M16 6h4M4 12h4M12 12h8M4 18h10M18 18h2"/><circle cx="14" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="16" cy="18" r="2"/>',
+  ticket: '<path d="M3 9V7a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v2a3 3 0 0 0 0 6v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2a3 3 0 0 0 0-6z"/><path d="M14 6v12" stroke-dasharray="2 2"/>',
+  panel: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 10v10"/>',
+  inbox: '<path d="M3 13l3-8h12l3 8v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M3 13h5l1 3h6l1-3h5"/>',
+  grid: '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+  logout: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  trash: '<path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/>',
+  copy: '<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/>',
+  chevron: '<path d="M6 9l6 6 6-6"/>',
+  ext: '<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
+  x: '<path d="M6 6l12 12M18 6L6 18"/>',
+  check: '<path d="M5 12l5 5 9-10"/>',
+};
+const icon = (n, cls = '') => `<svg class="ic ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n] || ''}</svg>`;
+
+const fmtDate = (ts) => new Date(ts).toLocaleString('de-DE', { dateStyle: 'short', timeStyle: 'short' });
+const fmtDay = (d) => new Date(d + 'T00:00:00Z').toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', timeZone: 'UTC' });
+
+let me = null;       // { user, guilds, inviteUrl }
+let G = null;        // Daten des aktuellen Servers
+let gid = null;
+let tab = 'overview';
+let dirty = false;
+let draftType = null;
+let blacklist = [];
+const openTypes = new Set();
+const tf = { status: '', q: '', page: 1 };
+
+function toast(msg, err = false) {
+  const t = $('#toast');
+  t.textContent = msg;
+  t.className = 'show' + (err ? ' err' : '');
+  clearTimeout(toast.t);
+  toast.t = setTimeout(() => (t.className = ''), 3400);
+}
+
+async function api(path, method = 'GET', body) {
+  // Schreibende Requests senden immer JSON (der Server lehnt alles andere als CSRF-Schutz ab)
+  const write = method !== 'GET';
+  const res = await fetch('/api' + path, {
+    method,
+    headers: write ? { 'Content-Type': 'application/json' } : {},
+    body: write ? JSON.stringify(body ?? {}) : undefined,
+  });
+  if (res.status === 401) { me = null; throw new Error('Sitzung abgelaufen. Bitte neu anmelden.'); }
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Fehler ' + res.status);
+  return data;
+}
+
+async function run(btn, fn, okMsg) {
+  if (btn) btn.disabled = true;
+  try { await fn(); if (okMsg) toast(okMsg); }
+  catch (e) { toast(e.message, true); }
+  finally { if (btn) btn.disabled = false; }
+}
+
+const reload = async () => { G = await api('/guilds/' + gid); };
+
+/* =========================================================
+   Bausteine für Formulare
+   ========================================================= */
+const field = (label, control, hint = '') =>
+  `<div class="field"><label>${label}</label>${control}${hint ? `<small>${hint}</small>` : ''}</div>`;
+
+const sw = (id, title, hint, on) =>
+  `<label class="swrow"><span><b>${title}</b><small>${hint}</small></span><span class="switch"><input type="checkbox" id="${id}" ${on ? 'checked' : ''}><i></i></span></label>`;
+
+const optionsHtml = (list, value, empty) =>
+  (empty != null ? `<option value="">${esc(empty)}</option>` : '') +
+  list.map((o) => `<option value="${esc(o.id)}" ${String(o.id) === String(value) ? 'selected' : ''}>${esc(o.name)}</option>`).join('');
+
+const chanSelect = (id, list, value, empty) => `<select id="${id}">${optionsHtml(list.map((c) => ({ id: c.id, name: '# ' + c.name })), value, empty)}</select>`;
+const roleSelect = (id, value, empty) => `<select id="${id}">${optionsHtml(G.roles, value, empty)}</select>`;
+
+const multi = (id, opts, selected = [], placeholder = 'Auswählen …') => {
+  const sel = selected.map(String);
+  return `<div class="ms" data-ms="${id}" data-ph="${esc(placeholder)}">
+    <button type="button" class="ms-btn" aria-haspopup="listbox"><span class="ms-label"></span>${icon('chevron')}</button>
+    <div class="ms-pop">
+      <input type="text" class="ms-search" placeholder="Suchen" aria-label="Suchen" data-nodirty>
+      <div class="ms-list">${opts.map((o) => `<label class="ms-opt" data-name="${esc(String(o.name).toLowerCase())}" data-display="${esc(o.name)}"><input type="checkbox" value="${esc(o.id)}" ${sel.includes(String(o.id)) ? 'checked' : ''}><span class="dot" style="background:${o.color && o.color !== '#000000' ? esc(o.color) : '#5b6280'}"></span>${esc(o.name)}</label>`).join('') || '<div class="ms-empty">Keine Einträge vorhanden.</div>'}</div>
+    </div>
+  </div>`;
+};
+const getMulti = (id, scope = document) => $$(`[data-ms="${id}"] .ms-list input:checked`, scope).map((i) => i.value);
+
+function msUpdate(ms) {
+  const names = $$('.ms-list input:checked', ms).map((i) => i.closest('.ms-opt').dataset.display);
+  const label = $('.ms-label', ms);
+  if (!names.length) { label.innerHTML = `<span class="muted">${esc(ms.dataset.ph)}</span>`; return; }
+  label.innerHTML = names.slice(0, 3).map((n) => `<span class="chip-s">${esc(n)}</span>`).join('') + (names.length > 3 ? `<span class="chip-s">+${names.length - 3}</span>` : '');
+}
+const initWidgets = (scope = document) => $$('.ms', scope).forEach(msUpdate);
+
+const phChips = (target, list) =>
+  `<div class="phs">${list.map((p) => `<button type="button" class="ph mono" data-act="ins" data-target="${target}" data-ins="${p}">${p}</button>`).join('')}</div>`;
+
+const head = (title, sub, actions = '') =>
+  `<header class="head"><div><h1>${esc(title)}</h1>${sub ? `<p>${esc(sub)}</p>` : ''}</div><div>${actions}</div></header>`;
+
+const group = (title, desc, body) =>
+  `<section class="group"><div class="g-text"><h2>${title}</h2><p>${desc}</p></div><div class="g-body">${body}</div></section>`;
+
+/* =========================================================
+   Dialoge
+   ========================================================= */
+function openDialog(html, narrow = false) {
+  dlg.className = narrow ? 'narrow' : '';
+  dlg.innerHTML = html;
+  initWidgets(dlg);
+  if (!dlg.open) dlg.showModal();
+}
+const closeDialog = () => { if (dlg.open) dlg.close(); };
+dlg.addEventListener('click', (e) => { if (e.target === dlg) closeDialog(); });
+
+// Bestätigungsdialog; optional mit Textfeld. Liefert { ok, text }.
+function ask({ title, text, confirm, danger = false, input = null }) {
+  return new Promise((resolve) => {
+    openDialog(`<div class="dlg-head"><h2>${esc(title)}</h2><button class="icon-btn" data-act="dlg-cancel" aria-label="Schließen">${icon('x')}</button></div>
+      <div class="dlg-pad"><p style="margin:0 0 ${input ? 14 : 0}px">${esc(text)}</p>${input ? `<textarea id="ask-in" maxlength="500" placeholder="${esc(input)}"></textarea>` : ''}</div>
+      <div class="dlg-foot"><button class="btn quiet" data-act="dlg-cancel">Abbrechen</button><button class="btn ${danger ? 'bad' : ''}" data-act="dlg-ok">${esc(confirm)}</button></div>`, true);
+    const done = (ok) => { const text = $('#ask-in')?.value || ''; dlg.removeEventListener('close', onClose); closeDialog(); resolve({ ok, text }); };
+    const onClose = () => resolve({ ok: false, text: '' });
+    dlg.addEventListener('close', onClose, { once: true });
+    ACTIONS['dlg-ok'] = () => done(true);
+    ACTIONS['dlg-cancel'] = () => done(false);
+  });
+}
+
+/* =========================================================
+   Seiten außerhalb eines Servers
+   ========================================================= */
+function loginPage() {
+  root.innerHTML = `<div class="center"><div>
+    <svg class="ic" style="width:40px;height:40px;color:var(--gold);margin-bottom:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS.ticket}</svg>
+    <h1>Ticket Dashboard</h1>
+    <p class="muted" style="margin:0 0 22px">Melde dich mit Discord an, um deine Server zu verwalten.</p>
+    <a class="btn" href="/login" style="padding:11px 24px">Mit Discord anmelden</a>
+  </div></div>`;
+}
+
+function serversPage() {
+  root.innerHTML = `<div class="top"><a class="brand" href="/">${icon('ticket')}<span>Ticket Dashboard</span></a><span class="sp"></span>
+      <span class="muted">${esc(me.user.username)}</span><a class="icon-btn" href="/logout" title="Abmelden" aria-label="Abmelden">${icon('logout')}</a></div>
+    <div class="servers">
+      <h1 style="margin:0 0 4px;font-size:24px">Deine Server</h1>
+      <p class="muted" style="margin:0 0 22px">Hier erscheinen alle Server, auf denen du Server verwalten darfst.</p>
+      ${me.guilds.map((g) => `<a class="srow" href="#" data-guild="${g.id}" data-bot="${g.botIn}">
+        <span class="sic">${g.icon ? `<img src="https://cdn.discordapp.com/icons/${esc(g.id)}/${esc(g.icon)}.png?size=96" alt="">` : esc(g.name.slice(0, 2).toUpperCase())}</span>
+        <b>${esc(g.name)}</b><span class="go">${g.botIn ? 'Dashboard öffnen' : 'Bot einladen'}</span></a>`).join('') ||
+        '<div class="empty"><b>Keine Server gefunden</b>Du brauchst die Berechtigung „Server verwalten“.</div>'}
+    </div>`;
+  $$('.srow').forEach((a) => (a.onclick = (e) => {
+    e.preventDefault();
+    if (a.dataset.bot === 'true') location.hash = `#/g/${a.dataset.guild}/overview`;
+    else window.open(`${me.inviteUrl}&guild_id=${a.dataset.guild}&disable_guild_select=true`, '_blank');
+  }));
+}
+
+/* =========================================================
+   Server-Ansicht (Seitenleiste + Seiten)
+   ========================================================= */
+const NAV = [
+  { id: 'overview', label: 'Übersicht', icon: 'home' },
+  { id: 'settings', label: 'Einstellungen', icon: 'sliders' },
+  { id: 'types', label: 'Ticket-Typen', icon: 'ticket' },
+  { id: 'panels', label: 'Panels', icon: 'panel' },
+  { id: 'tickets', label: 'Tickets', icon: 'inbox' },
+];
+
+function buildShell() {
+  root.innerHTML = `<div class="shell">
+    <aside class="rail">
+      <a class="brand" href="/">${icon('ticket')}<span>Ticket Dashboard</span></a>
+      <select id="srv" aria-label="Server wechseln">${me.guilds.map((g) => `<option value="${g.id}" ${g.id === gid ? 'selected' : ''}>${esc(g.name)}${g.botIn ? '' : ' (Bot fehlt)'}</option>`).join('')}</select>
+      <nav class="nav">${NAV.map((n) => `<a href="#/g/${gid}/${n.id}" data-nav="${n.id}">${icon(n.icon)}<span>${n.label}</span></a>`).join('')}<hr><a href="#/">${icon('grid')}<span>Alle Server</span></a></nav>
+      <div class="rail-foot">${me.user.avatar ? `<img src="https://cdn.discordapp.com/avatars/${esc(me.user.id)}/${esc(me.user.avatar)}.png?size=64" alt="">` : ''}<span class="who">${esc(me.user.username)}</span><a href="/logout" title="Abmelden" aria-label="Abmelden">${icon('logout')}</a></div>
+    </aside>
+    <main class="main"><div id="page"></div></main>
+  </div>
+  <div class="savebar" id="savebar" hidden><span>Ungespeicherte Änderungen</span><div><button class="btn quiet sm" data-act="set-reset">Verwerfen</button><button class="btn sm" data-act="set-save">Speichern</button></div></div>`;
+  $('#srv').onchange = (e) => {
+    const g = me.guilds.find((x) => x.id === e.target.value);
+    if (g.botIn) location.hash = `#/g/${g.id}/${tab}`;
+    else { window.open(`${me.inviteUrl}&guild_id=${g.id}&disable_guild_select=true`, '_blank'); e.target.value = gid; }
+  };
+}
+
+const setDirty = (v) => { dirty = v; const b = $('#savebar'); if (b) b.hidden = !v; };
+
+const PAGES = { overview: pageOverview, settings: pageSettings, types: pageTypes, panels: pagePanels, tickets: pageTickets };
+
+async function guildView(id, wanted) {
+  if (wanted === 'general') wanted = 'settings';
+  const next = PAGES[wanted] ? wanted : 'overview';
+  const fresh = !G || gid !== id;
+  if (fresh) {
+    root.innerHTML = '<div class="center muted">Lade …</div>';
+    gid = id; G = null;
+    G = await api('/guilds/' + id);
+    draftType = null; openTypes.clear();
+    buildShell();
+  } else if (!$('#page')) {
+    buildShell();
+  } else if (next === 'overview') {
+    await reload();
+  }
+  tab = next;
+  $$('[data-nav]').forEach((a) => a.classList.toggle('on', a.dataset.nav === tab));
+  setDirty(false);
+  window.scrollTo(0, 0);
+  await PAGES[tab]();
+  initWidgets($('#page'));
+}
+
+/* ---------- Übersicht ---------- */
+function pageOverview() {
+  const s = G.stats, st = G.settings;
+  const todo = [
+    { ok: !!st.log_channel_id, text: 'Log-Kanal festlegen', go: 'settings' },
+    { ok: st.support_role_ids.length > 0, text: 'Support-Rollen festlegen', go: 'settings' },
+    { ok: G.types.length > 0, text: 'Ersten Ticket-Typ anlegen', go: 'types' },
+    { ok: G.panels.length > 0, text: 'Panel in einen Kanal senden', go: 'panels' },
+  ];
+  const missing = todo.some((x) => !x.ok);
+  const maxDay = Math.max(1, ...G.daily.map((d) => d.count));
+  const rows = [
+    ...G.types.map((t) => ({ name: `${t.emoji ? t.emoji + ' ' : ''}${t.name}`, ...(G.typeStats[t.id] || { total: 0, open: 0 }) })),
+    ...(G.typeStats['null'] ? [{ name: 'Gelöschte Kategorien', ...G.typeStats['null'] }] : []),
+  ];
+  const maxType = Math.max(1, ...rows.map((r) => r.total));
+
+  $('#page').innerHTML = head('Übersicht', G.guild.name) +
+    `<div class="ledger">
+      <div class="fig"><b>${s.open}</b><span>Offene Tickets</span></div>
+      <div class="fig"><b>${s.closed}</b><span>Geschlossen</span></div>
+      <div class="fig"><b>${s.total}</b><span>Insgesamt</span></div>
+      <div class="fig"><b>${G.types.length}</b><span>Ticket-Typen</span></div>
+    </div>` +
+    (missing ? `<h3 class="sec">Noch einzurichten</h3><div class="todo">${todo.map((x) =>
+      `<a href="#/g/${gid}/${x.go}"><span class="box ${x.ok ? 'done' : ''}">${x.ok ? icon('check') : ''}</span><b class="${x.ok ? 'done-t' : ''}" style="font-weight:600">${x.text}</b></a>`).join('')}</div>` : '') +
+    `<div class="two">
+      <div><h3 class="sec">Neue Tickets in den letzten 14 Tagen</h3>
+        <div class="bars">${G.daily.map((d) => `<div class="bar ${d.count ? '' : 'zero'}" style="height:${d.count ? Math.max(6, Math.round(d.count / maxDay * 100)) : 0}%" title="${fmtDay(d.day)}: ${d.count}"></div>`).join('')}</div>
+        <div class="bar-axis"><span>${fmtDay(G.daily[0].day)}</span><span>${fmtDay(G.daily[G.daily.length - 1].day)}</span></div></div>
+      <div><h3 class="sec">Nach Kategorie</h3>
+        ${rows.length ? `<div class="dist">${rows.map((r) => `<div class="dist-row"><span>${esc(r.name)}</span><b>${r.total}</b><div class="tr"><i style="width:${Math.round(r.total / maxType * 100)}%"></i></div></div>`).join('')}</div>` : '<p class="muted" style="margin:0">Noch keine Typen angelegt.</p>'}</div>
+    </div>
+    <h3 class="sec">Zuletzt geöffnet</h3>` +
+    (G.recent.length ? ticketTable(G.recent, false) : '<div class="empty"><b>Noch keine Tickets</b>Sobald jemand ein Ticket öffnet, erscheint es hier.</div>');
+}
+
+/* ---------- Einstellungen ---------- */
+function pageSettings() {
+  const s = G.settings;
+  blacklist = [...s.blacklist_user_ids];
+  $('#page').innerHTML = head('Einstellungen', 'Gelten für alle Ticket-Typen, solange ein Typ nichts Eigenes festlegt.') +
+    group('Kanäle und Team', 'Wohin Protokolle gehen und wer Tickets sehen darf.',
+      field('Log-Kanal', chanSelect('s-log', G.textChannels, s.log_channel_id, 'Kein Log-Kanal'), 'Hier erscheinen geöffnete und geschlossene Tickets samt Transcript.') +
+      field('Support-Rollen', multi('s-support', G.roles, s.support_role_ids, 'Rollen auswählen'), 'Diese Rollen sehen und bearbeiten jedes Ticket.')) +
+    group('Aussehen', 'Name des Ticket-Kanals und die erste Nachricht im Ticket.',
+      `<div class="cols">${field('Kanal-Name', `<input type="text" id="s-format" maxlength="60" value="${esc(s.name_format)}">${phChips('s-format', ['{number}', '{user}', '{type}'])}`)}
+        ${field('Farbe der Nachricht', `<input type="color" id="s-color" value="${esc(s.embed_color)}">`)}</div>` +
+      field('Willkommensnachricht', `<textarea id="s-welcome" maxlength="1500">${esc(s.welcome_message)}</textarea>${phChips('s-welcome', ['{user}', '{username}', '{type}', '{number}'])}`)) +
+    group('Regeln', 'Limits und Verhalten im Ticket.',
+      `<div class="cols">${field('Offene Tickets pro Nutzer', `<input type="number" id="s-max" min="1" max="10" value="${s.max_tickets_per_user}">`)}
+        ${field('Löschen nach dem Schließen', `<div class="suffix"><input type="number" id="s-delay" min="0" max="60" value="${s.delete_delay}"><span class="muted">Sekunden</span></div>`)}</div>` +
+      sw('s-claim', 'Übernehmen-Button', 'Teammitglieder können ein Ticket für sich beanspruchen.', s.claim_enabled) +
+      sw('s-confirm', 'Schließen bestätigen', 'Vor dem Schließen kommt eine Rückfrage.', s.close_confirm) +
+      sw('s-userclose', 'Ersteller darf schließen', 'Mitglieder können ihr eigenes Ticket beenden.', s.allow_user_close) +
+      sw('s-dm', 'Transcript per Direktnachricht', 'Der Ersteller bekommt das Protokoll beim Schließen.', s.dm_transcript) +
+      sw('s-ping', 'Team beim Öffnen erwähnen', 'Support-Rollen werden in der ersten Nachricht angepingt.', s.ping_support)) +
+    group('Automatik', 'Inaktive Tickets räumen sich selbst auf.',
+      field('Inaktive Tickets schließen nach', `<div class="suffix"><input type="number" id="s-auto" min="0" max="720" value="${s.auto_close_hours}"><span class="muted">Stunden ohne Nachricht</span></div>`, '0 schaltet die Funktion aus. Geprüft wird alle 10 Minuten.')) +
+    group('Gesperrte Nutzer', 'Diese Nutzer können keine Tickets öffnen.',
+      `<div class="tags" id="bl-tags"></div><div class="add-row"><input type="text" id="bl-in" inputmode="numeric" placeholder="Nutzer-ID einfügen" data-nodirty><button class="btn quiet" data-act="bl-add">Sperren</button></div>
+       <small class="hint">Die ID bekommst du per Rechtsklick auf den Nutzer, wenn der Entwicklermodus in Discord aktiv ist.</small>`);
+  renderBlacklist();
+}
+
+function renderBlacklist() {
+  const el = $('#bl-tags');
+  if (!el) return;
+  el.innerHTML = blacklist.length
+    ? blacklist.map((id) => `<span class="tag mono">${esc(id)}<button type="button" data-act="bl-rm" data-id="${esc(id)}" aria-label="Entsperren">×</button></span>`).join('')
+    : '<span class="muted">Niemand gesperrt.</span>';
+}
+
+async function saveSettings(btn) {
+  await run(btn, async () => {
+    G.settings = await api(`/guilds/${gid}/settings`, 'PUT', {
+      log_channel_id: $('#s-log').value || null,
+      support_role_ids: getMulti('s-support'),
+      name_format: $('#s-format').value,
+      embed_color: $('#s-color').value,
+      welcome_message: $('#s-welcome').value,
+      max_tickets_per_user: Number($('#s-max').value),
+      delete_delay: Number($('#s-delay').value),
+      claim_enabled: $('#s-claim').checked,
+      close_confirm: $('#s-confirm').checked,
+      allow_user_close: $('#s-userclose').checked,
+      dm_transcript: $('#s-dm').checked,
+      ping_support: $('#s-ping').checked,
+      auto_close_hours: Number($('#s-auto').value),
+      blacklist_user_ids: blacklist,
+    });
+    setDirty(false);
+  }, 'Einstellungen gespeichert');
+}
+
+/* ---------- Ticket-Typen ---------- */
+const BUTTON_STYLES = [
+  { id: 'Primary', name: 'Blau' }, { id: 'Secondary', name: 'Grau' },
+  { id: 'Success', name: 'Grün' }, { id: 'Danger', name: 'Rot' },
+];
+const blankType = () => ({ id: 'new', name: '', emoji: '', description: '', button_style: 'Primary', category_id: '', support_role_ids: [], required_role_id: '', max_tickets_per_user: 0, name_format: '', welcome_message: '', questions: [] });
+
+const qRow = (q = {}) => `<div class="qrow">
+  <input type="text" class="q-label" maxlength="45" placeholder="Frage, z. B. Wie heißt du im Spiel?" value="${esc(q.label || '')}" aria-label="Frage">
+  <input type="text" class="q-ph" maxlength="100" placeholder="Hinweistext (optional)" value="${esc(q.placeholder || '')}" aria-label="Hinweistext">
+  <label class="mini"><input type="checkbox" class="q-req" ${q.required ? 'checked' : ''}>Pflicht</label>
+  <label class="mini"><input type="checkbox" class="q-long" ${q.long ? 'checked' : ''}>Langer Text</label>
+  <button type="button" class="icon-btn" data-act="q-del" aria-label="Frage entfernen">${icon('x')}</button>
+</div>`;
+
+function typeForm(t) {
+  const k = (n) => `t-${t.id}-${n}`;
+  const isNew = t.id === 'new';
+  return `
+    <div class="cols" style="margin-top:18px">${field('Name', `<input type="text" id="${k('name')}" maxlength="80" value="${esc(t.name)}" placeholder="z. B. Support">`)}
+      ${field('Emoji', `<input type="text" id="${k('emoji')}" maxlength="64" value="${esc(t.emoji || '')}" placeholder="🎫">`, 'Optional. Ein normales Emoji oder ein Server-Emoji.')}</div>
+    ${field('Beschreibung', `<input type="text" id="${k('desc')}" maxlength="100" value="${esc(t.description || '')}" placeholder="Wird im Auswahlmenü angezeigt">`)}
+    <div class="cols">${field('Button-Farbe', `<select id="${k('style')}">${optionsHtml(BUTTON_STYLES, t.button_style)}</select>`)}
+      ${field('Discord-Kategorie', `<select id="${k('cat')}">${optionsHtml(G.categories.map((c) => ({ id: c.id, name: c.name })), t.category_id, 'Keine Kategorie')}</select>`, 'Dort werden die Ticket-Kanäle angelegt.')}</div>
+    ${field('Zusätzliche Support-Rollen', multi(k('roles'), G.roles, t.support_role_ids, 'Keine zusätzlichen Rollen'), 'Sehen nur Tickets dieses Typs, zusätzlich zum allgemeinen Team.')}
+    <div class="cols">${field('Nur für Mitglieder mit Rolle', `<select id="${k('reqrole')}">${optionsHtml(G.roles, t.required_role_id, 'Alle dürfen')}</select>`)}
+      ${field('Tickets pro Nutzer in diesem Typ', `<input type="number" id="${k('max')}" min="0" max="10" value="${t.max_tickets_per_user || 0}">`, '0 bedeutet: nur das allgemeine Limit gilt.')}</div>
+    ${field('Eigener Kanal-Name', `<input type="text" id="${k('fmt')}" maxlength="60" value="${esc(t.name_format || '')}" placeholder="Leer = allgemeines Format">${phChips(k('fmt'), ['{number}', '{user}', '{type}'])}`)}
+    ${field('Eigene Willkommensnachricht', `<textarea id="${k('welcome')}" maxlength="1500" placeholder="Leer = allgemeine Nachricht">${esc(t.welcome_message || '')}</textarea>${phChips(k('welcome'), ['{user}', '{username}', '{type}', '{number}'])}`)}
+    <div class="field"><span class="lbl">Fragen vor dem Ticket</span>
+      <small style="margin:0 0 10px">Bis zu 5 Fragen. Mitglieder füllen ein Formular aus, die Antworten stehen in der ersten Nachricht des Tickets.</small>
+      <div class="qlist" id="${k('q')}">${(t.questions || []).map(qRow).join('')}</div>
+      <button type="button" class="btn quiet sm" data-act="q-add">${icon('plus')}Frage hinzufügen</button></div>
+    <div class="t-actions">
+      <button class="btn" data-act="type-save">${isNew ? 'Typ anlegen' : 'Änderungen speichern'}</button>
+      ${isNew ? '<button class="btn quiet" data-act="type-cancel">Abbrechen</button>' : `<button class="btn quiet" data-act="type-dup">${icon('copy')}Duplizieren</button><span class="sp"></span><button class="btn bad" data-act="type-del">${icon('trash')}Löschen</button>`}
+    </div>`;
+}
+
+function typeCard(t) {
+  const isNew = t.id === 'new';
+  const stats = G.typeStats[t.id] || { total: 0, open: 0 };
+  const cat = G.categories.find((c) => c.id === t.category_id);
+  const role = G.roles.find((r) => r.id === t.required_role_id);
+  const open = openTypes.has(String(t.id));
+  const meta = [
+    cat ? `Kategorie ${esc(cat.name)}` : '',
+    t.questions?.length ? `${t.questions.length} ${t.questions.length === 1 ? 'Frage' : 'Fragen'}` : '',
+    role ? `nur ${esc(role.name)}` : '',
+    !isNew ? `${stats.open} offen` : '',
+  ].filter(Boolean).map((m) => `<span>${m}</span>`).join('');
+  return `<article class="ticket ${open ? 'open' : ''}" data-type="${t.id}">
+    <div class="stub"><span class="stub-emoji">${esc(t.emoji || '🎫')}</span><span class="stub-no mono">${isNew ? 'neu' : '№ ' + String(t.id).padStart(2, '0')}</span></div>
+    <div class="t-main">
+      <button type="button" class="t-head" data-act="type-toggle" aria-expanded="${open}">
+        <span class="t-title"><b>${esc(t.name || 'Neuer Ticket-Typ')}</b><small>${esc(t.description || 'Keine Beschreibung')}</small></span>
+        <span class="t-meta">${meta}</span>
+        <span class="dc-btn bs-${esc(t.button_style)}">${esc(t.emoji || '')} ${esc(t.name || 'Name')}</span>
+        ${icon('chevron', 'chev')}
+      </button>
+      <div class="t-body">${typeForm(t)}</div>
+    </div>
+  </article>`;
+}
+
+function pageTypes() {
+  $('#page').innerHTML = head('Ticket-Typen', 'Jeder Typ ist eine Kategorie mit eigenen Regeln. Klappe einen Typ auf, um ihn zu bearbeiten.',
+    `<button class="btn" data-act="type-new">${icon('plus')}Neuer Typ</button>`) +
+    (draftType ? typeCard(draftType) : '') +
+    (G.types.length ? G.types.map(typeCard).join('') :
+      (draftType ? '' : '<div class="empty"><b>Noch kein Ticket-Typ</b>Ein Typ legt fest, welche Kategorien Mitglieder auswählen können, zum Beispiel Support oder Bewerbung.<br><button class="btn" data-act="type-new">Ersten Typ anlegen</button></div>'));
+}
+
+function collectType(id) {
+  const v = (n) => $(`#t-${id}-${n}`).value;
+  return {
+    name: v('name'), emoji: v('emoji'), description: v('desc'), button_style: v('style'),
+    category_id: v('cat') || null, support_role_ids: getMulti(`t-${id}-roles`),
+    required_role_id: v('reqrole') || null, max_tickets_per_user: Number(v('max') || 0),
+    name_format: v('fmt'), welcome_message: v('welcome'),
+    questions: $$('.qrow', $(`#t-${id}-q`)).map((r) => ({
+      label: $('.q-label', r).value, placeholder: $('.q-ph', r).value,
+      required: $('.q-req', r).checked, long: $('.q-long', r).checked,
+    })),
+  };
+}
+
+/* ---------- Panels ---------- */
+function pagePanels() {
+  const chName = (id) => (G.textChannels.find((c) => c.id === id) || { name: 'unbekannt' }).name;
+  $('#page').innerHTML = head('Panels', 'Ein Panel ist die Nachricht, über die Mitglieder ein Ticket öffnen.',
+    `<button class="btn" data-act="panel-new">${icon('plus')}Neues Panel</button>`) +
+    (G.panels.length ? `<div class="list">${G.panels.map((p) => `<div class="li" data-panel="${p.id}">
+      <div class="info"><b>${esc(p.title)}</b><small>#${esc(chName(p.channel_id))}, ${p.style === 'select' ? 'Auswahlmenü' : 'Buttons'}, ${p.type_ids.length} ${p.type_ids.length === 1 ? 'Typ' : 'Typen'}</small></div>
+      <div class="acts">
+        ${p.message_id ? `<a class="btn quiet sm" target="_blank" rel="noopener" href="https://discord.com/channels/${esc(gid)}/${esc(p.channel_id)}/${esc(p.message_id)}">${icon('ext')}In Discord</a>` : ''}
+        <button class="btn quiet sm" data-act="panel-edit">Bearbeiten</button>
+        <button class="btn quiet sm" data-act="panel-refresh">Neu senden</button>
+        <button class="btn bad sm" data-act="panel-del">${icon('trash')}Löschen</button>
+      </div></div>`).join('')}</div>` :
+      `<div class="empty"><b>Noch kein Panel</b>${G.types.length ? 'Sende ein Panel in einen Kanal, damit Mitglieder Tickets öffnen können.' : 'Lege zuerst unter „Ticket-Typen“ mindestens einen Typ an.'}<br>
+        <button class="btn" data-act="${G.types.length ? 'panel-new' : 'goto-types'}">${G.types.length ? 'Erstes Panel senden' : 'Zu den Ticket-Typen'}</button></div>`);
+}
+
+const safeUrl = (u) => { try { const x = new URL(u); return x.protocol === 'https:' ? x.href : ''; } catch { return ''; } };
+
+function panelPreview() {
+  const val = (id) => $(id)?.value ?? '';
+  const ids = getMulti('p-types', dlg).map(Number);
+  const types = G.types.filter((t) => ids.includes(t.id));
+  const img = safeUrl(val('#p-img'));
+  const style = val('#p-style');
+  $('#pv').innerHTML = `<div class="dc"><div class="dc-embed" style="border-left-color:${esc(val('#p-color') || '#5865f2')}">
+      <div class="dc-title">${esc(val('#p-title') || 'Titel')}</div>
+      ${val('#p-desc') ? `<div class="dc-desc">${esc(val('#p-desc'))}</div>` : ''}
+      ${img ? `<img class="dc-img" src="${esc(img)}" alt="">` : ''}
+      ${val('#p-foot') ? `<div class="dc-foot">${esc(val('#p-foot'))}</div>` : ''}
+    </div>
+    ${style === 'select'
+      ? `<div class="dc-select"><span>Wähle eine Kategorie …</span>${icon('chevron')}</div>`
+      : `<div class="dc-btns">${types.map((t) => `<span class="dc-btn bs-${esc(t.button_style)}">${esc(t.emoji || '')} ${esc(t.name)}</span>`).join('') || '<span class="muted">Keine Typen ausgewählt</span>'}</div>`}
+  </div>`;
+}
+
+let editingPanel = null;
+function openPanelEditor(p) {
+  editingPanel = p;
+  const d = p || { id: 'new', channel_id: '', title: 'Support', description: 'Wähle eine Kategorie, um ein Ticket zu öffnen.', footer: '', color: G.settings.embed_color, image_url: '', style: 'buttons', type_ids: G.types.map((t) => t.id) };
+  openDialog(`<div class="dlg-head"><h2>${p ? 'Panel bearbeiten' : 'Neues Panel'}</h2><button class="icon-btn" data-act="dlg-close" aria-label="Schließen">${icon('x')}</button></div>
+    <div class="dlg-grid">
+      <div>
+        <div class="cols">${field('Kanal', chanSelect('p-chan', G.textChannels, d.channel_id, 'Kanal wählen'))}
+          ${field('Darstellung', `<select id="p-style">${optionsHtml([{ id: 'buttons', name: 'Buttons' }, { id: 'select', name: 'Auswahlmenü' }], d.style)}</select>`)}</div>
+        ${field('Ticket-Typen im Panel', multi('p-types', G.types.map((t) => ({ id: String(t.id), name: `${t.emoji ? t.emoji + ' ' : ''}${t.name}` })), d.type_ids, 'Typen auswählen'))}
+        ${field('Titel', `<input type="text" id="p-title" maxlength="256" value="${esc(d.title)}">`)}
+        ${field('Text', `<textarea id="p-desc" maxlength="2000">${esc(d.description || '')}</textarea>`)}
+        <div class="cols">${field('Fußzeile', `<input type="text" id="p-foot" maxlength="200" value="${esc(d.footer || '')}">`)}
+          ${field('Farbe', `<input type="color" id="p-color" value="${esc(d.color)}">`)}</div>
+        ${field('Bild-Link', `<input type="url" id="p-img" maxlength="500" placeholder="https://" value="${esc(d.image_url || '')}">`, 'Optional. Muss mit https:// beginnen.')}
+      </div>
+      <div class="dlg-prev"><span class="lbl">Vorschau in Discord</span><div id="pv"></div></div>
+    </div>
+    <div class="dlg-foot"><button class="btn quiet" data-act="dlg-close">Abbrechen</button><button class="btn" data-act="panel-save">${p ? 'Speichern und aktualisieren' : 'Panel senden'}</button></div>`);
+  panelPreview();
+}
+dlg.addEventListener('input', () => { if ($('#pv')) panelPreview(); });
+dlg.addEventListener('change', () => { if ($('#pv')) panelPreview(); });
+
+function panelBody() {
+  return {
+    channel_id: $('#p-chan').value, style: $('#p-style').value, title: $('#p-title').value,
+    description: $('#p-desc').value, footer: $('#p-foot').value, color: $('#p-color').value,
+    image_url: $('#p-img').value, type_ids: getMulti('p-types', dlg).map(Number),
+  };
+}
+
+/* ---------- Tickets ---------- */
+function ticketTable(rows, withActions = true) {
+  return `<div class="scroll-x"><table class="tbl"><thead><tr><th>Nr.</th><th>Status</th><th>Nutzer</th><th>Typ</th><th>Erstellt</th><th>Geschlossen</th>${withActions ? '<th></th>' : ''}</tr></thead><tbody>
+    ${rows.map((t) => `<tr data-ticket="${t.id}" data-number="${t.number}">
+      <td class="mono">${String(t.number).padStart(4, '0')}</td>
+      <td><span class="st ${t.status}">${t.status === 'open' ? 'Offen' : 'Geschlossen'}</span></td>
+      <td title="${esc(t.user_id)}">${esc(t.user)}</td><td>${esc(t.type)}</td>
+      <td>${fmtDate(t.created_at)}</td><td ${t.close_reason ? `title="${esc(t.close_reason)}"` : ''}>${t.closed_at ? fmtDate(t.closed_at) : '–'}</td>
+      ${withActions ? `<td>${t.status === 'open' ? `<a class="btn quiet sm" target="_blank" rel="noopener" href="https://discord.com/channels/${esc(gid)}/${esc(t.channel_id)}">${icon('ext')}Öffnen</a> <button class="btn bad sm" data-act="ticket-close">Schließen</button>` : ''}</td>` : ''}
+    </tr>`).join('')}
+  </tbody></table></div>`;
+}
+
+async function pageTickets() {
+  $('#page').innerHTML = head('Tickets', 'Alle Tickets dieses Servers.') +
+    `<div class="filters">
+      <select id="f-status" aria-label="Status">${optionsHtml([{ id: 'open', name: 'Nur offene' }, { id: 'closed', name: 'Nur geschlossene' }], tf.status, 'Alle Tickets')}</select>
+      <input type="text" id="f-q" inputmode="numeric" placeholder="Ticket-Nr. oder Nutzer-ID" value="${esc(tf.q)}" data-nodirty>
+    </div><div id="tk">Lade …</div>`;
+  await loadTickets();
+}
+
+async function loadTickets() {
+  const qs = new URLSearchParams({ status: tf.status, q: tf.q, page: String(tf.page) });
+  let r;
+  try { r = await api(`/guilds/${gid}/tickets?${qs}`); } catch (e) { $('#tk').textContent = e.message; return; }
+  tf.page = r.page;
+  $('#tk').innerHTML = r.rows.length
+    ? ticketTable(r.rows) + `<div class="pager"><span>${r.total} ${r.total === 1 ? 'Ticket' : 'Tickets'}, Seite ${r.page} von ${r.pages}</span>
+        <button class="btn quiet sm" data-act="pg-prev" ${r.page <= 1 ? 'disabled' : ''}>Zurück</button><button class="btn quiet sm" data-act="pg-next" ${r.page >= r.pages ? 'disabled' : ''}>Weiter</button></div>`
+    : `<div class="empty"><b>${tf.status || tf.q ? 'Keine Treffer' : 'Noch keine Tickets'}</b>${tf.status || tf.q ? 'Ändere den Filter oder die Suche.' : 'Sobald jemand ein Ticket öffnet, erscheint es hier.'}</div>`;
+}
+
+/* =========================================================
+   Aktionen (per Klick auf [data-act])
+   ========================================================= */
+const typeIdOf = (el) => el.closest('[data-type]')?.dataset.type;
+const ACTIONS = {
+  'type-toggle': (el) => {
+    const card = el.closest('.ticket');
+    const open = card.classList.toggle('open');
+    el.setAttribute('aria-expanded', String(open));
+    open ? openTypes.add(card.dataset.type) : openTypes.delete(card.dataset.type);
+  },
+  'type-new': () => { draftType = blankType(); openTypes.add('new'); pageTypes(); initWidgets($('#page')); window.scrollTo(0, 0); },
+  'type-cancel': () => { draftType = null; openTypes.delete('new'); pageTypes(); initWidgets($('#page')); },
+  'type-save': (el) => {
+    const id = typeIdOf(el);
+    return run(el, async () => {
+      const res = await api(`/guilds/${gid}/types${id === 'new' ? '' : '/' + id}`, id === 'new' ? 'POST' : 'PUT', collectType(id));
+      draftType = null; openTypes.delete('new'); openTypes.add(String(res.id));
+      await reload(); pageTypes(); initWidgets($('#page'));
+      toast('Typ gespeichert');
+    });
+  },
+  'type-dup': (el) => {
+    const t = G.types.find((x) => String(x.id) === typeIdOf(el));
+    return run(el, async () => {
+      const copy = { ...t, name: `${t.name} (Kopie)`.slice(0, 80) };
+      const res = await api(`/guilds/${gid}/types`, 'POST', copy);
+      openTypes.add(String(res.id));
+      await reload(); pageTypes(); initWidgets($('#page'));
+      toast('Typ dupliziert');
+    });
+  },
+  'type-del': async (el) => {
+    const t = G.types.find((x) => String(x.id) === typeIdOf(el));
+    const r = await ask({ title: `„${t.name}“ löschen?`, text: 'Bestehende Tickets bleiben erhalten. Panels verlieren den Button für diesen Typ.', confirm: 'Typ löschen', danger: true });
+    if (!r.ok) return;
+    await run(null, async () => { await api(`/guilds/${gid}/types/${t.id}`, 'DELETE'); openTypes.delete(String(t.id)); await reload(); pageTypes(); initWidgets($('#page')); toast('Typ gelöscht'); });
+  },
+  'q-add': (el) => {
+    const list = $('.qlist', el.closest('.field'));
+    if ($$('.qrow', list).length >= 5) return toast('Maximal 5 Fragen pro Typ.', true);
+    list.insertAdjacentHTML('beforeend', qRow());
+    $$('.q-label', list).pop().focus();
+  },
+  'q-del': (el) => el.closest('.qrow').remove(),
+  ins: (el) => {
+    const t = $('#' + el.dataset.target);
+    const s = t.selectionStart ?? t.value.length;
+    t.setRangeText(el.dataset.ins, s, t.selectionEnd ?? s, 'end');
+    t.focus();
+    t.dispatchEvent(new Event('input', { bubbles: true }));
+  },
+  'set-save': (el) => saveSettings(el),
+  'set-reset': () => { pageSettings(); initWidgets($('#page')); setDirty(false); },
+  'bl-add': () => {
+    const input = $('#bl-in');
+    const id = input.value.trim();
+    if (!/^\d{15,25}$/.test(id)) return toast('Das ist keine gültige Nutzer-ID (15 bis 25 Ziffern).', true);
+    if (!blacklist.includes(id)) blacklist.push(id);
+    input.value = '';
+    renderBlacklist(); setDirty(true);
+  },
+  'bl-rm': (el) => { blacklist = blacklist.filter((x) => x !== el.dataset.id); renderBlacklist(); setDirty(true); },
+  'panel-new': () => {
+    if (!G.types.length) return toast('Lege zuerst einen Ticket-Typ an.', true);
+    openPanelEditor(null);
+  },
+  'goto-types': () => { location.hash = `#/g/${gid}/types`; },
+  'panel-edit': (el) => openPanelEditor(G.panels.find((p) => String(p.id) === el.closest('[data-panel]').dataset.panel)),
+  'panel-save': (el) => run(el, async () => {
+    const p = editingPanel;
+    await api(`/guilds/${gid}/panels${p ? '/' + p.id : ''}`, p ? 'PUT' : 'POST', panelBody());
+    closeDialog(); await reload(); pagePanels();
+    toast(p ? 'Panel aktualisiert' : 'Panel gesendet');
+  }),
+  'panel-refresh': (el) => {
+    const p = G.panels.find((x) => String(x.id) === el.closest('[data-panel]').dataset.panel);
+    return run(el, async () => { await api(`/guilds/${gid}/panels/${p.id}`, 'PUT', p); await reload(); pagePanels(); toast('Panel neu gesendet'); });
+  },
+  'panel-del': async (el) => {
+    const p = G.panels.find((x) => String(x.id) === el.closest('[data-panel]').dataset.panel);
+    const r = await ask({ title: `Panel „${p.title}“ löschen?`, text: 'Die Nachricht wird auch aus dem Discord-Kanal entfernt.', confirm: 'Panel löschen', danger: true });
+    if (!r.ok) return;
+    await run(null, async () => { await api(`/guilds/${gid}/panels/${p.id}`, 'DELETE'); await reload(); pagePanels(); toast('Panel gelöscht'); });
+  },
+  'ticket-close': async (el) => {
+    const tr = el.closest('tr');
+    const r = await ask({ title: `Ticket ${String(tr.dataset.number).padStart(4, '0')} schließen?`, text: 'Der Kanal wird nach dem Transcript gelöscht.', confirm: 'Ticket schließen', danger: true, input: 'Grund (optional)' });
+    if (!r.ok) return;
+    await run(null, async () => {
+      await api(`/guilds/${gid}/tickets/${tr.dataset.ticket}/close`, 'POST', { reason: r.text });
+      await reload(); await loadTickets(); toast('Ticket geschlossen');
+    });
+  },
+  'pg-prev': () => { tf.page = Math.max(1, tf.page - 1); loadTickets(); },
+  'pg-next': () => { tf.page += 1; loadTickets(); },
+  'dlg-close': () => closeDialog(),
+};
+
+document.addEventListener('click', (e) => {
+  // Mehrfachauswahl auf-/zuklappen
+  const inside = e.target.closest('.ms');
+  $$('.ms.open').forEach((m) => { if (m !== inside) m.classList.remove('open'); });
+  const msBtn = e.target.closest('.ms-btn');
+  if (msBtn) {
+    const ms = msBtn.closest('.ms');
+    ms.classList.toggle('open');
+    if (ms.classList.contains('open')) $('.ms-search', ms)?.focus();
+    return;
+  }
+  const el = e.target.closest('[data-act]');
+  if (el && ACTIONS[el.dataset.act]) {
+    e.preventDefault();
+    Promise.resolve(ACTIONS[el.dataset.act](el, e)).catch((err) => toast(err.message, true));
+  }
+});
+
+document.addEventListener('input', (e) => {
+  if (e.target.matches('.ms-search')) {
+    const q = e.target.value.toLowerCase();
+    $$('.ms-opt', e.target.closest('.ms')).forEach((o) => { o.hidden = !o.dataset.name.includes(q); });
+    return;
+  }
+  if (e.target.id === 'f-q') {
+    clearTimeout(ACTIONS._t);
+    ACTIONS._t = setTimeout(() => { tf.q = e.target.value.trim(); tf.page = 1; loadTickets(); }, 300);
+    return;
+  }
+  if (tab === 'settings' && e.target.closest('#page') && !e.target.closest('[data-nodirty]')) setDirty(true);
+});
+document.addEventListener('change', (e) => {
+  if (e.target.closest('.ms-list')) msUpdate(e.target.closest('.ms'));
+  if (e.target.id === 'f-status') { tf.status = e.target.value; tf.page = 1; loadTickets(); return; }
+  if (tab === 'settings' && e.target.closest('#page') && !e.target.closest('[data-nodirty]')) setDirty(true);
+});
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') $$('.ms.open').forEach((m) => m.classList.remove('open')); });
+
+/* =========================================================
+   Router
+   ========================================================= */
+async function render() {
+  try {
+    if (!me) {
+      try { me = await api('/me'); } catch { return loginPage(); }
+    }
+    const m = location.hash.match(/^#\/g\/(\d+)\/?([\w-]*)/);
+    if (m) return await guildView(m[1], m[2] || 'overview');
+    G = null; gid = null;
+    serversPage();
+  } catch (e) {
+    if (!me) return loginPage();
+    root.innerHTML = `<div class="center"><div><h1>Das hat nicht geklappt</h1><p class="muted">${esc(e.message)}</p><a class="btn quiet" href="#/">Zur Serverliste</a></div></div>`;
+    G = null; gid = null;
+  }
+}
+window.addEventListener('hashchange', render);
+render();
+})();
+</script>
+</body>
+</html>
