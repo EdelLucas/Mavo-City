@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ticket Bot – Support-Tickets für Discord</title>
+<meta name="description" content="Discord Ticket-Bot mit Web-Dashboard: Panels, Kategorien, Transcripts und mehr – alles bequem im Browser einstellen.">
+<style>
+:root{--bg:#17181b;--panel:#232529;--panel2:#2b2d31;--line:#383a40;--text:#dbdee1;--muted:#98a0aa;--brand:#5865f2;--brand2:#4752c4;--green:#23a559}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1040px;margin:0 auto;padding:0 20px}
+nav{position:sticky;top:0;z-index:10;background:rgba(23,24,27,.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;gap:22px;height:62px}
+.brand{font-weight:800;font-size:18px}
+nav .links{display:flex;gap:20px;color:var(--muted);font-size:15px}
+nav .links a:hover{color:#fff}
+nav .sp{flex:1}
+.btn{display:inline-block;font-weight:700;border-radius:10px;padding:10px 20px;background:var(--brand);color:#fff;border:1px solid transparent;transition:.15s}
+.btn:hover{background:var(--brand2);transform:translateY(-1px)}
+.btn.ghost{background:transparent;border-color:var(--line)}.btn.ghost:hover{background:var(--panel2)}
+.btn.big{padding:14px 28px;font-size:17px}
+.hero{padding:90px 0 70px;text-align:center;background:radial-gradient(800px 360px at 50% -40px,rgba(88,101,242,.28),transparent)}
+.hero h1{font-size:clamp(34px,6vw,58px);line-height:1.1;margin:0 0 18px;letter-spacing:-1px}
+.hero h1 em{font-style:normal;color:#8c96ff}
+.hero p{max-width:620px;margin:0 auto 32px;color:var(--muted);font-size:18px}
+.cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.count{margin-top:22px;color:var(--muted);font-size:14px;min-height:22px}
+.count b{color:var(--text)}
+section{padding:64px 0}
+h2{font-size:30px;margin:0 0 8px;letter-spacing:-.5px}
+.lead{color:var(--muted);margin:0 0 36px}
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.feat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px}
+.feat .ic{font-size:28px;margin-bottom:8px}
+.feat h3{margin:0 0 6px;font-size:18px}.feat p{margin:0;color:var(--muted);font-size:15px}
+.steps{counter-reset:s;display:grid;gap:14px}
+.step{display:flex;gap:16px;align-items:flex-start;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 20px}
+.step::before{counter-increment:s;content:counter(s);flex:none;width:34px;height:34px;border-radius:50%;background:var(--brand);display:grid;place-items:center;font-weight:800}
+.step b{display:block}.step span{color:var(--muted);font-size:15px}
+.mock{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px;max-width:520px;margin:0 auto;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.mock .emb{border-left:4px solid var(--brand);background:var(--panel2);border-radius:6px;padding:12px 16px}
+.mock .emb b{display:block;margin-bottom:4px}
+.mock .btns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.mock .btns span{padding:7px 14px;border-radius:6px;font-size:14px;font-weight:600;color:#fff}
+.band{background:var(--panel);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.final{text-align:center}
+footer{padding:30px 0;text-align:center;color:var(--muted);font-size:14px;border-top:1px solid var(--line)}
+@media(max-width:640px){nav .links{display:none}}
+</style>
+</head>
+<body>
+<nav>
+  <div class="wrap">
+    <a class="brand" href="/">🎫 <span id="botname">Ticket Bot</span></a>
+    <div class="links"><a href="#features">Funktionen</a><a href="#start">So geht's</a></div>
+    <span class="sp"></span>
+    <a class="btn ghost" id="navlogin" href="/dashboard">Dashboard</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <h1>Support-Tickets für Discord –<br><em>einfach im Browser einstellen</em></h1>
+    <p>Panels, Kategorien, Support-Rollen und Transcripts: Der Bot erledigt den Rest, du verwaltest alles bequem im Dashboard.</p>
+    <div class="cta">
+      <a class="btn big" id="invite" href="#">＋ Bot einladen</a>
+      <a class="btn big ghost" href="/dashboard">Zum Dashboard</a>
+    </div>
+    <div class="count" id="count"></div>
+  </div>
+</header>
+
+<section id="features">
+  <div class="wrap">
+    <h2>Alles, was ein Ticket-System braucht</h2>
+    <p class="lead">Ohne Befehle auswendig lernen – klick dir dein Setup zusammen.</p>
+    <div class="features">
+      <div class="feat"><div class="ic">🖱️</div><h3>Buttons oder Auswahlmenü</h3><p>Nutzer öffnen Tickets über schicke Panels. Titel, Text, Farbe und Fußzeile bestimmst du selbst.</p></div>
+      <div class="feat"><div class="ic">🗂️</div><h3>Mehrere Ticket-Kategorien</h3><p>Support, Bewerbung, Report … jede mit eigenem Emoji, Discord-Kategorie, Support-Rollen und Begrüßung.</p></div>
+      <div class="feat"><div class="ic">🔒</div><h3>Private Kanäle</h3><p>Nur Ersteller und dein Team sehen das Ticket. Mit Limit pro Nutzer gegen Spam.</p></div>
+      <div class="feat"><div class="ic">🙋</div><h3>Übernehmen &amp; Schließen</h3><p>Teammitglieder übernehmen Tickets per Klick. Schließen optional mit Bestätigung.</p></div>
+      <div class="feat"><div class="ic">📄</div><h3>Transcripts</h3><p>Beim Schließen entsteht ein HTML-Protokoll – automatisch im Log-Kanal und per DM.</p></div>
+      <div class="feat"><div class="ic">⚙️</div><h3>Komplettes Web-Dashboard</h3><p>Login mit Discord, Live-Updates der Panels und Statistiken zu offenen und geschlossenen Tickets.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <div class="mock" aria-hidden="true">
+      <div class="emb"><b>🎫 Support</b>Klicke auf einen Button, um ein Ticket zu öffnen.
+        <div class="btns"><span style="background:#5865f2">🎫 Support</span><span style="background:#23a559">📝 Bewerbung</span><span style="background:#da373c">🚨 Report</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="start">
+  <div class="wrap">
+    <h2>In drei Schritten startklar</h2>
+    <p class="lead">Dauert keine fünf Minuten.</p>
+    <div class="steps">
+      <div class="step"><div><b>Bot einladen</b><span>Klicke auf „Bot einladen“ und wähle deinen Server.</span></div></div>
+      <div class="step"><div><b>Im Dashboard anmelden</b><span>Mit Discord einloggen, Server wählen, Log-Kanal und Support-Rollen festlegen.</span></div></div>
+      <div class="step"><div><b>Panel senden</b><span>Ticket-Kategorien anlegen, Kanal wählen, „Panel senden“ – fertig.</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="final">
+  <div class="wrap">
+    <h2>Bereit für ordentlichen Support?</h2>
+    <p class="lead">Lade den Bot ein und richte dein Ticket-System in Minuten ein.</p>
+    <div class="cta"><a class="btn big" id="invite2" href="#">＋ Bot einladen</a><a class="btn big ghost" href="/dashboard">Dashboard öffnen</a></div>
+  </div>
+</section>
+
+<footer>© <span id="year"></span> <span id="botname2">Ticket Bot</span> · Nicht mit Discord Inc. verbunden.</footer>
+
+<script>
+document.getElementById('year').textContent = new Date().getFullYear();
+fetch('/api/public').then((r) => r.json()).then((d) => {
+  for (const id of ['invite', 'invite2']) document.getElementById(id).href = d.inviteUrl;
+  document.getElementById('botname').textContent = d.botName;
+  document.getElementById('botname2').textContent = d.botName;
+  document.title = d.botName + ' – Support-Tickets für Discord';
+  if (d.loggedIn) document.getElementById('navlogin').textContent = 'Zum Dashboard →';
+  else document.getElementById('navlogin').textContent = 'Login';
+  if (d.servers) document.getElementById('count').innerHTML = `Läuft auf <b>${d.servers}</b> ${d.servers === 1 ? 'Server' : 'Servern'}`;
+}).catch(() => {
+  for (const id of ['invite', 'invite2']) document.getElementById(id).style.display = 'none';
+});
+</script>
+</body>
+</html>
