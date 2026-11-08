@@ -1,0 +1,121 @@
+/* ==========================================================
+   Mavo City – Admin-Bereich
+   ========================================================== */
+.admin-badge {
+  font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em;
+  background: var(--danger); color: #fff; padding: .15em .5em; border-radius: 6px; margin-left: 4px; vertical-align: middle;
+}
+.admin-user { margin-left: auto; display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: .9rem; }
+.admin-user img, .admin-user .forum-user__avatar { width: 30px; height: 30px; border-radius: 50%; }
+
+.admin-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+.count:not(:empty) {
+  background: var(--danger); color: #fff; border-radius: 999px; font-size: .75rem; padding: 0 .5em; margin-left: 4px;
+}
+
+.notice {
+  border: 1px solid var(--border); border-left: 4px solid var(--accent); background: var(--surface);
+  border-radius: 0 var(--radius) var(--radius) 0; padding: 16px 20px; margin-bottom: 24px; color: var(--muted);
+}
+.notice strong { color: var(--text); }
+.notice pre {
+  background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px;
+  overflow-x: auto; color: var(--accent-2); font-size: .85rem; margin: 10px 0 0;
+}
+.notice--warn { border-left-color: var(--danger); }
+
+/* ---------- Layout ---------- */
+.admin-layout { display: grid; grid-template-columns: 220px 1fr; gap: 24px; align-items: start; }
+.admin-sections { display: grid; gap: 2px; position: sticky; top: calc(var(--header-h) + 16px); }
+.admin-sections button {
+  display: flex; justify-content: space-between; gap: 8px; align-items: center;
+  background: none; border: 0; color: var(--text); font: inherit; text-align: left;
+  padding: 9px 12px; border-radius: 8px; cursor: pointer;
+}
+.admin-sections button:hover { background: var(--surface); }
+.admin-sections button.is-active { background: var(--surface); color: var(--accent); font-weight: 600; }
+.admin-sections .dirty { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+
+.admin-editor { min-width: 0; }
+.editor-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+.editor-head h2 { margin: 0; }
+.editor-head p { margin: 4px 0 0; color: var(--muted); font-size: .9rem; }
+
+/* ---------- Einträge ---------- */
+.items { display: grid; gap: 10px; }
+.item { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.item[open] { border-color: #3a4256; }
+.item > summary {
+  display: flex; align-items: center; gap: 10px; padding: 12px 14px; cursor: pointer; list-style: none;
+}
+.item > summary::-webkit-details-marker { display: none; }
+.item > summary::before { content: "▸"; color: var(--muted); transition: transform .2s; }
+.item[open] > summary::before { transform: rotate(90deg); }
+.item__title { flex: 1; font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.item__tools { display: flex; gap: 4px; }
+.item__tools button {
+  background: var(--bg-2); border: 1px solid var(--border); color: var(--muted); border-radius: 6px;
+  width: 30px; height: 30px; cursor: pointer; font: inherit;
+}
+.item__tools button:hover { color: var(--text); border-color: var(--accent); }
+.item__tools button[data-act="del"]:hover { color: var(--danger); border-color: var(--danger); }
+.item__body { padding: 4px 16px 18px; display: grid; gap: 14px; grid-template-columns: repeat(2, 1fr); }
+
+.field { display: grid; gap: 6px; align-content: start; }
+.field--wide { grid-column: 1 / -1; }
+.field > span { font-size: .8rem; font-weight: 600; color: var(--muted); }
+.field small { color: var(--muted); font-size: .75rem; }
+.field input:not([type="checkbox"]), .field textarea, .field select {
+  width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text);
+  padding: .55em .8em; border-radius: 8px; font: inherit; font-size: .95rem;
+}
+.field textarea { min-height: 90px; resize: vertical; }
+.field textarea.big { min-height: 280px; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .85rem; }
+.field input:focus, .field textarea:focus, .field select:focus { outline: none; border-color: var(--accent); }
+.field--check { display: flex; align-items: center; gap: 8px; }
+.field-row { display: flex; gap: 8px; }
+.field-row input { flex: 1; }
+.img-preview { max-height: 90px; max-width: 160px; border-radius: 6px; border: 1px solid var(--border); object-fit: cover; }
+.md-preview { background: var(--bg); border: 1px dashed var(--border); border-radius: 8px; padding: 14px; max-height: 360px; overflow: auto; }
+
+.save-bar {
+  position: sticky; bottom: 0; z-index: 5; margin-top: 20px;
+  display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; align-items: center;
+  background: rgba(13, 15, 20, .92); backdrop-filter: blur(8px);
+  border-top: 1px solid var(--border); padding: 12px 0;
+}
+.save-bar .hint { margin-right: auto; color: var(--muted); font-size: .85rem; }
+
+.code-out {
+  width: 100%; min-height: 220px; margin-top: 12px; background: var(--bg); color: var(--accent-2);
+  border: 1px solid var(--border); border-radius: 8px; padding: 12px; font: .8rem ui-monospace, Consolas, monospace;
+}
+
+/* ---------- Tabellen (Meldungen, Quiz) ---------- */
+.admin-table { width: 100%; border-collapse: collapse; background: var(--surface); border-radius: 12px; overflow: hidden; }
+.admin-table th, .admin-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+.admin-table th { background: var(--surface-2); font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+.admin-table tr.is-done td { opacity: .5; }
+.admin-table .quote { color: var(--muted); font-size: .9rem; max-width: 420px; white-space: pre-wrap; word-break: break-word; }
+.table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; }
+
+/* ---------- Umfragen ---------- */
+.poll-admin { display: grid; gap: 12px; }
+.poll-admin .card:hover { transform: none; }
+.poll-admin__head { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: center; }
+.poll-admin__head h3 { margin: 0; }
+
+/* ---------- Karten-Auswahl ---------- */
+.map-picker { width: min(1000px, 100%); text-align: center; color: var(--muted); }
+.map-picker__canvas { position: relative; cursor: crosshair; border-radius: 12px; overflow: hidden; }
+.map-picker__canvas img { width: 100%; display: block; }
+.map-picker__dot {
+  position: absolute; width: 18px; height: 18px; border-radius: 50%; transform: translate(-50%, -50%);
+  background: var(--accent); border: 3px solid #fff; pointer-events: none;
+}
+
+@media (max-width: 860px) {
+  .admin-layout { grid-template-columns: 1fr; }
+  .admin-sections { position: static; display: flex; flex-wrap: wrap; }
+  .item__body { grid-template-columns: 1fr; }
+}

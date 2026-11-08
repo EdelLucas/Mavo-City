@@ -4,20 +4,40 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mavo City – FiveM Roleplay</title>
-  <meta name="description" content="Mavo City – German FiveM Roleplay Server. Regeln, Forum, Fraktionen und Anleitung zum Verbinden.">
+  <meta name="description" content="Mavo City – German FiveM Roleplay Server mit eigener Wirtschaft, aktiven Fraktionen, Forum, Wiki und Events. So kommst du auf den Server.">
+  <meta name="keywords" content="FiveM, GTA RP, Roleplay, German Roleplay, FiveM Server, Mavo City, GTA 5 RP">
   <meta name="theme-color" content="#0d0f14">
+  <link rel="canonical" href="https://mavocity.com/">
+  <link rel="alternate" hreflang="de" href="https://mavocity.com/">
+  <link rel="alternate" hreflang="en" href="https://mavocity.com/?lang=en">
 
   <!-- Vorschau bei Links in Discord, WhatsApp usw. -->
   <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Mavo City">
   <meta property="og:title" content="Mavo City – FiveM Roleplay">
   <meta property="og:description" content="Ernsthaftes German Roleplay mit eigener Wirtschaft und aktiven Fraktionen.">
   <meta property="og:image" content="https://mavocity.com/assets/og-image.png">
   <meta property="og:url" content="https://mavocity.com/">
+  <meta property="og:locale" content="de_DE">
   <meta name="twitter:card" content="summary_large_image">
+
+  <!-- Strukturierte Daten für Google -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Mavo City",
+    "url": "https://mavocity.com/",
+    "description": "German FiveM Roleplay Server",
+    "inLanguage": ["de", "en"],
+    "publisher": { "@type": "Organization", "name": "Mavo City", "logo": "https://mavocity.com/assets/og-image.png" }
+  }
+  </script>
 
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/pages.css">
+  <link rel="stylesheet" href="css/features.css">
   <link rel="stylesheet" href="css/forum.css">
 </head>
 <body>
@@ -35,24 +55,30 @@
       </button>
 
       <nav class="tabs" role="tablist" aria-label="Hauptnavigation">
-        <button class="tab" role="tab" data-tab="start">Start</button>
-        <button class="tab" role="tab" data-tab="verbinden">Verbinden</button>
-        <button class="tab" role="tab" data-tab="regeln">Regeln</button>
-        <button class="tab" role="tab" data-tab="fraktionen">Fraktionen</button>
+        <button class="tab" role="tab" data-tab="start" data-i18n="nav.start">Start</button>
+        <button class="tab" role="tab" data-tab="verbinden" data-i18n="nav.join">Verbinden</button>
+        <button class="tab" role="tab" data-tab="regeln" data-i18n="nav.rules">Regeln</button>
+        <button class="tab" role="tab" data-tab="fraktionen" data-i18n="nav.factions">Fraktionen</button>
         <button class="tab" role="tab" data-tab="forum">Forum</button>
-        <button class="tab" role="tab" data-tab="galerie">Galerie</button>
+        <button class="tab" role="tab" data-tab="wiki">Wiki</button>
+        <button class="tab" role="tab" data-tab="events">Events</button>
         <div class="tab-more">
-          <button class="tab tab-more__btn" aria-haspopup="true" aria-expanded="false">Mehr <span class="caret">▾</span></button>
+          <button class="tab tab-more__btn" aria-haspopup="true" aria-expanded="false"><span data-i18n="nav.more">Mehr</span> <span class="caret">▾</span></button>
           <div class="tab-more__menu">
+            <button class="tab" role="tab" data-tab="karte" data-i18n="nav.map">Stadtkarte</button>
+            <button class="tab" role="tab" data-tab="galerie" data-i18n="nav.gallery">Galerie</button>
+            <button class="tab" role="tab" data-tab="streamer">Streamer</button>
+            <button class="tab" role="tab" data-tab="quiz" data-i18n="nav.quiz">Regel-Quiz</button>
             <button class="tab" role="tab" data-tab="updates">Updates</button>
             <button class="tab" role="tab" data-tab="team">Team</button>
             <button class="tab" role="tab" data-tab="faq">FAQ</button>
-            <button class="tab" role="tab" data-tab="spenden">Unterstützen</button>
+            <button class="tab" role="tab" data-tab="spenden" data-i18n="nav.support">Unterstützen</button>
           </div>
         </div>
       </nav>
 
-      <a class="btn btn--primary btn--sm header__cta" data-tab-link="verbinden" href="#verbinden">Jetzt spielen</a>
+      <button class="lang-switch" id="langSwitch" aria-label="Sprache wechseln / Switch language">EN</button>
+      <a class="btn btn--primary btn--sm header__cta" data-tab-link="verbinden" href="#verbinden" data-i18n="cta.play">Jetzt spielen</a>
     </div>
   </header>
 
@@ -61,66 +87,82 @@
     <!-- ================= TAB: START ================= -->
     <section id="start" class="panel" role="tabpanel">
       <div class="hero">
+        <div class="hero__slides" id="heroSlides" aria-hidden="true"></div>
         <div class="container hero__inner">
           <img class="hero__logo" src="assets/logo.svg" alt="Mavo City Logo" width="96" height="96">
           <span class="badge"><span class="dot" id="statusDot"></span><span id="statusText">Status wird geladen…</span></span>
-          <h1>Willkommen in <span class="accent">Mavo City</span></h1>
-          <p class="hero__lead">Ernsthaftes German Roleplay mit eigener Wirtschaft, aktiven Fraktionen und einem Team, das zuhört.</p>
+          <h1 data-i18n="hero.title">Willkommen in <span class="accent">Mavo City</span></h1>
+          <p class="hero__lead" data-i18n="hero.lead">Ernsthaftes German Roleplay mit eigener Wirtschaft, aktiven Fraktionen und einem Team, das zuhört.</p>
           <div class="hero__actions">
-            <a class="btn btn--primary" data-tab-link="verbinden" href="#verbinden">So kommst du drauf</a>
-            <a class="btn btn--ghost js-discord" href="#" target="_blank" rel="noopener">Discord beitreten</a>
+            <a class="btn btn--primary" data-tab-link="verbinden" href="#verbinden" data-i18n="hero.howto">So kommst du drauf</a>
+            <a class="btn btn--ghost js-discord" href="#" target="_blank" rel="noopener" data-i18n="discord.join">Discord beitreten</a>
           </div>
           <div class="stats">
-            <div class="stat"><span class="stat__value" id="statPlayers">–</span><span class="stat__label">Spieler online</span></div>
+            <div class="stat"><span class="stat__value" id="statPlayers">–</span><span class="stat__label" data-i18n="stats.online">Spieler online</span></div>
             <div class="stat"><span class="stat__value" id="statMax">–</span><span class="stat__label">Slots</span></div>
-            <div class="stat"><span class="stat__value">18+</span><span class="stat__label">Mindestalter</span></div>
+            <div class="stat"><span class="stat__value">18+</span><span class="stat__label" data-i18n="stats.age">Mindestalter</span></div>
           </div>
+          <details class="playerlist" id="playerList" hidden>
+            <summary data-i18n="stats.who">Wer ist gerade online?</summary>
+            <ul id="playerListItems"></ul>
+          </details>
         </div>
       </div>
 
       <div class="container section">
-        <h2 class="section__title">Was dich erwartet</h2>
+        <h2 class="section__title" data-i18n="start.expect">Was dich erwartet</h2>
         <div class="grid grid--3">
           <article class="card">
             <div class="card__icon">🚓</div>
-            <h3>Staatliche Fraktionen</h3>
-            <p>LSPD, Rettungsdienst und Justiz mit Ausbildung, Rängen und echten Abläufen.</p>
+            <div data-i18n="start.card1"><h3>Staatliche Fraktionen</h3>
+            <p>LSPD, Rettungsdienst und Justiz mit Ausbildung, Rängen und echten Abläufen.</p></div>
           </article>
           <article class="card">
             <div class="card__icon">💼</div>
-            <h3>Eigene Wirtschaft</h3>
-            <p>Firmen gründen, Immobilien kaufen, handeln – die Stadt lebt von ihren Bürgern.</p>
+            <div data-i18n="start.card2"><h3>Eigene Wirtschaft</h3>
+            <p>Firmen gründen, Immobilien kaufen, handeln – die Stadt lebt von ihren Bürgern.</p></div>
           </article>
           <article class="card">
             <div class="card__icon">🕶️</div>
-            <h3>Crime mit Tiefgang</h3>
-            <p>Gangs und Organisationen mit Gebieten, Ruf und Konsequenzen.</p>
+            <div data-i18n="start.card3"><h3>Crime mit Tiefgang</h3>
+            <p>Gangs und Organisationen mit Gebieten, Ruf und Konsequenzen.</p></div>
           </article>
         </div>
       </div>
 
       <div class="container section split">
         <div>
-          <h2 class="section__title">Neuigkeiten</h2>
+          <h2 class="section__title" data-i18n="start.news">Neuigkeiten</h2>
           <div class="news" id="newsList"></div>
-          <a class="more-link" href="#updates" data-tab-link="updates">Alle Updates ansehen →</a>
+          <a class="more-link" href="#updates" data-tab-link="updates" data-i18n="start.allUpdates">Alle Updates ansehen →</a>
         </div>
-        <div>
-          <h2 class="section__title">Community</h2>
-          <!-- Discord-Widget: wird von js/main.js befüllt -->
-          <div class="discord-card" id="discordWidget">
-            <div class="discord-card__head">
-              <span class="discord-card__logo" aria-hidden="true">
-                <svg viewBox="0 0 24 24" width="28" height="28"><path fill="currentColor" d="M20.3 4.4A19.6 19.6 0 0 0 15.4 3l-.6 1.3a18 18 0 0 0-5.6 0L8.6 3a19.6 19.6 0 0 0-4.9 1.5C.6 9.1-.3 13.6.1 18a19.8 19.8 0 0 0 6 3l1.3-2.1a12.8 12.8 0 0 1-2-1l.5-.4a14 14 0 0 0 12.2 0l.5.4c-.6.4-1.3.7-2 1l1.3 2.1a19.7 19.7 0 0 0 6-3c.5-5.1-.8-9.6-3.6-13.6ZM8 15.3c-1.2 0-2.2-1.1-2.2-2.4S6.8 10.5 8 10.5s2.2 1.1 2.2 2.4-1 2.4-2.2 2.4Zm8 0c-1.2 0-2.2-1.1-2.2-2.4s1-2.4 2.2-2.4 2.2 1.1 2.2 2.4-1 2.4-2.2 2.4Z"/></svg>
-              </span>
-              <div>
-                <strong id="discordName">Mavo City Discord</strong>
-                <span class="discord-card__online"><span class="dot is-online"></span><span id="discordOnline">Komm vorbei!</span></span>
-              </div>
-            </div>
-            <div class="discord-card__members" id="discordMembers"></div>
-            <a class="btn btn--discord js-discord" href="#" target="_blank" rel="noopener">Discord beitreten</a>
+        <div class="stack">
+          <div>
+            <h2 class="section__title" data-i18n="start.nextEvent">Nächstes Event</h2>
+            <div id="nextEvent"></div>
           </div>
+          <div>
+            <h2 class="section__title" data-i18n="start.poll">Umfrage</h2>
+            <div id="pollBox"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="container section">
+        <h2 class="section__title">Community</h2>
+        <!-- Discord-Widget: wird von js/main.js befüllt -->
+        <div class="discord-card" id="discordWidget">
+          <div class="discord-card__head">
+            <span class="discord-card__logo" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="28" height="28"><path fill="currentColor" d="M20.3 4.4A19.6 19.6 0 0 0 15.4 3l-.6 1.3a18 18 0 0 0-5.6 0L8.6 3a19.6 19.6 0 0 0-4.9 1.5C.6 9.1-.3 13.6.1 18a19.8 19.8 0 0 0 6 3l1.3-2.1a12.8 12.8 0 0 1-2-1l.5-.4a14 14 0 0 0 12.2 0l.5.4c-.6.4-1.3.7-2 1l1.3 2.1a19.7 19.7 0 0 0 6-3c.5-5.1-.8-9.6-3.6-13.6ZM8 15.3c-1.2 0-2.2-1.1-2.2-2.4S6.8 10.5 8 10.5s2.2 1.1 2.2 2.4-1 2.4-2.2 2.4Zm8 0c-1.2 0-2.2-1.1-2.2-2.4s1-2.4 2.2-2.4 2.2 1.1 2.2 2.4-1 2.4-2.2 2.4Z"/></svg>
+            </span>
+            <div>
+              <strong id="discordName">Mavo City Discord</strong>
+              <span class="discord-card__online"><span class="dot is-online"></span><span id="discordOnline" data-i18n="discord.come">Komm vorbei!</span></span>
+            </div>
+          </div>
+          <div class="discord-card__members" id="discordMembers"></div>
+          <a class="btn btn--discord js-discord" href="#" target="_blank" rel="noopener" data-i18n="discord.join">Discord beitreten</a>
         </div>
       </div>
     </section>
@@ -128,13 +170,13 @@
     <!-- ================= TAB: VERBINDEN ================= -->
     <section id="verbinden" class="panel" role="tabpanel" hidden>
       <div class="container section">
-        <h1 class="page-title">So kommst du auf den Server</h1>
-        <p class="page-lead">In wenigen Minuten bist du in der Stadt. Folge einfach den Schritten.</p>
+        <h1 class="page-title" data-i18n="join.title">So kommst du auf den Server</h1>
+        <p class="page-lead" data-i18n="join.lead">In wenigen Minuten bist du in der Stadt. Folge einfach den Schritten.</p>
 
         <ol class="steps">
           <li class="step">
             <div class="step__num">1</div>
-            <div class="step__body">
+            <div class="step__body" data-i18n="join.s1">
               <h3>GTA V besitzen</h3>
               <p>Du brauchst eine legale Kopie von <strong>GTA V</strong> (Steam, Epic Games oder Rockstar Launcher).</p>
             </div>
@@ -142,34 +184,43 @@
           <li class="step">
             <div class="step__num">2</div>
             <div class="step__body">
-              <h3>FiveM installieren</h3>
-              <p>Lade FiveM von der offiziellen Seite herunter und installiere es.</p>
-              <a class="btn btn--ghost btn--sm" href="https://fivem.net" target="_blank" rel="noopener">fivem.net öffnen</a>
+              <div data-i18n="join.s2">
+                <h3>FiveM installieren</h3>
+                <p>Lade FiveM von der offiziellen Seite herunter und installiere es.</p>
+              </div>
+              <a class="btn btn--ghost btn--sm" href="https://fivem.net" target="_blank" rel="noopener" data-i18n="join.s2btn">fivem.net öffnen</a>
             </div>
           </li>
           <li class="step">
             <div class="step__num">3</div>
             <div class="step__body">
-              <h3>Discord beitreten &amp; Whitelist</h3>
-              <p>Tritt unserem Discord bei, lies die Regeln und stelle im Kanal <code>#whitelist</code> deinen Antrag.</p>
-              <a class="btn btn--ghost btn--sm js-discord" href="#" target="_blank" rel="noopener">Zum Discord</a>
+              <div data-i18n="join.s3">
+                <h3>Regel-Quiz &amp; Whitelist</h3>
+                <p>Lies das Regelwerk, bestehe unser kurzes <strong>Regel-Quiz</strong> und stelle danach im Discord im Kanal <code>#whitelist</code> deinen Antrag.</p>
+              </div>
+              <div class="btn-row">
+                <a class="btn btn--primary btn--sm" href="#quiz" data-tab-link="quiz" data-i18n="join.s3quiz">Zum Regel-Quiz</a>
+                <a class="btn btn--ghost btn--sm js-discord" href="#" target="_blank" rel="noopener" data-i18n="join.s3discord">Zum Discord</a>
+              </div>
             </div>
           </li>
           <li class="step">
             <div class="step__num">4</div>
             <div class="step__body">
-              <h3>Verbinden</h3>
-              <p>Klicke auf <em>Direkt verbinden</em> oder öffne in FiveM die Konsole mit <kbd>F8</kbd> und gib folgenden Befehl ein:</p>
+              <div data-i18n="join.s4">
+                <h3>Verbinden</h3>
+                <p>Klicke auf <em>Direkt verbinden</em> oder öffne in FiveM die Konsole mit <kbd>F8</kbd> und gib folgenden Befehl ein:</p>
+              </div>
               <div class="copybox">
                 <code id="connectCmd">connect …</code>
-                <button class="btn btn--sm btn--primary" id="copyConnect">Kopieren</button>
+                <button class="btn btn--sm btn--primary" id="copyConnect" data-i18n="join.copy">Kopieren</button>
               </div>
-              <a class="btn btn--primary" id="joinBtn" href="#">Direkt verbinden</a>
+              <a class="btn btn--primary" id="joinBtn" href="#" data-i18n="join.direct">Direkt verbinden</a>
             </div>
           </li>
         </ol>
 
-        <div class="callout">
+        <div class="callout" data-i18n="join.help">
           <strong>Probleme beim Verbinden?</strong>
           Cache leeren (<code>%localappdata%/FiveM/FiveM.app/data/cache</code> löschen), FiveM neu starten
           oder im Discord ein Support-Ticket öffnen.
@@ -180,11 +231,11 @@
     <!-- ================= TAB: REGELN ================= -->
     <section id="regeln" class="panel" role="tabpanel" hidden>
       <div class="container section">
-        <h1 class="page-title">Regelwerk</h1>
-        <p class="page-lead">Mit dem Betreten des Servers akzeptierst du diese Regeln. Unwissenheit schützt nicht vor Strafe.</p>
+        <h1 class="page-title" data-i18n="rules.title">Regelwerk</h1>
+        <p class="page-lead" data-i18n="rules.lead">Mit dem Betreten des Servers akzeptierst du diese Regeln. Unwissenheit schützt nicht vor Strafe.</p>
 
         <div class="accordion">
-          <details open>
+          <details open data-i18n="rules.r1">
             <summary>§1 Allgemeines</summary>
             <ul>
               <li>Respektvoller Umgang mit allen Spielern und Teammitgliedern.</li>
@@ -192,7 +243,7 @@
               <li>Mindestalter 18 Jahre.</li>
             </ul>
           </details>
-          <details>
+          <details data-i18n="rules.r2">
             <summary>§2 Roleplay</summary>
             <ul>
               <li><strong>Fail-RP</strong>: Unrealistisches Verhalten ist verboten.</li>
@@ -201,7 +252,7 @@
               <li><strong>Powergaming</strong>: Anderen keine Aktionen aufzwingen.</li>
             </ul>
           </details>
-          <details>
+          <details data-i18n="rules.r3">
             <summary>§3 Fraktionen &amp; Crime</summary>
             <ul>
               <li>Überfälle nur mit ausreichend Beamten im Dienst.</li>
@@ -209,7 +260,7 @@
               <li>Maximal 6 Personen pro Gruppe bei Aktionen.</li>
             </ul>
           </details>
-          <details>
+          <details data-i18n="rules.r4">
             <summary>§4 Technisches</summary>
             <ul>
               <li>Cheats, Mod-Menüs und Exploits = permanenter Bann.</li>
@@ -218,19 +269,20 @@
             </ul>
           </details>
         </div>
+        <p class="more-link-wrap"><a class="more-link" href="#wiki/strafkatalog" data-i18n="rules.penalties">Zum Strafkatalog im Wiki →</a></p>
       </div>
     </section>
 
     <!-- ================= TAB: FRAKTIONEN ================= -->
     <section id="fraktionen" class="panel" role="tabpanel" hidden>
       <div class="container section">
-        <h1 class="page-title">Fraktionen</h1>
-        <p class="page-lead">Finde deinen Platz in der Stadt – ob im Staatsdienst, als Unternehmer oder auf der anderen Seite des Gesetzes.</p>
+        <h1 class="page-title" data-i18n="nav.factions">Fraktionen</h1>
+        <p class="page-lead" data-i18n="factions.lead">Finde deinen Platz in der Stadt – ob im Staatsdienst, als Unternehmer oder auf der anderen Seite des Gesetzes.</p>
 
         <div class="chips" id="factionFilter">
-          <button class="chip is-active" data-filter="alle">Alle</button>
-          <button class="chip" data-filter="staat">Staat</button>
-          <button class="chip" data-filter="zivil">Zivil</button>
+          <button class="chip is-active" data-filter="alle" data-i18n="factions.all">Alle</button>
+          <button class="chip" data-filter="staat" data-i18n="factions.state">Staat</button>
+          <button class="chip" data-filter="zivil" data-i18n="factions.civil">Zivil</button>
           <button class="chip" data-filter="crime">Crime</button>
         </div>
         <div class="grid grid--2" id="factionGrid"></div>
@@ -243,7 +295,7 @@
         <div class="forum-head">
           <div>
             <h1 class="page-title">Forum</h1>
-            <p class="page-lead">Diskutiere mit der Community, stelle Fragen oder bewirb dich.</p>
+            <p class="page-lead" data-i18n="forum.lead">Diskutiere mit der Community, stelle Fragen oder bewirb dich.</p>
           </div>
           <div class="forum-user" id="forumUser"></div>
         </div>
@@ -251,16 +303,72 @@
         <nav class="crumbs" id="forumCrumbs"></nav>
 
         <!-- Hier rendert js/forum.js die Ansichten (Kategorien, Themen, Beiträge) -->
-        <div id="forumView"><div class="loader">Lade Forum…</div></div>
+        <div id="forumView"><div class="loader">…</div></div>
+      </div>
+    </section>
+
+    <!-- ================= TAB: WIKI ================= -->
+    <section id="wiki" class="panel" role="tabpanel" hidden>
+      <div class="container section">
+        <h1 class="page-title" data-i18n="wiki.title">Wiki &amp; Guides</h1>
+        <p class="page-lead" data-i18n="wiki.lead">Alles, was du für den Start in Mavo City wissen musst.</p>
+        <div class="wiki">
+          <aside class="wiki__nav">
+            <input type="search" id="wikiSearch" class="input" placeholder="Wiki durchsuchen…" aria-label="Wiki durchsuchen">
+            <div id="wikiList"></div>
+          </aside>
+          <article class="wiki__article md" id="wikiArticle"></article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= TAB: EVENTS ================= -->
+    <section id="events" class="panel" role="tabpanel" hidden>
+      <div class="container section">
+        <h1 class="page-title">Events</h1>
+        <p class="page-lead" data-i18n="events.lead">Was demnächst in der Stadt los ist. Mit einem Klick in deinen Kalender eintragen.</p>
+        <div id="eventsList"></div>
+      </div>
+    </section>
+
+    <!-- ================= TAB: KARTE ================= -->
+    <section id="karte" class="panel" role="tabpanel" hidden>
+      <div class="container section">
+        <h1 class="page-title" data-i18n="nav.map">Stadtkarte</h1>
+        <p class="page-lead" data-i18n="map.lead">Die wichtigsten Orte der Stadt. Tippe auf einen Punkt für Details.</p>
+        <div class="chips" id="mapFilter"></div>
+        <div class="citymap">
+          <div class="citymap__canvas" id="mapCanvas"></div>
+          <aside class="citymap__info" id="mapInfo"></aside>
+        </div>
       </div>
     </section>
 
     <!-- ================= TAB: GALERIE ================= -->
     <section id="galerie" class="panel" role="tabpanel" hidden>
       <div class="container section">
-        <h1 class="page-title">Galerie</h1>
-        <p class="page-lead">Eindrücke aus Mavo City – Screenshots und Clips aus der Community.</p>
+        <h1 class="page-title" data-i18n="nav.gallery">Galerie</h1>
+        <p class="page-lead" data-i18n="gallery.lead">Eindrücke aus Mavo City – Screenshots und Clips aus der Community.</p>
         <div class="gallery" id="galleryGrid"></div>
+      </div>
+    </section>
+
+    <!-- ================= TAB: STREAMER ================= -->
+    <section id="streamer" class="panel" role="tabpanel" hidden>
+      <div class="container section">
+        <h1 class="page-title">Streamer</h1>
+        <p class="page-lead" data-i18n="streamer.lead">Diese Streamer zeigen das Leben in Mavo City. Schau rein!</p>
+        <div class="grid grid--3" id="streamerGrid"></div>
+        <div id="streamPlayer"></div>
+      </div>
+    </section>
+
+    <!-- ================= TAB: QUIZ ================= -->
+    <section id="quiz" class="panel" role="tabpanel" hidden>
+      <div class="container section">
+        <h1 class="page-title" data-i18n="nav.quiz">Regel-Quiz</h1>
+        <p class="page-lead" data-i18n="quiz.lead">Teste dein Regelwissen. Bestehe das Quiz, bevor du deinen Whitelist-Antrag stellst.</p>
+        <div id="quizBox"></div>
       </div>
     </section>
 
@@ -268,7 +376,7 @@
     <section id="updates" class="panel" role="tabpanel" hidden>
       <div class="container section">
         <h1 class="page-title">Updates</h1>
-        <p class="page-lead">Was sich am Server geändert hat.</p>
+        <p class="page-lead" data-i18n="updates.lead">Was sich am Server geändert hat.</p>
         <div class="changelog" id="changelog"></div>
       </div>
     </section>
@@ -276,8 +384,8 @@
     <!-- ================= TAB: TEAM ================= -->
     <section id="team" class="panel" role="tabpanel" hidden>
       <div class="container section">
-        <h1 class="page-title">Unser Team</h1>
-        <p class="page-lead">Die Leute hinter Mavo City.</p>
+        <h1 class="page-title" data-i18n="team.title">Unser Team</h1>
+        <p class="page-lead" data-i18n="team.lead">Die Leute hinter Mavo City.</p>
         <div class="grid grid--4" id="teamGrid"></div>
       </div>
     </section>
@@ -285,13 +393,14 @@
     <!-- ================= TAB: FAQ ================= -->
     <section id="faq" class="panel" role="tabpanel" hidden>
       <div class="container section">
-        <h1 class="page-title">Häufige Fragen</h1>
+        <h1 class="page-title" data-i18n="faq.title">Häufige Fragen</h1>
         <div class="accordion">
-          <details><summary>Brauche ich eine Whitelist?</summary><p>Ja. Den Antrag stellst du in unserem Discord im Kanal <code>#whitelist</code>.</p></details>
-          <details><summary>Wie alt muss ich sein?</summary><p>Mindestens 18 Jahre.</p></details>
-          <details><summary>Ich bekomme beim Verbinden einen Fehler – was tun?</summary><p>Cache leeren, FiveM neu starten und prüfen, ob du die Whitelist hast. Hilft das nicht, öffne ein Ticket im Discord.</p></details>
-          <details><summary>Kann ich mich als Teammitglied bewerben?</summary><p>Ja! Im Forum unter <em>Bewerbungen</em> findest du alle Infos.</p></details>
-          <details><summary>Gibt es Spenden / Pakete?</summary><p>Ja, aber nur kosmetisch – Spenden bringen keine spielerischen Vorteile. Mehr dazu unter <a href="#spenden" data-tab-link="spenden">Unterstützen</a>.</p></details>
+          <details data-i18n="faq.q1"><summary>Brauche ich eine Whitelist?</summary><p>Ja. Bestehe zuerst das <a href="#quiz">Regel-Quiz</a> und stelle dann deinen Antrag in unserem Discord im Kanal <code>#whitelist</code>.</p></details>
+          <details data-i18n="faq.q2"><summary>Wie alt muss ich sein?</summary><p>Mindestens 18 Jahre.</p></details>
+          <details data-i18n="faq.q3"><summary>Ich bekomme beim Verbinden einen Fehler – was tun?</summary><p>Cache leeren, FiveM neu starten und prüfen, ob du die Whitelist hast. Hilft das nicht, öffne ein Ticket im Discord.</p></details>
+          <details data-i18n="faq.q4"><summary>Kann ich mich als Teammitglied bewerben?</summary><p>Ja! Im Forum unter <em>Bewerbungen</em> findest du alle Infos.</p></details>
+          <details data-i18n="faq.q5"><summary>Gibt es Spenden / Pakete?</summary><p>Ja, aber nur kosmetisch – Spenden bringen keine spielerischen Vorteile. Mehr dazu unter <a href="#spenden">Unterstützen</a>.</p></details>
+          <details data-i18n="faq.q6"><summary>Gibt es eine englische Version?</summary><p>Die Website gibt es auch auf Englisch (Button oben rechts). Auf dem Server wird jedoch Deutsch gesprochen.</p></details>
         </div>
       </div>
     </section>
@@ -299,12 +408,12 @@
     <!-- ================= TAB: SPENDEN ================= -->
     <section id="spenden" class="panel" role="tabpanel" hidden>
       <div class="container section">
-        <h1 class="page-title">Mavo City unterstützen</h1>
-        <p class="page-lead">Server, Scripts und Entwicklung kosten Geld. Mit einer Spende hilfst du, die Stadt am Leben zu halten.</p>
+        <h1 class="page-title" data-i18n="donate.title">Mavo City unterstützen</h1>
+        <p class="page-lead" data-i18n="donate.lead">Server, Scripts und Entwicklung kosten Geld. Mit einer Spende hilfst du, die Stadt am Leben zu halten.</p>
 
         <div class="nop2w">
           <span class="nop2w__icon">🛡️</span>
-          <div>
+          <div data-i18n="donate.nop2w">
             <strong>Kein Pay2Win – versprochen.</strong>
             Alle Pakete sind rein kosmetisch. Waffen, Geld, Fahrzeuge mit Leistungsvorteil oder Vorteile im RP gibt es bei uns nicht zu kaufen.
           </div>
@@ -312,7 +421,7 @@
 
         <div class="grid grid--3" id="packageGrid"></div>
 
-        <p class="fineprint">
+        <p class="fineprint" data-i18n="donate.fine">
           Zahlungen laufen sicher über <strong>Tebex</strong>, den offiziellen Zahlungsanbieter für FiveM-Server.
           Spenden sind freiwillig und nicht erstattbar. Bei Fragen öffne ein Ticket im Discord.
         </p>
@@ -323,14 +432,15 @@
 
   <footer class="footer">
     <div class="container footer__inner">
-      <span>© <span id="year"></span> Mavo City · Nicht mit Rockstar Games oder Take-Two verbunden.</span>
+      <span>© <span id="year"></span> Mavo City · <span data-i18n="footer.disclaimer">Nicht mit Rockstar Games oder Take-Two verbunden.</span></span>
       <div class="footer__links" id="footerLinks">
         <a class="js-discord" href="#" target="_blank" rel="noopener">Discord</a>
-        <a href="#regeln" data-tab-link="regeln">Regeln</a>
+        <a href="#regeln" data-tab-link="regeln" data-i18n="nav.rules">Regeln</a>
         <a href="#faq" data-tab-link="faq">FAQ</a>
-        <a href="#spenden" data-tab-link="spenden">Unterstützen</a>
-        <a href="impressum.html">Impressum</a>
-        <a href="datenschutz.html">Datenschutz</a>
+        <a href="#spenden" data-tab-link="spenden" data-i18n="nav.support">Unterstützen</a>
+        <a href="admin.html">Admin</a>
+        <a href="impressum.html" data-i18n="footer.imprint">Impressum</a>
+        <a href="datenschutz.html" data-i18n="footer.privacy">Datenschutz</a>
       </div>
     </div>
   </footer>
@@ -348,11 +458,23 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <!-- Reihenfolge wichtig: config -> data -> main -> pages -> forum -->
+  <noscript><p class="container section">Bitte aktiviere JavaScript, um alle Funktionen der Seite zu nutzen.</p></noscript>
+
+  <!-- Reihenfolge wichtig: Einstellungen & Daten -> Basis -> Seiten -> Funktionen -->
   <script src="js/config.js"></script>
   <script src="js/data.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/content.js"></script>
+  <script src="js/markdown.js"></script>
   <script src="js/main.js"></script>
   <script src="js/pages.js"></script>
+  <script src="js/events.js"></script>
+  <script src="js/wiki.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/streamers.js"></script>
+  <script src="js/quiz.js"></script>
+  <script src="js/polls.js"></script>
   <script src="js/forum.js"></script>
 </body>
 </html>

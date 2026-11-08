@@ -137,3 +137,226 @@ create policy "threads admin delete" on public.forum_threads for delete to authe
 
 -- forum_admins ist nur über is_forum_admin() abfragbar (keine Policy = kein direkter Zugriff)
 
+
+
+-- ##########################################################
+-- ERWEITERUNGEN (Version 2)
+-- Kann gefahrlos erneut ausgeführt werden.
+-- ##########################################################
+
+-- ---------- Beiträge bearbeiten ----------
+alter table public.forum_posts add column if not exists edited_at timestamptz;
+
+create or replace function public.forum_protect_post_update()
+returns trigger language plpgsql set search_path = public as $$
+begin
+  -- Nur der Text darf geändert werden
+  new.id := old.id; new.thread_id := old.thread_id; new.author_id := old.author_id;
+  new.author_name := old.author_name; new.author_avatar := old.author_avatar; new.created_at := old.created_at;
+  new.edited_at := now();
+  return new;
+end $$;
+
+drop trigger if exists forum_posts_protect on public.forum_posts;
+create trigger forum_posts_protect before update on public.forum_posts
+  for each row execute function public.forum_protect_post_update();
+
+drop policy if exists "posts bearbeiten" on public.forum_posts;
+create policy "posts bearbeiten" on public.forum_posts for update to authenticated
+  using (author_id = auth.uid() or public.is_forum_admin())
+  with check (author_id = auth.uid() or public.is_forum_admin());
+
+-- ---------- Spam-Schutz ----------
+create or replace function public.forum_rate_limit()
+returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  if public.is_forum_admin() then return new; end if;
+  if tg_table_name = 'forum_posts' and exists (
+    select 1 from public.forum_posts where author_id = auth.uid() and created_at > now() - interval '20 seconds'
+  ) then
+    raise exception 'Bitte warte 20 Sekunden zwischen zwei Beiträgen.';
+  end if;
+  if tg_table_name = 'forum_threads' and exists (
+    select 1 from public.forum_threads where author_id = auth.uid() and created_at > now() - interval '2 minutes'
+  ) then
+    raise exception 'Bitte warte 2 Minuten, bevor du ein neues Thema erstellst.';
+  end if;
+  return new;
+end $$;
+
+drop trigger if exists forum_posts_rate on public.forum_posts;
+create trigger forum_posts_rate before insert on public.forum_posts
+  for each row execute function public.forum_rate_limit();
+drop trigger if exists forum_threads_rate on public.forum_threads;
+create trigger forum_threads_rate before insert on public.forum_threads
+  for each row execute function public.forum_rate_limit();
+
+-- ---------- Beiträge melden ----------
+create table if not exists public.forum_reports (
+  id          uuid primary key default gen_random_uuid(),
+  post_id     uuid not null references public.forum_posts on delete cascade,
+  reporter_id uuid not null default auth.uid() references auth.users on delete cascade,
+  reason      text not null check (char_length(reason) between 3 and 500),
+  resolved    boolean not null default false,
+  created_at  timestamptz not null default now()
+);
+alter table public.forum_reports enable row level security;
+
+drop policy if exists "melden" on public.forum_reports;
+create policy "melden" on public.forum_reports for insert to authenticated
+  with check (reporter_id = auth.uid());
+drop policy if exists "meldungen admin" on public.forum_reports;
+create policy "meldungen admin" on public.forum_reports for all to authenticated
+  using (public.is_forum_admin()) with check (public.is_forum_admin());
+
+-- ---------- Einstellungen (nicht öffentlich lesbar) ----------
+-- Discord-Webhook für neue Forenthemen eintragen:
+--   insert into public.app_settings (key, value) values
+--     ('discord_webhook_url', 'https://discord.com/api/webhooks/...'),
+--     ('site_url', 'https://mavocity.com')
+--   on conflict (key) do update set value = excluded.value;
+create table if not exists public.app_settings (
+  key   text primary key,
+  value text not null
+);
+alter table public.app_settings enable row level security; -- keine Policy = kein Zugriff von außen
+
+-- ---------- Discord-Benachrichtigung bei neuen Themen ----------
+create extension if not exists pg_net;
+
+create or replace function public.forum_notify_discord()
+returns trigger language plpgsql security definer set search_path = public as $$
+declare
+  hook text := (select value from public.app_settings where key = 'discord_webhook_url');
+  site text := coalesce((select value from public.app_settings where key = 'site_url'), 'https://mavocity.com');
+begin
+  if hook is null then return new; end if;
+  begin
+    perform net.http_post(
+      url := hook,
+      body := jsonb_build_object(
+        'username', 'Mavo City Forum',
+        'embeds', jsonb_build_array(jsonb_build_object(
+          'title', left(new.title, 250),
+          'url', site || '/#forum/thread/' || new.id,
+          'description', 'Neues Thema von **' || new.author_name || '** in *' || new.category || '*',
+          'color', 16752412
+        ))
+      )
+    );
+  exception when others then
+    -- Forum soll auch funktionieren, wenn Discord nicht erreichbar ist
+    raise warning 'Discord-Webhook fehlgeschlagen: %', sqlerrm;
+  end;
+  return new;
+end $$;
+
+drop trigger if exists forum_threads_discord on public.forum_threads;
+create trigger forum_threads_discord after insert on public.forum_threads
+  for each row execute function public.forum_notify_discord();
+
+-- ---------- Website-Inhalte (Admin-Bereich) ----------
+create table if not exists public.site_content (
+  key        text primary key,
+  data       jsonb not null,
+  updated_at timestamptz not null default now()
+);
+alter table public.site_content enable row level security;
+
+drop policy if exists "inhalte lesen" on public.site_content;
+create policy "inhalte lesen" on public.site_content for select using (true);
+drop policy if exists "inhalte admin" on public.site_content;
+create policy "inhalte admin" on public.site_content for all to authenticated
+  using (public.is_forum_admin()) with check (public.is_forum_admin());
+
+-- ---------- Bilder-Upload (Galerie) ----------
+insert into storage.buckets (id, name, public) values ('gallery', 'gallery', true)
+  on conflict (id) do nothing;
+
+drop policy if exists "galerie upload admin" on storage.objects;
+create policy "galerie upload admin" on storage.objects for insert to authenticated
+  with check (bucket_id = 'gallery' and public.is_forum_admin());
+drop policy if exists "galerie löschen admin" on storage.objects;
+create policy "galerie löschen admin" on storage.objects for delete to authenticated
+  using (bucket_id = 'gallery' and public.is_forum_admin());
+
+-- ---------- Umfragen ----------
+create table if not exists public.polls (
+  id         uuid primary key default gen_random_uuid(),
+  question   text not null check (char_length(question) between 3 and 200),
+  options    jsonb not null check (jsonb_typeof(options) = 'array' and jsonb_array_length(options) between 2 and 10),
+  active     boolean not null default true,
+  ends_at    timestamptz,
+  created_at timestamptz not null default now()
+);
+create table if not exists public.poll_votes (
+  poll_id      uuid not null references public.polls on delete cascade,
+  user_id      uuid not null default auth.uid() references auth.users on delete cascade,
+  option_index integer not null check (option_index >= 0),
+  created_at   timestamptz not null default now(),
+  primary key (poll_id, user_id)
+);
+alter table public.polls enable row level security;
+alter table public.poll_votes enable row level security;
+
+drop policy if exists "umfragen lesen" on public.polls;
+create policy "umfragen lesen" on public.polls for select using (true);
+drop policy if exists "umfragen admin" on public.polls;
+create policy "umfragen admin" on public.polls for all to authenticated
+  using (public.is_forum_admin()) with check (public.is_forum_admin());
+
+drop policy if exists "eigene stimme lesen" on public.poll_votes;
+create policy "eigene stimme lesen" on public.poll_votes for select to authenticated
+  using (user_id = auth.uid());
+drop policy if exists "abstimmen" on public.poll_votes;
+create policy "abstimmen" on public.poll_votes for insert to authenticated
+  with check (
+    user_id = auth.uid() and exists (
+      select 1 from public.polls p
+      where p.id = poll_id and p.active and (p.ends_at is null or p.ends_at > now())
+        and option_index < jsonb_array_length(p.options)
+    )
+  );
+
+-- Ergebnisse für alle sichtbar, ohne zu verraten, wer wie gestimmt hat
+create or replace function public.poll_results(p_poll uuid)
+returns table (option_index integer, votes bigint)
+language sql stable security definer set search_path = public as $$
+  select option_index, count(*) from public.poll_votes where poll_id = p_poll group by option_index;
+$$;
+
+-- ---------- Regel-Quiz ----------
+create table if not exists public.quiz_results (
+  id         uuid primary key default gen_random_uuid(),
+  user_id    uuid not null references auth.users on delete cascade,
+  user_name  text not null,
+  score      integer not null,
+  total      integer not null,
+  passed     boolean not null,
+  created_at timestamptz not null default now()
+);
+alter table public.quiz_results enable row level security;
+
+create or replace function public.quiz_set_user()
+returns trigger language plpgsql security definer set search_path = public as $$
+declare meta jsonb;
+begin
+  select raw_user_meta_data into meta from auth.users where id = auth.uid();
+  new.user_id := auth.uid();
+  new.user_name := left(coalesce(meta->'custom_claims'->>'global_name', meta->>'full_name', meta->>'name', 'Unbekannt'), 64);
+  new.created_at := now();
+  return new;
+end $$;
+
+drop trigger if exists quiz_results_user on public.quiz_results;
+create trigger quiz_results_user before insert on public.quiz_results
+  for each row execute function public.quiz_set_user();
+
+drop policy if exists "quiz eintragen" on public.quiz_results;
+create policy "quiz eintragen" on public.quiz_results for insert to authenticated with check (true);
+drop policy if exists "quiz lesen" on public.quiz_results;
+create policy "quiz lesen" on public.quiz_results for select to authenticated
+  using (user_id = auth.uid() or public.is_forum_admin());
+drop policy if exists "quiz admin löschen" on public.quiz_results;
+create policy "quiz admin löschen" on public.quiz_results for delete to authenticated
+  using (public.is_forum_admin());

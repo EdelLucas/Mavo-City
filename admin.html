@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin – Mavo City</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#0d0f14">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/pages.css">
+  <link rel="stylesheet" href="css/features.css">
+  <link rel="stylesheet" href="css/forum.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+  <header class="header">
+    <div class="container header__inner">
+      <a href="index.html" class="logo">
+        <img src="assets/logo.svg" alt="" width="38" height="38">
+        <span class="logo__text">Mavo <strong>City</strong> <span class="admin-badge">Admin</span></span>
+      </a>
+      <div class="admin-user" id="adminUser"></div>
+    </div>
+  </header>
+
+  <main>
+    <div class="container section">
+      <div id="adminNotice"></div>
+
+      <nav class="admin-tabs" id="adminTabs">
+        <button class="chip is-active" data-view="content">📝 Inhalte</button>
+        <button class="chip" data-view="reports">🚩 Meldungen <span class="count" id="reportCount"></span></button>
+        <button class="chip" data-view="polls">📊 Umfragen</button>
+        <button class="chip" data-view="quiz">✅ Quiz-Ergebnisse</button>
+      </nav>
+
+      <!-- Inhalte bearbeiten -->
+      <section class="admin-view" data-view-panel="content">
+        <div class="admin-layout">
+          <aside class="admin-sections" id="sectionList"></aside>
+          <div class="admin-editor" id="editor"></div>
+        </div>
+      </section>
+
+      <section class="admin-view" data-view-panel="reports" hidden><div id="reportsView"></div></section>
+      <section class="admin-view" data-view-panel="polls" hidden><div id="pollsView"></div></section>
+      <section class="admin-view" data-view-panel="quiz" hidden><div id="quizView"></div></section>
+    </div>
+  </main>
+
+  <!-- Karte zum Positionieren von Orten -->
+  <div class="lightbox" id="mapPicker" hidden>
+    <button class="lightbox__close" aria-label="Schließen">×</button>
+    <div class="map-picker">
+      <p>Klicke auf die Stelle, an der der Ort auf der Karte erscheinen soll.</p>
+      <div class="map-picker__canvas" id="mapPickerCanvas"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="js/config.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/content.js"></script>
+  <script src="js/markdown.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

@@ -112,3 +112,112 @@ const FORUM_SEED = [
     posts: [{ id: "p2", author: "Lucas", date: "2026-11-08T12:05:00", text: "Bitte nutzt folgende Vorlage:\n\n• Name / Alter:\n• Discord-Name:\n• Erfahrung im RP:\n• Warum möchtest du ins Team?\n• Wie viel Zeit kannst du investieren?" }],
   },
 ];
+
+/* ---------- Hintergrundbilder Startseite ----------
+   Eigene Screenshots in assets/ legen und eintragen, z.B. "assets/hero1.jpg".
+   Mehrere Bilder wechseln automatisch. Leer = Skyline-Grafik.          */
+const HERO_IMAGES = [];
+
+/* ---------- Events ----------
+   date: "JJJJ-MM-TTTHH:MM" (deutsche Zeit)                            */
+const EVENTS = [
+  { title: "Großes Autotreffen", date: "2026-11-14T20:00", location: "Hafen, Pier 3", type: "Treffen", desc: "Zeigt eure schönsten Fahrzeuge. Preise für die drei besten Builds." },
+  { title: "Straßenrennen „Night Run“", date: "2026-11-21T21:00", location: "Start: Innenstadt", type: "Rennen", desc: "Legales Rennen mit Absperrung durch das LSPD. Anmeldung im Discord." },
+  { title: "Tag der offenen Tür LSPD", date: "2026-11-28T18:00", location: "Polizeirevier Mission Row", type: "Fraktion", desc: "Lerne das LSPD kennen und bewirb dich direkt vor Ort." },
+];
+
+/* ---------- Wiki / Guides ----------
+   content unterstützt einfache Formatierung:
+   # Überschrift, **fett**, *kursiv*, [Link](https://…), - Liste, > Zitat, | Tabelle |   */
+const WIKI = [
+  {
+    id: "einstieg", icon: "🚀", title: "Erste Schritte", category: "Einsteiger",
+    content: `# Willkommen in Mavo City!
+
+Nach der Einreise landest du am **Flughafen**. Von dort aus geht es los:
+
+- Hol dir am Rathaus deinen **Personalausweis**
+- Such dir beim Jobcenter einen ersten Job
+- Kauf dir ein Handy im Elektroladen
+
+> Tipp: Frag andere Spieler nach dem Weg – das ist gutes RP!`,
+  },
+  {
+    id: "tasten", icon: "⌨️", title: "Tastenbelegung", category: "Einsteiger",
+    content: `# Wichtige Tasten
+
+| Taste | Funktion |
+| --- | --- |
+| F1 | Handy |
+| F2 | Inventar |
+| F3 | Interaktionsmenü |
+| M | Fahrzeug abschließen |
+| N | Funk (Push-to-Talk) |
+| X | Hände hoch |`,
+  },
+  {
+    id: "jobs", icon: "💼", title: "Jobs & Verdienst", category: "Wirtschaft",
+    content: `# Legale Jobs
+
+- **Müllabfuhr** – guter Einstieg, kein Führerschein nötig
+- **Taxi** – Führerschein Klasse B
+- **Trucker** – Führerschein Klasse C, gutes Gehalt
+- **Fischer** – entspannt, Boot erforderlich
+
+Mehr Geld verdienst du in einer **Fraktion** oder mit einer eigenen Firma.`,
+  },
+  {
+    id: "strafkatalog", icon: "⚖️", title: "Strafkatalog", category: "Regeln",
+    content: `# Strafkatalog (Auszug)
+
+| Vergehen | Strafe | Haft |
+| --- | --- | --- |
+| Geschwindigkeitsüberschreitung | 500 $ | – |
+| Fahren ohne Führerschein | 2.500 $ | – |
+| Beamtenbeleidigung | 3.000 $ | 5 Min. |
+| Diebstahl | 5.000 $ | 10 Min. |
+| Bewaffneter Raubüberfall | 25.000 $ | 30 Min. |
+
+Das vollständige Gesetzbuch findest du im Discord.`,
+  },
+];
+
+/* ---------- Streamer ----------
+   twitch: Kanalname aus twitch.tv/KANALNAME                            */
+const STREAMERS = [
+  { name: "Beispiel-Streamer", twitch: "beispielkanal", desc: "Spielt einen LSPD-Officer." },
+];
+
+/* ---------- Stadtkarte ----------
+   x / y: Position in Prozent (0–100) von links / oben
+   type:  "staat" | "zivil" | "crime" | "job" | "freizeit"            */
+const MAP_LOCATIONS = [
+  { name: "Polizeirevier", type: "staat", x: 46, y: 46, desc: "Hauptquartier des LSPD." },
+  { name: "Krankenhaus", type: "staat", x: 58, y: 34, desc: "Notaufnahme und Rettungswache." },
+  { name: "Rathaus", type: "staat", x: 40, y: 32, desc: "Ausweis, Führerschein und Behörden." },
+  { name: "Werkstatt", type: "zivil", x: 30, y: 56, desc: "Reparaturen und Tuning." },
+  { name: "Autohaus", type: "zivil", x: 62, y: 58, desc: "Neu- und Gebrauchtwagen." },
+  { name: "Jobcenter", type: "job", x: 50, y: 24, desc: "Hier findest du deinen ersten Job." },
+  { name: "Hafen", type: "job", x: 70, y: 82, desc: "Trucker- und Fischerei-Jobs." },
+  { name: "Flughafen", type: "zivil", x: 20, y: 84, desc: "Einreise für neue Bürger." },
+  { name: "Strand", type: "freizeit", x: 14, y: 40, desc: "Entspannen am Meer." },
+  { name: "Stadtpark", type: "freizeit", x: 52, y: 40, desc: "Treffpunkt im Grünen." },
+];
+
+/* ---------- Regel-Quiz ----------
+   correct: Index der richtigen Antwort (0 = erste)                    */
+const QUIZ = [
+  { q: "Was bedeutet „RDM“?", answers: ["Random Deathmatch – grundloses Töten", "Roleplay des Monats", "Rennen durch die Mitte"], correct: 0 },
+  { q: "Darfst du Informationen aus einem Livestream im RP nutzen?", answers: ["Ja, wenn es hilft", "Nein, das ist Metagaming", "Nur als Polizist"], correct: 1 },
+  { q: "Was tust du, wenn du einen Bug findest?", answers: ["Ausnutzen, solange es geht", "Anderen davon erzählen", "Über ein Support-Ticket melden"], correct: 2 },
+  { q: "Wie alt musst du mindestens sein?", answers: ["16 Jahre", "18 Jahre", "21 Jahre"], correct: 1 },
+  { q: "Was ist „Powergaming“?", answers: ["Anderen Spielern Aktionen aufzwingen", "Sehr viel spielen", "Mit gutem PC spielen"], correct: 0 },
+  { q: "Wie viele Personen dürfen maximal an einer Aktion teilnehmen?", answers: ["4", "6", "Unbegrenzt"], correct: 1 },
+];
+
+/* ---------- Umfrage (nur Demo-Modus; mit Supabase im Admin-Bereich verwalten) ---------- */
+const DEMO_POLL = {
+  id: "demo-poll-1",
+  question: "Welches Event wollt ihr als Nächstes?",
+  options: ["Autotreffen", "Bankraub-Event", "Strandparty", "Bootsrennen"],
+};

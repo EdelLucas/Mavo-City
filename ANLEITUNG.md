@@ -1,147 +1,185 @@
 # Mavo City Website – Anleitung
 
 Die Seite ist eine statische Website für **GitHub Pages** (Domain: mavocity.com).
-Alles, was du regelmäßig änderst, steht in **zwei Dateien**:
+Alle Funktionen laufen sofort im **Demo-Modus**. Mit **Supabase** (kostenlos, ca. 15 Minuten Einrichtung)
+werden Forum, Admin-Bereich, Umfragen und Quiz-Ergebnisse „echt“ und für alle Besucher gespeichert.
 
 | Datei | Was steht drin |
 |---|---|
-| `js/config.js` | Join-Code, Server-IP, Discord-Link, Supabase-Keys, Tebex-Shop, Social Media |
-| `js/data.js` | News, Team, Fraktionen, Galerie, Updates, Spenden-Pakete, Forum-Kategorien |
+| `js/config.js` | Join-Code, Server-IP, Discord, Supabase-Keys, Tebex, Twitch, Sprache, Karte |
+| `js/data.js` | Standard-Inhalte: News, Team, Fraktionen, Galerie, Updates, Events, Wiki, Streamer, Karte, Quiz, Spenden |
+| `admin.html` | Admin-Bereich: Inhalte ohne Code bearbeiten, Meldungen, Umfragen, Quiz-Ergebnisse |
 
 ## Ordnerstruktur
 
 ```
-index.html          Aufbau der Seite (alle Tabs)
-css/style.css       Grund-Design, Header, Startseite
-css/pages.css       Fraktionen, Galerie, Updates, Spenden, Discord-Widget
-css/forum.css       Forum
-js/config.js        Einstellungen
-js/data.js          Inhalte
-js/main.js          Tab-System, Verbinden, Server-Status, Discord-Widget
-js/pages.js         Fraktionen, Galerie, Updates, Spenden, Team, News
-js/forum.js         Forum (Supabase oder Demo-Modus)
-supabase/schema.sql Datenbank für das Forum
-assets/             Logo, Favicon, Skyline, Vorschaubild, Galerie-Bilder
+index.html            Hauptseite mit allen Tabs
+admin.html            Admin-Bereich
+impressum.html        Impressum
+datenschutz.html      Datenschutzerklärung
+404.html              Fehlerseite
+robots.txt, sitemap.xml   für Suchmaschinen
+
+css/style.css         Grund-Design, Header, Startseite
+css/pages.css         Fraktionen, Galerie, Updates, Spenden, Discord-Widget, Navigation "Mehr"
+css/features.css      Wiki, Events, Karte, Streamer, Quiz, Umfragen, Formatierung
+css/forum.css         Forum
+css/admin.css         Admin-Bereich
+css/legal.css         Impressum & Datenschutz
+
+js/config.js          Einstellungen
+js/data.js            Standard-Inhalte
+js/i18n.js            Übersetzungen Deutsch/Englisch
+js/supabase.js        Verbindung zur Datenbank + Discord-Login
+js/content.js         lädt Inhalte (Admin-Bereich überschreibt data.js)
+js/markdown.js        Text-Formatierung (Forum, Wiki)
+js/main.js            Tab-System, Verbinden, Server-Status, Spielerliste, Discord-Widget
+js/pages.js           News, Team, Fraktionen, Galerie, Updates, Spenden
+js/events.js          Events mit Countdown und Kalender-Export
+js/wiki.js            Wiki
+js/map.js             Stadtkarte
+js/streamers.js       Streamer + Twitch-Live-Status
+js/quiz.js            Regel-Quiz
+js/polls.js           Umfrage auf der Startseite
+js/forum.js           Forum
+js/admin.js           Admin-Bereich
+js/legal.js           Helfer für Impressum/Datenschutz
+
+supabase/schema.sql               Datenbank (einmal im SQL-Editor ausführen)
+supabase/functions/twitch-live/   Twitch-Live-Abfrage (optional)
+assets/                           Logo, Favicon, Skyline, Karte, Vorschaubild, Galerie-Bilder
 ```
 
 ---
 
-## 1. Forum mit Discord-Login einrichten (Supabase, kostenlos)
+## 1. Supabase einrichten (Forum, Admin-Bereich, Umfragen, Quiz)
 
-Ohne diese Schritte läuft das Forum im **Demo-Modus**: Dann sieht jeder Besucher nur seine eigenen Beiträge.
-
-1. **Supabase-Projekt anlegen**
-   Auf [supabase.com](https://supabase.com) kostenlos registrieren → *New project* → Region *Frankfurt (eu-central-1)* wählen.
-
-2. **Datenbank anlegen**
-   Im Projekt links auf *SQL Editor* → Inhalt von `supabase/schema.sql` komplett einfügen → *Run*.
-
-3. **Discord-App erstellen**
+1. **Projekt anlegen:** Auf [supabase.com](https://supabase.com) kostenlos registrieren → *New project* → Region **Frankfurt (eu-central-1)**.
+2. **Datenbank anlegen:** Links *SQL Editor* → kompletten Inhalt von `supabase/schema.sql` einfügen → *Run*.
+   (Das Skript kann später nach Updates einfach erneut ausgeführt werden.)
+3. **Discord-App erstellen:**
    - [discord.com/developers/applications](https://discord.com/developers/applications) → *New Application* → Name „Mavo City“.
    - Links *OAuth2* → **Client ID** und **Client Secret** kopieren.
    - Unter *Redirects* eintragen: `https://DEIN-PROJEKT.supabase.co/auth/v1/callback`
-     (die genaue Adresse steht in Supabase beim Discord-Provider, siehe nächster Schritt).
-
-4. **Discord-Login in Supabase aktivieren**
-   Supabase → *Authentication* → *Sign In / Providers* → **Discord** → aktivieren, Client ID und Secret einfügen → speichern.
-
-5. **Website-Adresse erlauben**
-   Supabase → *Authentication* → *URL Configuration*:
+4. **Discord-Login aktivieren:** Supabase → *Authentication* → *Sign In / Providers* → **Discord** → aktivieren, Client ID + Secret einfügen.
+5. **Website erlauben:** Supabase → *Authentication* → *URL Configuration*:
    - *Site URL*: `https://mavocity.com`
-   - *Redirect URLs*: `https://mavocity.com` hinzufügen
-
-6. **Keys in die Website eintragen**
-   Supabase → *Project Settings* → *API* (bzw. *Data API*) → **Project URL** und den **anon public** Key kopieren.
-   In `js/config.js` eintragen:
+   - *Redirect URLs*: `https://mavocity.com` und `https://mavocity.com/admin.html`
+6. **Keys eintragen:** Supabase → *Project Settings* → *API* → **Project URL** und **anon public** Key in `js/config.js`:
    ```js
    supabaseUrl: "https://DEIN-PROJEKT.supabase.co",
    supabaseAnonKey: "eyJ...",
    ```
-   Der anon-Key darf öffentlich sein, die Datenbank ist über Sicherheitsregeln (RLS) geschützt.
-   Den **service_role**-Key darfst du **niemals** eintragen.
+   Der anon-Key darf öffentlich sein. Den **service_role**-Key **niemals** eintragen!
+7. **Dich zum Admin machen:** Auf `mavocity.com/admin.html` mit Discord anmelden – die Seite zeigt dir den
+   fertigen SQL-Befehl mit deiner ID. Im SQL-Editor ausführen und Seite neu laden.
 
-7. **Dich selbst zum Admin machen**
-   Einmal auf der Website mit Discord anmelden. Dann in Supabase → *Authentication* → *Users* deine **UID** kopieren
-   und im *SQL Editor* ausführen:
-   ```sql
-   insert into public.forum_admins (user_id) values ('DEINE-UID');
-   ```
-   Admins können Themen anpinnen, sperren und löschen, fremde Beiträge löschen und in „Ankündigungen“ schreiben.
-
-**Wer darf was im Forum?**
+### Wer darf was?
 
 | | Gast | Angemeldet (Discord) | Admin |
 |---|---|---|---|
-| Lesen | ✅ | ✅ | ✅ |
+| Forum lesen | ✅ | ✅ | ✅ |
 | Thema erstellen / antworten | – | ✅ (nicht in Ankündigungen) | ✅ |
-| Eigene Antworten löschen | – | ✅ | ✅ |
-| Anpinnen, sperren, alles löschen | – | – | ✅ |
+| Eigene Beiträge bearbeiten / löschen | – | ✅ | ✅ (auch fremde) |
+| Beiträge melden | – | ✅ | ✅ |
+| Abstimmen, Quiz-Ergebnis speichern | – | ✅ | ✅ |
+| Anpinnen, sperren, Inhalte bearbeiten, Meldungen, Umfragen | – | – | ✅ |
+
+**Spam-Schutz:** max. 1 Beitrag alle 20 Sekunden und 1 neues Thema alle 2 Minuten (gilt nicht für Admins).
 
 ---
 
-## 2. Discord-Widget (Online-Anzeige auf der Startseite)
+## 2. Admin-Bereich (`mavocity.com/admin.html`)
 
-1. Discord → Servereinstellungen → **Widget** → *Server-Widget aktivieren*.
-2. Dort die **Server-ID** kopieren und in `js/config.js` bei `discordServerId` eintragen.
+- **Inhalte:** News, Events, Updates, Wiki, Team, Fraktionen, Galerie, Startseiten-Bilder, Karte, Streamer,
+  Regel-Quiz und Spenden-Pakete mit Formularen bearbeiten. *Speichern & veröffentlichen* → sofort live.
+  Bilder können direkt hochgeladen werden (max. 5 MB). Orte auf der Karte per Klick positionieren.
+- **Meldungen:** gemeldete Forenbeiträge ansehen, erledigen oder löschen.
+- **Umfragen:** neue Umfrage starten (erscheint auf der Startseite), beenden, Ergebnisse sehen.
+- **Quiz-Ergebnisse:** wer das Regel-Quiz bestanden hat – praktisch für Whitelist-Anträge.
+- *Auf Standard zurücksetzen* stellt die Inhalte aus `js/data.js` wieder her.
 
-Danach zeigt die Startseite, wie viele Mitglieder online sind, und ihre Profilbilder.
+**Ohne Supabase** funktioniert der Editor auch: Statt Speichern gibt es den Knopf *Code für data.js erzeugen*.
+Den Code in `js/data.js` einfügen und hochladen.
 
 ---
 
-## 3. Galerie füllen
+## 3. Discord-Benachrichtigung bei neuen Forenthemen
 
-1. Bilder (am besten `.jpg`, ca. 1600 px breit) in den Ordner `assets/gallery/` hochladen.
-2. In `js/data.js` bei `GALLERY` eintragen:
-   ```js
-   { type: "image", src: "assets/gallery/stadt.jpg", title: "Stadtansicht bei Nacht" },
-   { type: "video", youtubeId: "ABC123xyz", title: "Server-Trailer" },
+1. Discord → Kanal-Einstellungen → *Integrationen* → *Webhooks* → *Neuer Webhook* → URL kopieren.
+2. Im Supabase SQL-Editor ausführen:
+   ```sql
+   insert into public.app_settings (key, value) values
+     ('discord_webhook_url', 'https://discord.com/api/webhooks/...'),
+     ('site_url', 'https://mavocity.com')
+   on conflict (key) do update set value = excluded.value;
    ```
-   Die YouTube-ID ist der Teil nach `watch?v=` in der Video-URL.
+Die Webhook-URL ist in der Datenbank versteckt und für Besucher **nicht** sichtbar.
 
 ---
 
-## 4. Spenden / Tebex
+## 4. Discord-Widget (Online-Anzeige)
 
-FiveM-Server dürfen Geld nur über **Tebex** annehmen (Cfx.re-Regeln).
-1. Auf [tebex.io](https://tebex.io) einen Store anlegen und mit deinem FiveM-Server (Keymaster) verbinden.
-2. Store-Adresse in `js/config.js` bei `tebexUrl` eintragen.
-3. Pakete und Preise in `js/data.js` bei `DONATION_PACKAGES` anpassen. Bitte nur **kosmetische** Vorteile, kein Pay2Win.
+Discord → Servereinstellungen → **Widget** → *Server-Widget aktivieren* → **Server-ID** in `js/config.js` bei `discordServerId`.
 
 ---
 
-## 5. Updates / Changelog
+## 5. Streamer & Twitch-Live-Erkennung (optional)
 
-Neue Version in `js/data.js` **oben** in `CHANGELOG` einfügen:
-```js
-{
-  version: "1.2.0", date: "15.11.2026", title: "Neue Jobs",
-  items: [
-    { type: "neu", text: "Taxi-Job hinzugefügt" },
-    { type: "fix", text: "Garage-Bug behoben" },
-    { type: "änderung", text: "Gehalt LSPD angepasst" },
-  ],
-},
-```
+Streamer im Admin-Bereich (oder `js/data.js` → `STREAMERS`) eintragen. „Stream ansehen“ funktioniert sofort.
+
+Damit automatisch angezeigt wird, **wer gerade live ist**:
+1. Auf [dev.twitch.tv/console/apps](https://dev.twitch.tv/console/apps) eine Anwendung registrieren
+   (OAuth-Redirect: `https://mavocity.com`, Kategorie: Website-Integration) → **Client-ID** und **Client-Secret**.
+2. Supabase → *Edge Functions* → *Deploy a new function* → Name `twitch-live` → Inhalt von
+   `supabase/functions/twitch-live/index.ts` einfügen → bei *Enforce JWT verification* den Haken **entfernen** → *Deploy*.
+3. Supabase → *Edge Functions* → *Secrets*: `TWITCH_CLIENT_ID` und `TWITCH_CLIENT_SECRET` anlegen.
+4. In `js/config.js`: `twitchLiveCheck: true`.
 
 ---
 
-## 6. Logo austauschen
+## 6. Inhalte ohne Admin-Bereich ändern (`js/data.js`)
 
-`assets/logo.svg` und `assets/favicon.svg` durch eigene Dateien ersetzen (gleicher Name).
-`assets/og-image.png` (1200 × 630 px) ist das Vorschaubild, wenn jemand den Link in Discord oder WhatsApp teilt.
+- **Events:** `date: "2026-11-14T20:00"` (deutsche Zeit). Vergangene Events werden automatisch ausgegraut.
+- **Wiki:** `content` mit Formatierung: `# Überschrift`, `**fett**`, `*kursiv*`, `- Liste`, `> Zitat`, `[Link](https://…)`, Tabellen mit `| a | b |`.
+  Link auf einen Artikel: `#wiki/artikel-id`.
+- **Galerie:** Bild in `assets/gallery/` legen → `{ type: "image", src: "assets/gallery/bild.jpg", title: "…" }`
+  oder Video: `{ type: "video", youtubeId: "ABC123", title: "…" }`.
+- **Startseiten-Bilder:** `HERO_IMAGES = ["assets/hero1.jpg", "assets/hero2.jpg"]` – wechseln alle 7 Sekunden.
+- **Karte:** `x`/`y` = Position in Prozent. Eigenes Kartenbild: `mapImage: "assets/map.jpg"` in `js/config.js`.
+- **Quiz:** `correct` = Nummer der richtigen Antwort, **beginnend bei 0**. Bestehensgrenze: `quizPassPercent` in der Config.
 
 ---
 
-## 7. Impressum & Datenschutz
+## 7. Spenden / Tebex
+
+FiveM-Server dürfen Geld nur über **Tebex** annehmen (Cfx.re-Regeln). Store auf [tebex.io](https://tebex.io) anlegen,
+mit dem Server verbinden und die Store-Adresse in `js/config.js` bei `tebexUrl` eintragen. Nur kosmetische Pakete – kein Pay2Win.
+
+---
+
+## 8. Sprachen
+
+Oben rechts kann zwischen **Deutsch und Englisch** gewechselt werden; die Auswahl wird gespeichert.
+Direkter Link zur englischen Version: `mavocity.com/?lang=en`.
+Feste Texte stehen in `js/i18n.js`. Inhalte aus dem Admin-Bereich (News, Wiki …) werden **nicht** automatisch übersetzt.
+
+---
+
+## 9. Impressum & Datenschutz
 
 `impressum.html` und `datenschutz.html` enthalten **rot markierte Platzhalter** (`<span class="ph">[…]</span>`).
-Ersetze sie durch deine echten Daten und entferne dabei das `<span class="ph">`.
+Durch echte Daten ersetzen und das `<span class="ph">` entfernen.
+Bei neuen externen Diensten muss die Datenschutzerklärung ergänzt werden. Die Texte sind eine Vorlage, keine Rechtsberatung.
 
-Wenn du später neue externe Dienste einbaust (z. B. Analytics, Twitch, weitere Widgets), muss die
-Datenschutzerklärung ergänzt werden. Die Texte sind eine Vorlage und keine Rechtsberatung.
+---
 
-## 8. Schriften
+## 10. Suchmaschinen
+
+`sitemap.xml` und `robots.txt` liegen im Hauptordner. In der [Google Search Console](https://search.google.com/search-console)
+die Domain hinzufügen und `https://mavocity.com/sitemap.xml` einreichen.
+
+## 11. Schriften
 
 Die Seite nutzt bewusst **Systemschriften** (keine Google Fonts, DSGVO-konform).
-Für eine eigene Schrift: `.woff2`-Dateien z. B. über den *google-webfonts-helper* herunterladen, in `assets/fonts/`
-legen und per `@font-face` in `css/style.css` einbinden. Niemals direkt von `fonts.googleapis.com` laden.
+Eigene Schrift: `.woff2`-Dateien in `assets/fonts/` legen und per `@font-face` in `css/style.css` einbinden – nie direkt von Google laden.
