@@ -129,3 +129,19 @@ Neue Version in `js/data.js` **oben** in `CHANGELOG` einfügen:
 
 `assets/logo.svg` und `assets/favicon.svg` durch eigene Dateien ersetzen (gleicher Name).
 `assets/og-image.png` (1200 × 630 px) ist das Vorschaubild, wenn jemand den Link in Discord oder WhatsApp teilt.
+
+---
+
+## 7. Impressum & Datenschutz
+
+`impressum.html` und `datenschutz.html` enthalten **rot markierte Platzhalter** (`<span class="ph">[…]</span>`).
+Ersetze sie durch deine echten Daten und entferne dabei das `<span class="ph">`.
+
+Wenn du später neue externe Dienste einbaust (z. B. Analytics, Twitch, weitere Widgets), muss die
+Datenschutzerklärung ergänzt werden. Die Texte sind eine Vorlage und keine Rechtsberatung.
+
+## 8. Schriften
+
+Die Seite nutzt bewusst **Systemschriften** (keine Google Fonts, DSGVO-konform).
+Für eine eigene Schrift: `.woff2`-Dateien z. B. über den *google-webfonts-helper* herunterladen, in `assets/fonts/`
+legen und per `@font-face` in `css/style.css` einbinden. Niemals direkt von `fonts.googleapis.com` laden.
