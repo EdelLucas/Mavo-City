@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mavo City – FiveM Roleplay</title>
+  <meta name="description" content="Mavo City – German FiveM Roleplay Server. Regeln, Forum und Anleitung zum Verbinden.">
+  <meta name="theme-color" content="#0d0f14">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/forum.css">
+</head>
+<body>
+
+  <!-- ================= HEADER / TAB-NAVIGATION ================= -->
+  <header class="header">
+    <div class="container header__inner">
+      <a href="#start" class="logo" data-tab-link="start">
+        <span class="logo__mark">M</span>
+        <span class="logo__text">Mavo <strong>City</strong></span>
+      </a>
+
+      <button class="nav-toggle" aria-label="Menü öffnen" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+
+      <nav class="tabs" role="tablist" aria-label="Hauptnavigation">
+        <button class="tab" role="tab" data-tab="start">Start</button>
+        <button class="tab" role="tab" data-tab="verbinden">Verbinden</button>
+        <button class="tab" role="tab" data-tab="regeln">Regeln</button>
+        <button class="tab" role="tab" data-tab="forum">Forum</button>
+        <button class="tab" role="tab" data-tab="team">Team</button>
+        <button class="tab" role="tab" data-tab="faq">FAQ</button>
+      </nav>
+
+      <a class="btn btn--primary btn--sm header__cta" data-tab-link="verbinden" href="#verbinden">Jetzt spielen</a>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ================= TAB: START ================= -->
+    <section id="start" class="panel" role="tabpanel">
+      <div class="hero">
+        <div class="container hero__inner">
+          <span class="badge"><span class="dot" id="statusDot"></span><span id="statusText">Status wird geladen…</span></span>
+          <h1>Willkommen in <span class="accent">Mavo City</span></h1>
+          <p class="hero__lead">Ernsthaftes German Roleplay mit eigener Wirtschaft, aktiven Fraktionen und einem Team, das zuhört.</p>
+          <div class="hero__actions">
+            <a class="btn btn--primary" data-tab-link="verbinden" href="#verbinden">So kommst du drauf</a>
+            <a class="btn btn--ghost js-discord" href="#" target="_blank" rel="noopener">Discord beitreten</a>
+          </div>
+          <div class="stats">
+            <div class="stat"><span class="stat__value" id="statPlayers">–</span><span class="stat__label">Spieler online</span></div>
+            <div class="stat"><span class="stat__value" id="statMax">–</span><span class="stat__label">Slots</span></div>
+            <div class="stat"><span class="stat__value">18+</span><span class="stat__label">Mindestalter</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="container section">
+        <h2 class="section__title">Was dich erwartet</h2>
+        <div class="grid grid--3">
+          <article class="card">
+            <div class="card__icon">🚓</div>
+            <h3>Staatliche Fraktionen</h3>
+            <p>LSPD, Rettungsdienst und Justiz mit Ausbildung, Rängen und echten Abläufen.</p>
+          </article>
+          <article class="card">
+            <div class="card__icon">💼</div>
+            <h3>Eigene Wirtschaft</h3>
+            <p>Firmen gründen, Immobilien kaufen, handeln – die Stadt lebt von ihren Bürgern.</p>
+          </article>
+          <article class="card">
+            <div class="card__icon">🕶️</div>
+            <h3>Crime mit Tiefgang</h3>
+            <p>Gangs und Organisationen mit Gebieten, Ruf und Konsequenzen.</p>
+          </article>
+        </div>
+      </div>
+
+      <div class="container section">
+        <h2 class="section__title">Neuigkeiten</h2>
+        <div class="news" id="newsList"></div>
+      </div>
+    </section>
+
+    <!-- ================= TAB: VERBINDEN ================= -->
+    <section id="verbinden" class="panel" role="tabpanel" hidden>
+      <div class="container section">
+        <h1 class="page-title">So kommst du auf den Server</h1>
+        <p class="page-lead">In wenigen Minuten bist du in der Stadt. Folge einfach den Schritten.</p>
+
+        <ol class="steps">
+          <li class="step">
+            <div class="step__num">1</div>
+            <div class="step__body">
+              <h3>GTA V besitzen</h3>
+              <p>Du brauchst eine legale Kopie von <strong>GTA V</strong> (Steam, Epic Games oder Rockstar Launcher).</p>
+            </div>
+          </li>
+          <li class="step">
+            <div class="step__num">2</div>
+            <div class="step__body">
+              <h3>FiveM installieren</h3>
+              <p>Lade FiveM von der offiziellen Seite herunter und installiere es.</p>
+              <a class="btn btn--ghost btn--sm" href="https://fivem.net" target="_blank" rel="noopener">fivem.net öffnen</a>
+            </div>
+          </li>
+          <li class="step">
+            <div class="step__num">3</div>
+            <div class="step__body">
+              <h3>Discord beitreten &amp; Whitelist</h3>
+              <p>Tritt unserem Discord bei, lies die Regeln und stelle im Kanal <code>#whitelist</code> deinen Antrag.</p>
+              <a class="btn btn--ghost btn--sm js-discord" href="#" target="_blank" rel="noopener">Zum Discord</a>
+            </div>
+          </li>
+          <li class="step">
+            <div class="step__num">4</div>
+            <div class="step__body">
+              <h3>Verbinden</h3>
+              <p>Klicke auf <em>Direkt verbinden</em> oder öffne in FiveM die Konsole mit <kbd>F8</kbd> und gib folgenden Befehl ein:</p>
+              <div class="copybox">
+                <code id="connectCmd">connect …</code>
+                <button class="btn btn--sm btn--primary" id="copyConnect">Kopieren</button>
+              </div>
+              <a class="btn btn--primary" id="joinBtn" href="#">Direkt verbinden</a>
+            </div>
+          </li>
+        </ol>
+
+        <div class="callout">
+          <strong>Probleme beim Verbinden?</strong>
+          Cache leeren (<code>%localappdata%/FiveM/FiveM.app/data/cache</code> löschen), FiveM neu starten
+          oder im Discord ein Support-Ticket öffnen.
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= TAB: REGELN ================= -->
+    <section id="regeln" class="panel" role="tabpanel" hidden>
+      <div class="container section">
+        <h1 class="page-title">Regelwerk</h1>
+        <p class="page-lead">Mit dem Betreten des Servers akzeptierst du diese Regeln. Unwissenheit schützt nicht vor Strafe.</p>
+
+        <div class="accordion">
+          <details open>
+            <summary>§1 Allgemeines</summary>
+            <ul>
+              <li>Respektvoller Umgang mit allen Spielern und Teammitgliedern.</li>
+              <li>Rassismus, Sexismus und Diskriminierung führen zum permanenten Ausschluss.</li>
+              <li>Mindestalter 18 Jahre.</li>
+            </ul>
+          </details>
+          <details>
+            <summary>§2 Roleplay</summary>
+            <ul>
+              <li><strong>Fail-RP</strong>: Unrealistisches Verhalten ist verboten.</li>
+              <li><strong>RDM / VDM</strong>: Grundloses Töten oder Überfahren ist verboten.</li>
+              <li><strong>Metagaming</strong>: Out-of-Character-Wissen darf nicht im RP genutzt werden.</li>
+              <li><strong>Powergaming</strong>: Anderen keine Aktionen aufzwingen.</li>
+            </ul>
+          </details>
+          <details>
+            <summary>§3 Fraktionen &amp; Crime</summary>
+            <ul>
+              <li>Überfälle nur mit ausreichend Beamten im Dienst.</li>
+              <li>Geiselnahmen nur mit vorherigem RP.</li>
+              <li>Maximal 6 Personen pro Gruppe bei Aktionen.</li>
+            </ul>
+          </details>
+          <details>
+            <summary>§4 Technisches</summary>
+            <ul>
+              <li>Cheats, Mod-Menüs und Exploits = permanenter Bann.</li>
+              <li>Bugs bitte über ein Support-Ticket melden.</li>
+              <li>Funktionierendes Mikrofon ist Pflicht.</li>
+            </ul>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= TAB: FORUM ================= -->
+    <section id="forum" class="panel" role="tabpanel" hidden>
+      <div class="container section">
+        <div class="forum-head">
+          <div>
+            <h1 class="page-title">Forum</h1>
+            <p class="page-lead">Diskutiere mit der Community, stelle Fragen oder bewirb dich.</p>
+          </div>
+          <div class="forum-user">
+            <span id="forumUserLabel">Nicht angemeldet</span>
+            <button class="btn btn--ghost btn--sm" id="forumLoginBtn">Namen festlegen</button>
+          </div>
+        </div>
+
+        <!-- Breadcrumb -->
+        <nav class="crumbs" id="forumCrumbs"></nav>
+
+        <!-- Hier rendert js/forum.js die Ansichten (Kategorien, Threads, Beiträge) -->
+        <div id="forumView"></div>
+      </div>
+    </section>
+
+    <!-- ================= TAB: TEAM ================= -->
+    <section id="team" class="panel" role="tabpanel" hidden>
+      <div class="container section">
+        <h1 class="page-title">Unser Team</h1>
+        <p class="page-lead">Die Leute hinter Mavo City.</p>
+        <div class="grid grid--4" id="teamGrid"></div>
+      </div>
+    </section>
+
+    <!-- ================= TAB: FAQ ================= -->
+    <section id="faq" class="panel" role="tabpanel" hidden>
+      <div class="container section">
+        <h1 class="page-title">Häufige Fragen</h1>
+        <div class="accordion">
+          <details><summary>Brauche ich eine Whitelist?</summary><p>Ja. Den Antrag stellst du in unserem Discord im Kanal <code>#whitelist</code>.</p></details>
+          <details><summary>Wie alt muss ich sein?</summary><p>Mindestens 18 Jahre.</p></details>
+          <details><summary>Ich bekomme beim Verbinden einen Fehler – was tun?</summary><p>Cache leeren, FiveM neu starten und prüfen, ob du die Whitelist hast. Hilft das nicht, öffne ein Ticket im Discord.</p></details>
+          <details><summary>Kann ich mich als Teammitglied bewerben?</summary><p>Ja! Im Forum unter <em>Bewerbungen</em> findest du alle Infos.</p></details>
+          <details><summary>Gibt es Spenden / Pakete?</summary><p>Spenden sind freiwillig und bringen keine spielerischen Vorteile (Pay2Win gibt es bei uns nicht).</p></details>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__inner">
+      <span>© <span id="year"></span> Mavo City · Nicht mit Rockstar Games oder Take-Two verbunden.</span>
+      <div class="footer__links">
+        <a class="js-discord" href="#" target="_blank" rel="noopener">Discord</a>
+        <a href="#regeln" data-tab-link="regeln">Regeln</a>
+        <a href="#faq" data-tab-link="faq">FAQ</a>
+      </div>
+    </div>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <!-- Reihenfolge wichtig: config -> data -> main -> forum -->
+  <script src="js/config.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/forum.js"></script>
+</body>
+</html>
