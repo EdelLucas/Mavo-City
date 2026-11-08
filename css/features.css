@@ -14,16 +14,9 @@
 }
 .input:focus { outline: none; border-color: var(--accent); }
 
-/* ---------- Sprachumschalter ---------- */
-.lang-switch {
-  background: var(--surface); border: 1px solid var(--border); color: var(--text);
-  font: inherit; font-size: .8rem; font-weight: 700; letter-spacing: .05em;
-  width: 40px; height: 34px; border-radius: 8px; cursor: pointer; flex: none;
-}
-.lang-switch:hover { border-color: var(--accent); color: var(--accent); }
-
 /* ---------- Hero: Hintergrundbilder ---------- */
-.hero__slides { position: absolute; inset: 0; }
+.hero__slides { position: absolute; inset: 0; z-index: 0; }
+.hero__video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .hero__slide {
   position: absolute; inset: 0; background-size: cover; background-position: center;
   opacity: 0; transition: opacity 1.5s ease; transform: scale(1.04);
@@ -32,9 +25,11 @@
 @keyframes kenburns { to { transform: scale(1.12); } }
 .hero--images .hero__slides::after {
   content: ""; position: absolute; inset: 0;
-  background: linear-gradient(180deg, rgba(13, 15, 20, .55), rgba(13, 15, 20, .85) 70%, var(--bg));
+  background:
+    linear-gradient(90deg, rgba(10, 10, 11, .94) 0%, rgba(10, 10, 11, .7) 50%, rgba(10, 10, 11, .35) 100%),
+    linear-gradient(0deg, #0a0a0b 0%, transparent 45%);
 }
-.hero--images::after { display: none; }
+.hero--images::after, .hero--images::before { display: none; }
 @media (prefers-reduced-motion: reduce) { .hero__slide.is-active { animation: none; } }
 
 /* ---------- Spielerliste ---------- */
@@ -66,7 +61,7 @@
 .md table { border-collapse: collapse; width: 100%; font-size: .95rem; }
 .md th, .md td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
 .md th { background: var(--surface-2); }
-.md tr:nth-child(even) td { background: rgba(255, 255, 255, .02); }
+.md tr:nth-child(even) td { background: var(--stripe); }
 
 /* ---------- Wiki ---------- */
 .wiki { display: grid; grid-template-columns: 260px 1fr; gap: 24px; align-items: start; }
@@ -138,12 +133,12 @@
 .pin__icon > * { transform: rotate(45deg); }
 .pin__label {
   margin-top: 6px; font-size: .75rem; font-weight: 600; white-space: nowrap; color: #fff;
-  background: rgba(13, 15, 20, .85); padding: 2px 8px; border-radius: 6px; opacity: 0; transition: opacity .2s;
+  background: rgba(10, 10, 11, .85); padding: 2px 8px; border-radius: 6px; opacity: 0; transition: opacity .2s;
 }
 .pin:hover .pin__label, .pin:focus-visible .pin__label, .pin.is-selected .pin__label { opacity: 1; }
 .pin:hover, .pin.is-selected { transform: translate(-50%, -100%) scale(1.15); z-index: 2; }
 .pin.is-dim { opacity: .2; }
-.pin--staat .pin__icon { background: #3b82f6; }
+.pin--staat .pin__icon { background: var(--info); }
 .pin--zivil .pin__icon { background: var(--success); }
 .pin--crime .pin__icon { background: var(--danger); }
 .pin--freizeit .pin__icon { background: #a855f7; }
@@ -200,7 +195,7 @@
 .quiz__review { text-align: left; margin-top: 20px; background: var(--bg-2); border-radius: 12px; padding: 12px 16px; }
 .quiz__review summary { cursor: pointer; font-weight: 600; }
 .quiz__review ul { padding-left: 18px; display: grid; gap: 10px; margin: 12px 0 0; }
-.quiz__wrong { color: #ff8a80; }
+.quiz__wrong { color: var(--danger); }
 .quiz__right { color: var(--success); }
 
 /* ---------- Umfrage ---------- */
@@ -219,7 +214,7 @@
   background: var(--bg-2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; overflow: hidden;
 }
 .poll__result > * { position: relative; }
-.poll__bar { position: absolute !important; inset: 0 auto 0 0; background: rgba(255, 159, 28, .18); transition: width .6s; }
+.poll__bar { position: absolute !important; inset: 0 auto 0 0; background: var(--accent-soft); transition: width .6s; }
 .poll__result.is-mine { border-color: var(--accent); }
 .poll__meta { color: var(--muted); font-size: .85rem; margin: 0; }
 
@@ -230,7 +225,7 @@
   background: var(--surface); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-weight: 600;
 }
 .pager__item:hover { border-color: var(--accent); color: var(--accent); }
-.pager__item.is-active { background: var(--accent); border-color: var(--accent); color: #1a1205; }
+.pager__item.is-active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
 .pager__gap { align-self: center; color: var(--muted); }
 
 .post__actions { display: flex; gap: 12px; }
@@ -258,3 +253,82 @@
   .cd__box { min-width: 0; flex: 1; }
   .pin__icon { width: 26px; height: 26px; font-size: .8rem; }
 }
+
+/* ==========================================================
+   Design „Clean Premium“ – Symbole & Komponenten
+   ========================================================== */
+.section--flush { padding-top: 0; }
+.emoji { font-size: 1.1em; line-height: 1; }
+
+/* Abschluss-Banner auf der Startseite */
+.cta-banner {
+  position: relative; overflow: hidden;
+  display: flex; justify-content: space-between; align-items: center; gap: 28px; flex-wrap: wrap;
+  padding: 48px; border-radius: 24px; border: 1px solid rgba(212, 168, 90, .3);
+  background:
+    radial-gradient(80% 120% at 100% 0%, rgba(212, 168, 90, .22), transparent 60%),
+    linear-gradient(135deg, #141416, #0a0a0b);
+}
+.cta-banner h2 { font-size: clamp(1.8rem, 4vw, 2.6rem); margin-bottom: 8px; }
+.cta-banner p { color: var(--muted); margin: 0; max-width: 520px; }
+
+/* Suchfeld mit Symbol */
+.search-field { position: relative; display: block; }
+.search-field .icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--faint); pointer-events: none; }
+.search-field .input { padding-left: 42px; border-radius: 999px; }
+
+/* Startbild: Spielerliste links ausgerichtet */
+.playerlist { margin: 24px 0 0; max-width: 640px; }
+
+/* Symbole in Karten & Listen */
+.faction__icon, .forum-cat__icon {
+  color: var(--accent-ink); background: var(--accent-soft) !important; border: 1px solid var(--accent-soft);
+}
+.faction__icon .icon, .forum-cat__icon .icon { width: 26px; height: 26px; }
+.package__icon { color: var(--accent-ink); }
+.package__icon .icon { width: 36px; height: 36px; }
+.nop2w__icon { color: var(--success); display: grid; }
+.nop2w__icon .icon { width: 32px; height: 32px; }
+.wiki__link { align-items: center; }
+.wiki__link .icon { color: var(--accent-ink); }
+.gallery__ph .icon { width: 36px; height: 36px; }
+.gallery__play .icon { width: 26px; height: 26px; fill: currentColor; stroke: none; margin-left: 3px; }
+.gallery__play { padding-left: 0 !important; }
+.quiz__icon { color: var(--accent-ink); }
+.quiz__icon .icon { width: 56px; height: 56px; stroke-width: 1.4; }
+.quiz--fail .quiz__icon { color: var(--danger); }
+.quiz__passed { display: inline-flex; align-items: center; gap: 8px; }
+.pin { color: var(--accent-ink); }
+.pin .icon { width: .9em; height: .9em; vertical-align: -.1em; margin-right: 4px; }
+.pin__icon .icon { width: 16px; height: 16px; color: #fff; margin: 0; }
+.chip .icon, .tag .icon, .map-list .icon { width: 1em; height: 1em; vertical-align: -.15em; }
+.tag { display: inline-flex; align-items: center; gap: 5px; }
+.tag .dot { width: 6px; height: 6px; }
+.forum-notice { display: flex; align-items: center; gap: 10px; }
+.empty .icon { width: 1.2em; height: 1.2em; vertical-align: -.25em; margin-right: 4px; }
+.lightbox__close, .lightbox__nav { display: grid; place-items: center; }
+.lightbox__close .icon { width: 20px; height: 20px; }
+.streamer__viewers { display: inline-flex; align-items: center; gap: 4px; }
+
+/* Events */
+.event__meta { display: flex; flex-wrap: wrap; gap: 6px 16px; }
+.event__meta > span { display: inline-flex; align-items: center; gap: 6px; }
+.event__meta .icon { color: var(--accent-ink); width: 1em; height: 1em; }
+
+/* Discord-Karte */
+.discord-card {
+  grid-template-columns: 1fr auto; align-items: center; padding: 32px 36px; border-radius: 24px;
+  background: radial-gradient(70% 140% at 0% 0%, rgba(88, 101, 242, .2), transparent 60%), var(--surface);
+}
+.discord-card .eyebrow { margin-bottom: 2px; color: #8b95ff; }
+.discord-card__head strong { font-family: var(--font-display); font-size: 1.4rem; letter-spacing: -.01em; }
+.discord-card__logo { width: 60px; height: 60px; border-radius: 18px; }
+.discord-card__logo .icon { width: 32px; height: 32px; }
+.discord-card__members { grid-column: 1 / -1; }
+@media (max-width: 640px) {
+  .discord-card { grid-template-columns: 1fr; padding: 24px; }
+  .cta-banner { padding: 32px 24px; }
+}
+
+/* Karten in Unterseiten: kein Hochspringen bei interaktiven Elementen */
+.quiz.card:hover, .poll.card:hover { transform: none; box-shadow: none; }

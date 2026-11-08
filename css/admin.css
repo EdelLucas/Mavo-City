@@ -81,7 +81,7 @@
 .save-bar {
   position: sticky; bottom: 0; z-index: 5; margin-top: 20px;
   display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; align-items: center;
-  background: rgba(13, 15, 20, .92); backdrop-filter: blur(8px);
+  background: var(--header-bg); backdrop-filter: blur(8px);
   border-top: 1px solid var(--border); padding: 12px 0;
 }
 .save-bar .hint { margin-right: auto; color: var(--muted); font-size: .85rem; }

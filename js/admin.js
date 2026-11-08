@@ -62,13 +62,13 @@
     },
     wiki: {
       label: "📚 Wiki", varName: "WIKI", hint: "Artikel mit Formatierung (# Überschrift, **fett**, - Liste, | Tabelle |).",
-      title: (i) => `${i.icon || "📄"} ${i.title || "Neuer Artikel"}`,
-      blank: () => ({ id: "", icon: "📄", title: "", category: "", content: "# Titel\n\nText…" }),
+      title: (i) => i.title || "Neuer Artikel",
+      blank: () => ({ id: "", icon: "file", title: "", category: "", content: "# Titel\n\nText…" }),
       fields: [
         { k: "title", label: "Titel", type: "text" },
         { k: "id", label: "Kurzname für den Link", type: "text", help: "nur a-z, 0-9, - (z. B. strafkatalog)" },
         { k: "category", label: "Kategorie", type: "text" },
-        { k: "icon", label: "Symbol (Emoji)", type: "text" },
+        { k: "icon", label: "Symbol", type: "icon" },
         { k: "content", label: "Inhalt", type: "md", wide: true },
       ],
     },
@@ -84,14 +84,14 @@
     },
     factions: {
       label: "🚓 Fraktionen", varName: "FACTIONS",
-      title: (i) => `${i.icon || ""} ${i.name || "Neue Fraktion"}`,
-      blank: () => ({ name: "", short: "", type: "zivil", icon: "🏢", status: "offen", desc: "", requirements: [] }),
+      title: (i) => i.name || "Neue Fraktion",
+      blank: () => ({ name: "", short: "", type: "zivil", icon: "building", status: "offen", desc: "", requirements: [] }),
       fields: [
         { k: "name", label: "Name", type: "text" },
         { k: "short", label: "Kürzel", type: "text" },
         { k: "type", label: "Art", type: "select", options: [["staat", "Staat"], ["zivil", "Zivil"], ["crime", "Crime"]] },
         { k: "status", label: "Bewerbungen", type: "select", options: [["offen", "offen"], ["geschlossen", "geschlossen"]] },
-        { k: "icon", label: "Symbol (Emoji)", type: "text" },
+        { k: "icon", label: "Symbol", type: "icon" },
         { k: "desc", label: "Beschreibung", type: "textarea", wide: true },
         { k: "requirements", label: "Voraussetzungen", type: "list", wide: true, help: "Eine pro Zeile" },
       ],
@@ -149,17 +149,27 @@
     },
     packages: {
       label: "💛 Spenden-Pakete", varName: "DONATION_PACKAGES", hint: "Bitte nur kosmetische Vorteile – kein Pay2Win.",
-      title: (i) => `${i.icon || ""} ${i.name || "Neues Paket"} – ${i.price || ""}`,
-      blank: () => ({ name: "", price: "", icon: "💛", highlight: false, perks: [] }),
+      title: (i) => `${i.name || "Neues Paket"} – ${i.price || ""}`,
+      blank: () => ({ name: "", price: "", icon: "heart", highlight: false, perks: [] }),
       fields: [
         { k: "name", label: "Name", type: "text" },
         { k: "price", label: "Preis", type: "text", help: "z. B. 4,99 €" },
-        { k: "icon", label: "Symbol (Emoji)", type: "text" },
+        { k: "icon", label: "Symbol", type: "icon" },
         { k: "highlight", label: "Als „Beliebt“ hervorheben", type: "check" },
         { k: "perks", label: "Vorteile", type: "list", wide: true, help: "Einer pro Zeile" },
       ],
     },
   };
+
+  const ICON_CHOICES = [
+    ["shield", "Schild (Polizei)"], ["medkit", "Koffer (Rettungsdienst)"], ["scale", "Waage (Justiz)"],
+    ["wrench", "Schraubenschlüssel"], ["mask", "Sonnenbrille (Crime)"], ["briefcase", "Aktenkoffer"],
+    ["car", "Auto"], ["building", "Gebäude"], ["store", "Laden"], ["star", "Stern"], ["heart", "Herz"],
+    ["trophy", "Pokal"], ["gift", "Geschenk"], ["flag", "Flagge"], ["keyboard", "Tastatur"], ["book", "Buch"],
+    ["file", "Dokument"], ["chat", "Sprechblase"], ["megaphone", "Megafon"], ["lightbulb", "Glühbirne"],
+    ["users", "Personen"], ["calendar", "Kalender"], ["map", "Karte"], ["pin", "Ort"], ["gamepad", "Controller"],
+    ["camera", "Kamera"], ["video", "Video"], ["sun", "Sonne"], ["lock", "Schloss"], ["info", "Info"],
+  ];
 
   /* ==========================================================
      Zustand
@@ -233,6 +243,12 @@
       case "select":
         input = `<select ${base}>${f.options.map(([val, lab]) => `<option value="${esc(val)}" ${val === v ? "selected" : ""}>${esc(lab)}</option>`).join("")}</select>`;
         break;
+      case "icon": {
+        const known = ICON_CHOICES.some(([k]) => k === v);
+        input = `<select ${base}>${ICON_CHOICES.map(([k, lab]) => `<option value="${k}" ${k === v ? "selected" : ""}>${esc(lab)}</option>`).join("")}
+                 ${!known && v ? `<option value="${esc(v)}" selected>${esc(v)} (eigenes)</option>` : ""}</select>`;
+        break;
+      }
       case "check":
         return `<label class="field field--check"><input type="checkbox" ${base} ${v ? "checked" : ""}> ${esc(f.label)}</label>`;
       case "list": input = `<textarea ${base} data-type="list">${esc((v || []).join("\n"))}</textarea>`; break;

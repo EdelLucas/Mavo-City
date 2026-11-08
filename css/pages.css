@@ -1,34 +1,18 @@
 /* ==========================================================
-   Mavo City – Styles für Navigation "Mehr", Discord, Fraktionen,
+   Mavo City – Styles für Discord, Fraktionen,
    Galerie, Updates und Spenden
    ========================================================== */
 
-/* ---------- Logo ---------- */
-.logo__img { width: 38px; height: 38px; display: block; }
-.hero__logo { width: 96px; height: 96px; margin: 0 auto 20px; display: block; filter: drop-shadow(0 10px 30px rgba(255, 159, 28, .35)); }
-
-/* ---------- Dropdown "Mehr" ---------- */
-.tab-more { position: relative; }
-.tab-more .caret { font-size: .75em; display: inline-block; transition: transform .2s; }
-.tab-more.is-open .caret { transform: rotate(180deg); }
-.tab-more__menu {
-  position: absolute; top: calc(100% + 10px); right: 0; min-width: 190px;
-  display: none; flex-direction: column; gap: 2px; padding: 6px;
-  background: var(--bg-2); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow);
-}
-.tab-more.is-open .tab-more__menu { display: flex; }
-.tab-more__menu .tab { text-align: left; width: 100%; }
-.tab-more__menu .tab.is-active { background: var(--surface); }
-.tab-more__menu .tab.is-active::after { display: none; }
-
 /* ---------- Buttons ---------- */
-.btn--discord { background: #5865f2; color: #fff; }
+.btn--discord { background: #5865f2; color: #fff; box-shadow: 0 8px 24px -10px rgba(88, 101, 242, .6); }
 .btn--discord:hover { background: #4752c4; color: #fff; }
 .btn--danger:hover { border-color: var(--danger); color: var(--danger); }
 
 /* ---------- Start: News + Discord nebeneinander ---------- */
-.split { display: grid; grid-template-columns: 1.4fr 1fr; gap: 32px; align-items: start; }
-.more-link { display: inline-block; margin-top: 16px; font-weight: 600; }
+.split { display: grid; grid-template-columns: 1.4fr 1fr; gap: 56px; align-items: start; }
+.more-link { display: inline-flex; align-items: center; gap: 6px; margin-top: 20px; font-weight: 600; }
+.more-link .icon { width: 1em; height: 1em; transition: transform .2s; }
+.more-link:hover .icon { transform: translateX(3px); }
 
 .discord-card {
   background: linear-gradient(160deg, rgba(88, 101, 242, .18), var(--surface) 55%);
@@ -51,8 +35,8 @@
   display: inline-block; font-size: .75rem; font-weight: 600; padding: .15em .6em; border-radius: 999px;
   background: var(--surface-2); color: var(--muted); margin-right: 4px;
 }
-.tag--ok { background: rgba(46, 204, 113, .15); color: var(--success); }
-.tag--no { background: rgba(231, 76, 60, .15); color: var(--danger); }
+.tag--ok { background: var(--success-soft); color: var(--success); }
+.tag--no { background: var(--danger-soft); color: var(--danger); }
 
 .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
 .chip {
@@ -60,7 +44,7 @@
   padding: .45em 1em; border-radius: 999px; font: inherit; font-size: .9rem; cursor: pointer;
 }
 .chip:hover { color: var(--text); }
-.chip.is-active { background: var(--accent); border-color: var(--accent); color: #1a1205; font-weight: 600; }
+.chip.is-active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 600; }
 
 .checklist { list-style: none; padding: 0; margin: 0 0 20px; display: grid; gap: 6px; }
 .checklist li { padding-left: 26px; position: relative; color: var(--muted); }
@@ -69,7 +53,7 @@
 /* ---------- Fraktionen ---------- */
 .grid--2 { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
 .faction { display: flex; flex-direction: column; border-top: 3px solid var(--border); }
-.faction--staat { border-top-color: #3b82f6; }
+.faction--staat { border-top-color: var(--info); }
 .faction--zivil { border-top-color: var(--success); }
 .faction--crime { border-top-color: var(--danger); }
 .faction__head { display: flex; gap: 14px; align-items: center; margin-bottom: 14px; }
@@ -98,7 +82,7 @@
 .gallery__play {
   position: absolute; top: 50%; left: 50%; transform: translate(-50%, -60%);
   width: 60px; height: 60px; border-radius: 50%; display: grid; place-items: center;
-  background: rgba(255, 159, 28, .9); color: #1a1205; font-size: 1.4rem; padding-left: 4px;
+  background: var(--accent); color: var(--on-accent); font-size: 1.4rem; padding-left: 4px;
 }
 .gallery__item--placeholder { cursor: default; }
 .gallery__ph {
@@ -152,14 +136,14 @@
   flex: none; font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
   padding: .2em .6em; border-radius: 6px; min-width: 70px; text-align: center;
 }
-.change--neu { background: rgba(46, 204, 113, .15); color: var(--success); }
-.change--fix { background: rgba(59, 130, 246, .15); color: #60a5fa; }
-.change--change { background: rgba(255, 159, 28, .15); color: var(--accent); }
+.change--neu { background: var(--success-soft); color: var(--success); }
+.change--fix { background: var(--info-soft); color: var(--info); }
+.change--change { background: var(--accent-soft); color: var(--accent); }
 
 /* ---------- Spenden ---------- */
 .nop2w {
   display: flex; gap: 16px; align-items: center; margin-bottom: 32px;
-  background: rgba(46, 204, 113, .08); border: 1px solid rgba(46, 204, 113, .35);
+  background: var(--success-soft); border: 1px solid var(--success);
   border-radius: var(--radius); padding: 18px 22px; color: var(--muted);
 }
 .nop2w strong { display: block; color: var(--text); }
@@ -173,19 +157,12 @@
 .package--highlight { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), var(--shadow); }
 .package__badge {
   position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
-  background: var(--accent); color: #1a1205; font-size: .75rem; font-weight: 700;
+  background: var(--accent); color: var(--on-accent); font-size: .75rem; font-weight: 700;
   padding: .25em .9em; border-radius: 999px;
 }
 .fineprint { color: var(--muted); font-size: .85rem; margin-top: 32px; max-width: 720px; }
 
 /* ---------- Responsive ---------- */
-@media (max-width: 1180px) {
-  /* Ab hier Mobile-Menü, damit alle Tabs Platz haben */
-  .tab-more__btn { display: none; }
-  .tab-more__menu {
-    position: static; display: flex; padding: 0; border: 0; background: none; box-shadow: none; min-width: 0;
-  }
-}
 @media (max-width: 860px) {
   .split { grid-template-columns: 1fr; }
   .grid--2 { grid-template-columns: 1fr; }

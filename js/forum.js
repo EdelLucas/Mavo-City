@@ -213,7 +213,7 @@
 
   function errorBox(err) {
     console.error(err);
-    view.innerHTML = `<div class="empty">⚠️ ${t("Das Forum konnte nicht geladen werden.")}<br><small>${esc(err?.message || err)}</small></div>`;
+    view.innerHTML = `<div class="empty">${icon("alert")} ${t("Das Forum konnte nicht geladen werden.")}<br><small>${esc(err?.message || err)}</small></div>`;
   }
   async function guard(fn) {
     try { await fn(); } catch (err) { errorBox(err); }
@@ -255,7 +255,7 @@
   }
 
   const demoNotice = () => store.mode === "local"
-    ? `<p class="forum-notice">ℹ️ ${t("Demo-Modus: Beiträge werden nur lokal in deinem Browser gespeichert.")}</p>` : "";
+    ? `<p class="forum-notice">${icon("info")} ${t("Demo-Modus: Beiträge werden nur lokal in deinem Browser gespeichert.")}</p>` : "";
 
   /* ---------- Ansicht: Kategorien ---------- */
   async function renderCategories() {
@@ -265,7 +265,7 @@
       const s = stats[c.id] || { threads: 0, posts: 0 };
       return `
         <a class="forum-cat" href="#forum/cat/${c.id}">
-          <span class="forum-cat__icon">${c.icon}</span>
+          <span class="forum-cat__icon">${iconOrText(c.icon, "chat")}</span>
           <span>
             <span class="forum-cat__title">${esc(catTitle(c))}</span>
             <span class="forum-cat__desc">${esc(t(c.desc))}</span>
@@ -299,7 +299,7 @@
         ? items.map((th) => `
           <a class="thread-row" href="#forum/thread/${th.id}">
             <span>
-              <span class="thread-row__title">${th.pinned ? '<span class="pin">📌</span>' : ""}${th.locked ? '<span class="pin">🔒</span>' : ""}${esc(th.title)}</span>
+              <span class="thread-row__title">${th.pinned ? `<span class="pin">${icon("pinned")}</span>` : ""}${th.locked ? `<span class="pin">${icon("lock")}</span>` : ""}${esc(th.title)}</span>
               <span class="thread-row__meta">${t("von")} ${esc(th.author)} · ${t("zuletzt")} ${fmtDate(th.lastAt)}</span>
             </span>
             <span class="thread-row__count">${th.replies} ${th.replies === 1 ? t("Antwort") : t("Antworten")}</span>
@@ -373,7 +373,7 @@
     const pagerHtml = pager(data.page, total, POSTS_PER_PAGE, `#forum/thread/${threadId}`);
 
     view.innerHTML = `
-      <h2>${th.pinned ? "📌 " : ""}${th.locked ? "🔒 " : ""}${esc(th.title)}</h2>
+      <h2>${th.pinned ? `<span class="pin">${icon("pinned")}</span>` : ""}${th.locked ? `<span class="pin">${icon("lock")}</span>` : ""}${esc(th.title)}</h2>
       ${adminBar}
       ${pagerHtml}
       <div class="posts">${posts.map((p, i) => {
@@ -410,7 +410,7 @@
             <button type="button" class="btn btn--ghost btn--sm" data-preview>${t("Vorschau")}</button>
             <button class="btn btn--primary btn--sm" data-submit>${t("Antwort senden")}</button>
           </div>
-        </form>` : `<div class="empty">🔒 ${t("Dieses Thema ist gesperrt.")}</div>`}`;
+        </form>` : `<div class="empty">${icon("lock")} ${t("Dieses Thema ist gesperrt.")}</div>`}`;
 
     const postById = (id) => posts.find((p) => p.id === id);
 

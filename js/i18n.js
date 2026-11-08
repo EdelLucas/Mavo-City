@@ -13,7 +13,16 @@
   const EN = {
     keys: {
       "nav.start": "Home",
-      "nav.join": "Join",
+      "nav.join": "How to join",
+      "nav.play": "Play",
+      "nav.community": "Community",
+      "nav.info": "Knowledge",
+      "wiki.navTitle": "Wiki &amp; guides",
+      "bn.play": "Play",
+      "bn.menu": "Menu",
+      "eb.play": "Play",
+      "eb.community": "Community",
+      "eb.info": "Knowledge",
       "nav.rules": "Rules",
       "nav.factions": "Factions",
       "nav.more": "More",
@@ -23,7 +32,7 @@
       "nav.support": "Support us",
       "cta.play": "Play now",
 
-      "hero.title": 'Welcome to <span class="accent">Mavo City</span>',
+      "hero.title": 'Your story begins in <span class="gold-text">Mavo City</span>.',
       "hero.lead": "Serious German roleplay with a player-driven economy, active factions and a staff team that listens.",
       "hero.howto": "How to join",
       "discord.join": "Join Discord",
@@ -33,11 +42,16 @@
       "stats.who": "Who is online right now?",
 
       "start.expect": "What to expect",
+      "start.eyebrow1": "The city",
+      "start.eyebrow2": "Latest",
+      "start.eyebrow3": "Coming up",
+      "cta.title": "Ready for the city?",
+      "cta.text": "Read the rules, pass the quiz and start your story in just a few minutes.",
       "start.card1": "<h3>Government factions</h3><p>Police, EMS and justice with training, ranks and real procedures.</p>",
       "start.card2": "<h3>Player economy</h3><p>Start companies, buy property, trade – the city lives through its citizens.</p>",
       "start.card3": "<h3>Crime with depth</h3><p>Gangs and organisations with territories, reputation and consequences.</p>",
       "start.news": "News",
-      "start.allUpdates": "See all updates →",
+      "start.allUpdates": "See all updates",
       "start.nextEvent": "Next event",
       "start.poll": "Poll",
 
@@ -60,7 +74,7 @@
       "rules.r2": "<summary>§2 Roleplay</summary><ul><li><strong>Fail-RP</strong>: Unrealistic behaviour is not allowed.</li><li><strong>RDM / VDM</strong>: Killing or running people over without reason is not allowed.</li><li><strong>Metagaming</strong>: Out-of-character knowledge must not be used in RP.</li><li><strong>Powergaming</strong>: Don't force actions on others.</li></ul>",
       "rules.r3": "<summary>§3 Factions &amp; crime</summary><ul><li>Robberies only with enough officers on duty.</li><li>Hostage situations only with prior RP.</li><li>A maximum of 6 people per group in actions.</li></ul>",
       "rules.r4": "<summary>§4 Technical</summary><ul><li>Cheats, mod menus and exploits = permanent ban.</li><li>Please report bugs via a support ticket.</li><li>A working microphone is required.</li></ul>",
-      "rules.penalties": "See the penalty catalogue in the wiki →",
+      "rules.penalties": "See the penalty catalogue in the wiki",
 
       "factions.lead": "Find your place in the city – in public service, as an entrepreneur or on the other side of the law.",
       "factions.all": "All",
@@ -94,6 +108,8 @@
 
       "footer.disclaimer": "Not affiliated with Rockstar Games or Take-Two.",
       "footer.imprint": "Legal notice",
+      "footer.legal": "Legal",
+      "footer.tagline": "German FiveM roleplay with heart, rules and a community that sticks together.",
       "footer.privacy": "Privacy",
     },
 
@@ -103,7 +119,9 @@
       "Abmelden": "Log out",
       "Aktuell keine Bewerbungen": "Not accepting applications",
       "Aktuell sind keine Events geplant.": "No events planned right now.",
-      "Alle Events ansehen →": "See all events →",
+      "Alle Events ansehen": "See all events",
+      "Helles Design": "Light mode",
+      "Dunkles Design": "Dark mode",
       "Alle Orte": "All places",
       "Alle": "All",
       "Allgemein": "General",

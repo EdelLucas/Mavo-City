@@ -27,7 +27,7 @@
         <span class="wiki__cat">${esc(cat)}</span>
         ${list.map((a) => `
           <a class="wiki__link ${a.id === active ? "is-active" : ""}" href="#wiki/${encodeURIComponent(a.id)}">
-            <span>${esc(a.icon || "📄")}</span>${esc(a.title)}
+            ${iconOrText(a.icon, "file")}${esc(a.title)}
           </a>`).join("")}
       </div>`).join("") || `<p class="muted">${t("Keine Treffer.")}</p>`;
   }

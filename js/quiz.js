@@ -19,10 +19,10 @@
     const n = questions().length;
     $("#quizBox").innerHTML = `
       <div class="quiz card">
-        <div class="quiz__icon">📝</div>
+        <div class="quiz__icon">${icon("clipboard")}</div>
         <h2>${t("{n} Fragen zum Regelwerk", { n })}</h2>
         <p>${t("Du brauchst mindestens {p} % richtige Antworten. Du kannst das Quiz beliebig oft wiederholen.", { p: CONFIG.quizPassPercent })}</p>
-        ${passed ? `<p class="quiz__passed">✅ ${t("Du hast das Quiz bereits bestanden.")}</p>` : ""}
+        ${passed ? `<p class="quiz__passed">${icon("check-circle")} ${t("Du hast das Quiz bereits bestanden.")}</p>` : ""}
         <div class="btn-row">
           <button class="btn btn--primary" data-quiz="start" ${n ? "" : "disabled"}>${t("Quiz starten")}</button>
           <a class="btn btn--ghost" href="#regeln">${t("Erst Regeln lesen")}</a>
@@ -68,14 +68,14 @@
 
     const wrong = qs.map((q, i) => ({ q, i })).filter(({ q, i }) => state.answers[i] !== Number(q.correct));
     const saveBox = !MavoAuth.enabled ? "" : state.saved
-      ? `<p class="quiz__passed">✅ ${t("Ergebnis gespeichert.")}</p>`
+      ? `<p class="quiz__passed">${icon("check-circle")} ${t("Ergebnis gespeichert.")}</p>`
       : MavoAuth.user
         ? `<button class="btn btn--ghost" data-quiz="save">${t("Ergebnis fürs Team speichern")}</button>`
         : `<button class="btn btn--discord" data-quiz="login">${t("Mit Discord anmelden & speichern")}</button>`;
 
     $("#quizBox").innerHTML = `
       <div class="quiz card quiz--${passed ? "pass" : "fail"}">
-        <div class="quiz__icon">${passed ? "🎉" : "😕"}</div>
+        <div class="quiz__icon">${icon(passed ? "trophy" : "x-circle")}</div>
         <h2>${passed ? t("Bestanden!") : t("Leider nicht bestanden")}</h2>
         <p class="quiz__score">${score} / ${qs.length} (${percent} %)</p>
         <p>${passed

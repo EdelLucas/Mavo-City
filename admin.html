@@ -5,20 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin – Mavo City</title>
   <meta name="robots" content="noindex, nofollow">
-  <meta name="theme-color" content="#0d0f14">
+  <meta name="theme-color" content="#0a0a0b">
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/pages.css">
   <link rel="stylesheet" href="css/features.css">
   <link rel="stylesheet" href="css/forum.css">
   <link rel="stylesheet" href="css/admin.css">
+  <script>try{if(localStorage.getItem("mavo_theme")==="light")document.documentElement.dataset.theme="light";}catch(e){}</script>
 </head>
 <body>
 
   <header class="header">
     <div class="container header__inner">
       <a href="index.html" class="logo">
-        <img src="assets/logo.svg" alt="" width="38" height="38">
+        <img class="logo__img" src="assets/logo.svg" alt="" width="38" height="38">
         <span class="logo__text">Mavo <strong>City</strong> <span class="admin-badge">Admin</span></span>
       </a>
       <div class="admin-user" id="adminUser"></div>
@@ -63,6 +64,7 @@
 
   <script src="js/config.js"></script>
   <script src="js/data.js"></script>
+  <script src="js/icons.js"></script>
   <script src="js/supabase.js"></script>
   <script src="js/content.js"></script>
   <script src="js/markdown.js"></script>

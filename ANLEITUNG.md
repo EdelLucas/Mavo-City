@@ -179,7 +179,18 @@ Bei neuen externen Diensten muss die Datenschutzerklärung ergänzt werden. Die 
 `sitemap.xml` und `robots.txt` liegen im Hauptordner. In der [Google Search Console](https://search.google.com/search-console)
 die Domain hinzufügen und `https://mavocity.com/sitemap.xml` einreichen.
 
-## 11. Schriften
+## 11. Design „Clean Premium“
 
-Die Seite nutzt bewusst **Systemschriften** (keine Google Fonts, DSGVO-konform).
-Eigene Schrift: `.woff2`-Dateien in `assets/fonts/` legen und per `@font-face` in `css/style.css` einbinden – nie direkt von Google laden.
+- **Farben** stehen ganz oben in `css/style.css` (`:root` = dunkel, `[data-theme="light"]` = hell).
+  Die Goldfarbe ändern: `--accent`, `--accent-2`, `--accent-ink`.
+- **Hell/Dunkel:** Besucher schalten oben rechts um (Sonne/Mond); die Wahl wird gespeichert. Standard ist dunkel.
+- **Schrift:** Überschriften nutzen *Inter Display* aus `assets/fonts/` (liegt auf eurem Server, DSGVO-konform,
+  Lizenz: `assets/fonts/LICENSE-Inter.txt`). Fließtext nutzt die Systemschrift.
+- **Symbole:** `assets/icons.svg`. In `js/data.js` und im Admin-Bereich steht bei `icon` ein Name wie
+  `shield`, `medkit`, `scale`, `wrench`, `mask`, `heart`, `star`, `trophy` … (Liste oben in `js/data.js`).
+- **Logo:** `assets/logo.svg` und `assets/favicon.svg`. Vorschaubild für Discord/WhatsApp: `assets/og-image.png` (1200 × 630).
+- **Startseite mit Video:** kurzes, stummes `.mp4` (am besten < 8 MB) nach `assets/` legen und in `js/config.js`
+  `heroVideo: "assets/hero.mp4"` eintragen (optional `heroVideoPoster` als Standbild).
+  Alternativ Bilder über Admin → *Startseiten-Bilder*.
+- **Navigation:** Start · Spielen ▾ · Forum · Community ▾ · Wissen ▾. Auf Handy/Tablet gibt es unten eine Leiste
+  (Start, Spielen, Forum, Events, Menü).

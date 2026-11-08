@@ -13,8 +13,12 @@
 
 /* Platzhalter – müssen vor Veröffentlichung ersetzt werden */
 .ph {
-  background: rgba(231, 76, 60, .18); color: #ff8a80;
-  border: 1px dashed rgba(231, 76, 60, .6); border-radius: 4px; padding: 0 .3em;
+  background: var(--danger-soft); color: var(--danger);
+  border: 1px dashed var(--danger); border-radius: 4px; padding: 0 .3em;
 }
 
 .back-link { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; margin-left: auto; }
+
+/* Einfacher Footer auf Unterseiten */
+.footer .footer__inner:has(> .footer__links:only-of-type) { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+.footer .footer__inner > .footer__links { display: flex; gap: 20px; }

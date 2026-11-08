@@ -1,14 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#ffb347"/>
-      <stop offset="1" stop-color="#ff5e1c"/>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f1d9a6"/>
+      <stop offset=".55" stop-color="#d4a85a"/>
+      <stop offset="1" stop-color="#a87b33"/>
     </linearGradient>
   </defs>
-  <rect width="64" height="64" rx="16" fill="url(#g)"/>
-  <!-- Skyline im Hintergrund -->
-  <path fill="#1a1205" opacity=".18" d="M6 54V40h5v-6h5v20h4V30h6v24h12V26h7v28h4V36h5v-4h3v22z"/>
-  <!-- M -->
-  <path fill="none" stroke="#1a1205" stroke-width="7" stroke-linejoin="round" stroke-linecap="round" d="M15 47V17l17 17 17-17v30"/>
-  <circle cx="32" cy="12" r="3" fill="#1a1205"/>
+  <rect x="1" y="1" width="62" height="62" rx="16" fill="#111113" stroke="url(#gold)" stroke-width="2"/>
+  <!-- M als Stadtsilhouette -->
+  <path d="M16 46V18l16 17 16-17v28" fill="none" stroke="url(#gold)" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M16 51h32" stroke="url(#gold)" stroke-width="2" stroke-linecap="round" opacity=".6"/>
 </svg>

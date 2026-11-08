@@ -37,20 +37,20 @@
           ${info
             ? `<button class="streamer__thumb" data-watch="${esc(channel(s))}" aria-label="${t("Stream ansehen")}">
                  <img src="${esc(info.thumbnail)}" alt="" loading="lazy"><span class="live-badge">LIVE</span>
-                 <span class="streamer__viewers">👁 ${Number(info.viewers) || 0}</span>
+                 <span class="streamer__viewers">${icon("eye")} ${Number(info.viewers) || 0}</span>
                </button>`
             : ""}
           <div class="streamer__head">
             <div class="member__avatar streamer__avatar">${esc((s.name || "?")[0])}</div>
             <div>
               <h3>${esc(s.name)}</h3>
-              <span class="tag ${info ? "tag--live" : ""}">${info ? "● LIVE" : checked ? t("Offline") : "Twitch"}</span>
+              <span class="tag ${info ? "tag--live" : ""}">${info ? "● LIVE" : checked ? t("Offline") : `${icon("twitch")} Twitch`}</span>
             </div>
           </div>
           ${info ? `<p class="streamer__title">${esc(info.title)}</p>` : s.desc ? `<p>${esc(s.desc)}</p>` : ""}
           <div class="btn-row">
             ${channel(s) ? `<button class="btn btn--primary btn--sm" data-watch="${esc(channel(s))}">${t("Stream ansehen")}</button>
-            <a class="btn btn--ghost btn--sm" href="https://twitch.tv/${encodeURIComponent(channel(s))}" target="_blank" rel="noopener">twitch.tv ↗</a>` : ""}
+            <a class="btn btn--ghost btn--sm" href="https://twitch.tv/${encodeURIComponent(channel(s))}" target="_blank" rel="noopener">twitch.tv ${icon("external")}</a>` : ""}
           </div>
         </article>`;
     }).join("") || `<div class="empty">${t("Noch keine Streamer eingetragen.")}</div>`;

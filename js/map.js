@@ -7,19 +7,19 @@
   const $ = (sel) => document.querySelector(sel);
   const esc = window.escapeHtml;
   const TYPES = {
-    staat: { icon: "🏛️", label: "Staat" },
-    zivil: { icon: "🏪", label: "Zivil" },
-    job: { icon: "💼", label: "Jobs" },
-    freizeit: { icon: "🌴", label: "Freizeit" },
-    crime: { icon: "🕶️", label: "Crime" },
+    staat: { icon: "building", label: "Staat" },
+    zivil: { icon: "store", label: "Zivil" },
+    job: { icon: "briefcase", label: "Jobs" },
+    freizeit: { icon: "sun", label: "Freizeit" },
+    crime: { icon: "mask", label: "Crime" },
   };
   let filter = "alle";
   let selected = null;
 
   function renderFilter() {
     const used = [...new Set(CONTENT.map.map((l) => l.type))];
-    $("#mapFilter").innerHTML = [["alle", t("Alle")], ...used.map((ty) => [ty, `${TYPES[ty]?.icon || "📍"} ${t(TYPES[ty]?.label || ty)}`])]
-      .map(([key, label]) => `<button class="chip ${filter === key ? "is-active" : ""}" data-map-filter="${esc(key)}">${esc(label)}</button>`).join("");
+    $("#mapFilter").innerHTML = [["alle", t("Alle")], ...used.map((ty) => [ty, `${icon(TYPES[ty]?.icon || "pin")} ${esc(t(TYPES[ty]?.label || ty))}`])]
+      .map(([key, label]) => `<button class="chip ${filter === key ? "is-active" : ""}" data-map-filter="${esc(key)}">${label}</button>`).join("");
   }
 
   function renderMap() {
@@ -29,7 +29,7 @@
       ${CONTENT.map.map((l, i) => `
         <button class="pin pin--${esc(l.type)} ${filter !== "alle" && l.type !== filter ? "is-dim" : ""} ${selected === i ? "is-selected" : ""}"
           style="left:${Number(l.x) || 0}%;top:${Number(l.y) || 0}%" data-pin="${i}" aria-label="${esc(l.name)}">
-          <span class="pin__icon"><span>${TYPES[l.type]?.icon || "📍"}</span></span>
+          <span class="pin__icon"><span>${icon(TYPES[l.type]?.icon || "pin")}</span></span>
           <span class="pin__label">${esc(l.name)}</span>
         </button>`).join("")}`;
   }
@@ -38,13 +38,13 @@
     const l = CONTENT.map[selected];
     const visible = CONTENT.map.map((x, i) => ({ ...x, i })).filter((x) => filter === "alle" || x.type === filter);
     $("#mapInfo").innerHTML = l
-      ? `<span class="tag">${TYPES[l.type]?.icon || "📍"} ${esc(t(TYPES[l.type]?.label || l.type))}</span>
+      ? `<span class="tag">${icon(TYPES[l.type]?.icon || "pin")} ${esc(t(TYPES[l.type]?.label || l.type))}</span>
          <h3>${esc(l.name)}</h3>
          <p>${esc(l.desc || "")}</p>
          <button class="btn btn--ghost btn--sm" data-map-close>${t("Alle Orte")}</button>`
       : `<h3>${t("Orte")}</h3>
          <ul class="map-list">${visible.map((x) => `
-           <li><button data-pin="${x.i}">${TYPES[x.type]?.icon || "📍"} ${esc(x.name)}</button></li>`).join("")}</ul>`;
+           <li><button data-pin="${x.i}">${icon(TYPES[x.type]?.icon || "pin")} ${esc(x.name)}</button></li>`).join("")}</ul>`;
   }
 
   function render() { renderFilter(); renderMap(); renderInfo(); }

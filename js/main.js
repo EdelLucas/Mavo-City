@@ -18,19 +18,45 @@
     toastTimer = setTimeout(() => el.classList.remove("is-visible"), 2800);
   };
 
+  /* ---------- Farbschema (Hell / Dunkel) ---------- */
+  const themeBtn = $("#themeSwitch");
+  function applyTheme(theme) {
+    if (theme === "light") document.documentElement.dataset.theme = "light";
+    else delete document.documentElement.dataset.theme;
+    const light = theme === "light";
+    themeBtn.innerHTML = icon(light ? "moon" : "sun");
+    themeBtn.title = light ? t("Dunkles Design") : t("Helles Design");
+    document.querySelector('meta[name="theme-color"]').content = light ? "#f7f6f3" : "#0a0a0b";
+  }
+  const currentTheme = () => (document.documentElement.dataset.theme === "light" ? "light" : "dark");
+  themeBtn.addEventListener("click", () => {
+    const next = currentTheme() === "light" ? "dark" : "light";
+    try { localStorage.setItem("mavo_theme", next); } catch { /* egal */ }
+    applyTheme(next);
+  });
+  applyTheme(currentTheme());
+  document.addEventListener("langchange", () => applyTheme(currentTheme()));
+
   /* ---------- Tab-System (mit URL-Hash, z.B. #forum oder #wiki/jobs) ---------- */
   const tabs = $$(".tab[data-tab]");
   const panels = $$(".panel");
-  const nav = $(".tabs");
-  const navToggle = $(".nav-toggle");
-  const more = $(".tab-more");
-  const moreBtn = $(".tab-more__btn");
+  const nav = $("#mainNav");
+  const menuBtn = $("#menuBtn");
+  const groups = $$(".nav-group");
+  const bottomItems = $$("[data-bottom-tab]");
   const validTabs = panels.map((p) => p.id);
   let currentTab = null;
 
-  const closeMore = () => {
-    more.classList.remove("is-open");
-    moreBtn.setAttribute("aria-expanded", "false");
+  const closeGroups = (except) => groups.forEach((g) => {
+    if (g === except) return;
+    g.classList.remove("is-open");
+    $(".nav-group__btn", g).setAttribute("aria-expanded", "false");
+  });
+  const setMenu = (open) => {
+    nav.classList.toggle("is-open", open);
+    menuBtn.setAttribute("aria-expanded", open);
+    menuBtn.classList.toggle("is-active", open);
+    document.body.style.overflow = open ? "hidden" : "";
   };
 
   function setTitle(name) {
@@ -50,29 +76,36 @@
       t.classList.toggle("is-active", active);
       t.setAttribute("aria-selected", active);
     });
-    // "Mehr" hervorheben, wenn ein Tab daraus aktiv ist
-    moreBtn.classList.toggle("is-active", !!$(`.tab-more__menu [data-tab="${name}"]`));
+    // Gruppe hervorheben, wenn ein Tab daraus aktiv ist
+    groups.forEach((g) => $(".nav-group__btn", g).classList.toggle("is-active", !!$(`[data-tab="${name}"]`, g)));
+    bottomItems.forEach((b) => b.classList.toggle("is-active", b.dataset.bottomTab === name));
     panels.forEach((p) => (p.hidden = p.id !== name));
 
     if (updateHash && location.hash !== "#" + name) history.pushState(null, "", "#" + name);
 
-    nav.classList.remove("is-open");
-    navToggle.setAttribute("aria-expanded", "false");
-    closeMore();
-    if (changed) window.scrollTo({ top: 0 });
+    setMenu(false);
+    closeGroups();
+    if (changed) window.scrollTo({ top: 0, behavior: "instant" });
     setTitle(name);
     document.dispatchEvent(new CustomEvent("tabchange", { detail: name }));
   }
 
   tabs.forEach((t) => t.addEventListener("click", () => openTab(t.dataset.tab)));
+  bottomItems.forEach((b) => b.addEventListener("click", () => openTab(b.dataset.bottomTab)));
+  menuBtn.addEventListener("click", () => setMenu(!nav.classList.contains("is-open")));
 
-  moreBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    const open = more.classList.toggle("is-open");
-    moreBtn.setAttribute("aria-expanded", open);
+  groups.forEach((g) => {
+    const btn = $(".nav-group__btn", g);
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const open = !g.classList.contains("is-open");
+      closeGroups(g);
+      g.classList.toggle("is-open", open);
+      btn.setAttribute("aria-expanded", open);
+    });
   });
-  document.addEventListener("click", (e) => { if (!more.contains(e.target)) closeMore(); });
-  document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeMore(); });
+  document.addEventListener("click", (e) => { if (!e.target.closest(".nav-group")) closeGroups(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") { closeGroups(); setMenu(false); } });
 
   // Alle Links mit data-tab-link öffnen den passenden Tab
   document.addEventListener("click", (e) => {
@@ -80,11 +113,6 @@
     if (!link) return;
     e.preventDefault();
     openTab(link.dataset.tabLink);
-  });
-
-  navToggle.addEventListener("click", () => {
-    const open = nav.classList.toggle("is-open");
-    navToggle.setAttribute("aria-expanded", open);
   });
 
   const tabFromHash = () => decodeURIComponent(location.hash.slice(1).split("/")[0]) || "start";
@@ -95,6 +123,38 @@
   document.addEventListener("langchange", () => setTitle(currentTab));
   window.openTab = openTab;
   openTab(tabFromHash(), { updateHash: false });
+  // Der Browser springt bei Links wie #fraktionen sonst zum Abschnitt statt nach oben
+  if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+  window.addEventListener("load", () => window.scrollTo(0, 0));
+
+  /* ---------- Scroll-Animationen ----------
+     Karten, Überschriften usw. blenden sanft ein, sobald sie sichtbar werden. */
+  const REVEAL = ".section__title, .card, .news__item, .event, .step, .accordion details, .release, .gallery__item, .cta-banner, .discord-card";
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const io = !reduce && "IntersectionObserver" in window
+    ? new IntersectionObserver((entries) => entries.forEach((en) => {
+        if (en.isIntersecting) { en.target.classList.add("is-visible"); io.unobserve(en.target); }
+      }), { rootMargin: "0px 0px -40px 0px", threshold: 0.05 })
+    : null;
+  let scanQueued = false;
+  function scanReveal() {
+    scanQueued = false;
+    if (!io) return;
+    $$(REVEAL).forEach((el, i) => {
+      if (el.dataset.reveal || el.closest("[hidden]")) return;
+      el.dataset.reveal = "1";
+      // Elemente, die schon im Bild sind, nicht nachträglich ausblenden
+      const r = el.getBoundingClientRect();
+      if (r.top < innerHeight && r.bottom > 0) return;
+      el.classList.add("reveal");
+      el.style.transitionDelay = `${(i % 3) * 70}ms`;
+      io.observe(el);
+    });
+  }
+  new MutationObserver(() => { if (!scanQueued) { scanQueued = true; requestAnimationFrame(scanReveal); } })
+    .observe(document.querySelector("main"), { childList: true, subtree: true });
+  document.addEventListener("tabchange", () => requestAnimationFrame(scanReveal));
+  requestAnimationFrame(scanReveal);
 
   /* ---------- Links aus der Config ---------- */
   $$(".js-discord").forEach((a) => (a.href = CONFIG.discordUrl));
@@ -122,15 +182,23 @@
     }
   });
 
-  /* ---------- Hintergrundbilder (wechseln alle 7 Sekunden) ---------- */
+  /* ---------- Hintergrund: Video oder Bilder (wechseln alle 7 Sekunden) ---------- */
   contentReady.then(() => {
+    const box = $("#heroSlides");
+    const hero = $(".hero");
+    const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (CONFIG.heroVideo && !reduceMotion) {
+      box.innerHTML = `<video class="hero__video" src="${esc(CONFIG.heroVideo)}" autoplay muted loop playsinline preload="metadata"
+        ${CONFIG.heroVideoPoster ? `poster="${esc(CONFIG.heroVideoPoster)}"` : ""}></video>`;
+      hero.classList.add("hero--images");
+      return;
+    }
     const imgs = (CONTENT.hero || []).map((h) => h.src).filter(Boolean);
     if (!imgs.length) return;
-    const box = $("#heroSlides");
     box.innerHTML = imgs.map((src, i) =>
       `<div class="hero__slide${i === 0 ? " is-active" : ""}" style="background-image:url('${esc(src).replace(/'/g, "%27")}')"></div>`).join("");
-    document.querySelector(".hero").classList.add("hero--images");
-    if (imgs.length < 2 || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    hero.classList.add("hero--images");
+    if (imgs.length < 2 || reduceMotion) return;
     let i = 0;
     setInterval(() => {
       const slides = box.children;

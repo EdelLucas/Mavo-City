@@ -37,7 +37,7 @@
       return `
         <article class="card faction faction--${esc(f.type)}">
           <div class="faction__head">
-            <span class="faction__icon">${esc(f.icon)}</span>
+            <span class="faction__icon">${iconOrText(f.icon, "shield")}</span>
             <div>
               <h3>${esc(f.name)}</h3>
               <span class="tag">${esc(typeLabel[f.type] || f.type)}</span>
@@ -72,7 +72,7 @@
       if (!hasMedia(g)) {
         return `
           <figure class="gallery__item gallery__item--placeholder">
-            <div class="gallery__ph">${g.type === "video" ? "🎬" : "📷"}<span>${t("Bald verfügbar")}</span></div>
+            <div class="gallery__ph">${icon(g.type === "video" ? "video" : "camera")}<span>${t("Bald verfügbar")}</span></div>
             <figcaption>${esc(g.title)}</figcaption>
           </figure>`;
       }
@@ -80,7 +80,7 @@
       return `
         <figure class="gallery__item" data-index="${i}" tabindex="0" role="button" aria-label="${esc(g.title)}">
           <img src="${esc(thumb)}" alt="${esc(g.title)}" loading="lazy">
-          ${g.type === "video" ? '<span class="gallery__play">▶</span>' : ""}
+          ${g.type === "video" ? `<span class="gallery__play">${icon("play")}</span>` : ""}
           <figcaption>${esc(g.title)}</figcaption>
         </figure>`;
     }).join("") || `<div class="empty">${t("Noch keine Bilder.")}</div>`;
@@ -159,7 +159,7 @@
     $("#packageGrid").innerHTML = CONTENT.packages.map((p) => `
       <article class="card package ${p.highlight ? "package--highlight" : ""}">
         ${p.highlight ? `<span class="package__badge">${t("Beliebt")}</span>` : ""}
-        <div class="package__icon">${esc(p.icon)}</div>
+        <div class="package__icon">${iconOrText(p.icon, "heart")}</div>
         <h3>${esc(p.name)}</h3>
         <div class="package__price">${esc(p.price)}</div>
         <ul class="checklist">${(p.perks || []).map((x) => `<li>${esc(x)}</li>`).join("")}</ul>

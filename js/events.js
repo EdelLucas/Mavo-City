@@ -51,12 +51,12 @@
         </div>
         <div class="event__body">
           ${e.type ? `<span class="tag">${esc(e.type)}</span>` : ""}
-          ${isRunning(e) ? `<span class="tag tag--ok">● ${t("Läuft gerade")}</span>` : ""}
+          ${isRunning(e) ? `<span class="tag tag--ok"><span class="dot is-online"></span> ${t("Läuft gerade")}</span>` : ""}
           <h3>${esc(e.title)}</h3>
-          <p class="event__meta">🕗 ${esc(fmt(e.at))}${e.location ? ` · 📍 ${esc(e.location)}` : ""}</p>
+          <p class="event__meta"><span>${icon("clock")} ${esc(fmt(e.at))}</span>${e.location ? `<span>${icon("pin")} ${esc(e.location)}</span>` : ""}</p>
           ${e.desc ? `<p>${esc(e.desc)}</p>` : ""}
           ${!isPast(e) && !isRunning(e) ? `<div class="cd" data-countdown="${e.at.getTime()}">${countdown(e.at)}</div>` : ""}
-          ${!isPast(e) ? `<button class="btn btn--ghost btn--sm" data-ics="${e.i}">📅 ${t("In Kalender eintragen")}</button>` : ""}
+          ${!isPast(e) ? `<button class="btn btn--ghost btn--sm" data-ics="${e.i}">${icon("calendar")} ${t("In Kalender eintragen")}</button>` : ""}
         </div>
       </article>`;
   }
@@ -72,7 +72,7 @@
       : `<div class="empty">${t("Aktuell sind keine Events geplant.")}</div>`;
 
     $("#nextEvent").innerHTML = upcoming.length
-      ? card(upcoming[0], true) + `<a class="more-link" href="#events">${t("Alle Events ansehen →")}</a>`
+      ? card(upcoming[0], true) + `<a class="more-link" href="#events">${t("Alle Events ansehen")} ${icon("arrow-right")}</a>`
       : `<div class="empty">${t("Aktuell sind keine Events geplant.")}</div>`;
   }
 

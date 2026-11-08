@@ -38,6 +38,12 @@ const CONFIG = {
   /* ---------- Regel-Quiz ---------- */
   quizPassPercent: 80,   // so viel Prozent richtige Antworten zum Bestehen
 
+  /* ---------- Startseite: Hintergrund-Video (optional) ----------
+     Kurzes, stummes Video (mp4, am besten < 8 MB) in assets/ legen, z.B. "assets/hero.mp4".
+     Leer = Bilder aus dem Admin-Bereich bzw. HERO_IMAGES in js/data.js.             */
+  heroVideo: "",
+  heroVideoPoster: "",   // Standbild, das angezeigt wird, bis das Video lädt (z.B. "assets/hero.jpg")
+
   /* ---------- Sprache ---------- */
   defaultLanguage: "de", // "de" oder "en"
 

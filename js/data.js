@@ -17,32 +17,39 @@ const TEAM = [
   { name: "Tim", role: "Entwicklung" },
 ];
 
+/* ---------- Symbole ----------
+   Bei "icon" kann ein Symbol-Name aus assets/icons.svg stehen, z.B.:
+   shield, medkit, scale, wrench, mask, briefcase, car, building, store, star,
+   heart, trophy, flag, keyboard, book, chat, megaphone, lightbulb, file, users,
+   calendar, map, pin, gamepad, gift, camera, video, sun, lock, info
+   (Ein Emoji funktioniert weiterhin, sieht aber je nach Gerät anders aus.)  */
+
 /* ---------- Fraktionen ----------
    type:   "staat" | "crime" | "zivil"
    status: "offen" | "geschlossen"                                   */
 const FACTIONS = [
   {
-    name: "Los Santos Police Department", short: "LSPD", type: "staat", icon: "🚓", status: "offen",
+    name: "Los Santos Police Department", short: "LSPD", type: "staat", icon: "shield", status: "offen",
     desc: "Recht und Ordnung in der Stadt. Streife, Ermittlungen, SWAT und Ausbildung neuer Kadetten.",
     requirements: ["Mindestens 18 Jahre", "Sauberes Führungszeugnis im RP", "Gutes Mikrofon & Funkdisziplin"],
   },
   {
-    name: "Rettungsdienst", short: "EMS", type: "staat", icon: "🚑", status: "offen",
+    name: "Rettungsdienst", short: "EMS", type: "staat", icon: "medkit", status: "offen",
     desc: "Notfallversorgung, Krankenhausbetrieb und Bergung – rund um die Uhr im Einsatz.",
     requirements: ["Mindestens 18 Jahre", "Interesse an medizinischem RP", "Teamfähigkeit"],
   },
   {
-    name: "Justiz", short: "DOJ", type: "staat", icon: "⚖️", status: "geschlossen",
+    name: "Justiz", short: "DOJ", type: "staat", icon: "scale", status: "geschlossen",
     desc: "Richter, Staatsanwälte und Verteidiger sorgen für faire Verfahren.",
     requirements: ["Erfahrung im RP", "Sicheres Ausdrucksvermögen"],
   },
   {
-    name: "Mechaniker-Werkstatt", short: "Werkstatt", type: "zivil", icon: "🔧", status: "offen",
+    name: "Mechaniker-Werkstatt", short: "Werkstatt", type: "zivil", icon: "wrench", status: "offen",
     desc: "Reparaturen, Tuning und Abschleppdienst für alle Bürger der Stadt.",
     requirements: ["Zuverlässigkeit", "Spaß an Fahrzeugen"],
   },
   {
-    name: "Gangs & Organisationen", short: "Crime", type: "crime", icon: "🕶️", status: "offen",
+    name: "Gangs & Organisationen", short: "Crime", type: "crime", icon: "mask", status: "offen",
     desc: "Gründet eure eigene Gruppierung. Gebiete, Ruf und Konsequenzen inklusive.",
     requirements: ["Mindestens 4 aktive Mitglieder", "Ausgearbeitetes Konzept", "Regelkenntnis §3"],
   },
@@ -86,19 +93,19 @@ const CHANGELOG = [
 
 /* ---------- Spenden-Pakete (nur kosmetisch – kein Pay2Win!) ---------- */
 const DONATION_PACKAGES = [
-  { name: "Supporter", price: "4,99 €", icon: "💛", perks: ["Discord-Rolle „Supporter“", "Namensfarbe im Forum", "Unser ewiger Dank"] },
-  { name: "Unterstützer+", price: "9,99 €", icon: "🧡", highlight: true, perks: ["Alles aus Supporter", "Eigenes Kennzeichen (Wunschtext)", "1 kosmetisches Outfit-Set"] },
-  { name: "Partner", price: "19,99 €", icon: "❤️", perks: ["Alles aus Unterstützer+", "Erwähnung im Credits-Kanal", "Vorschlagsrecht für ein Event"] },
+  { name: "Supporter", price: "4,99 €", icon: "heart", perks: ["Discord-Rolle „Supporter“", "Namensfarbe im Forum", "Unser ewiger Dank"] },
+  { name: "Unterstützer+", price: "9,99 €", icon: "star", highlight: true, perks: ["Alles aus Supporter", "Eigenes Kennzeichen (Wunschtext)", "1 kosmetisches Outfit-Set"] },
+  { name: "Partner", price: "19,99 €", icon: "trophy", perks: ["Alles aus Unterstützer+", "Erwähnung im Credits-Kanal", "Vorschlagsrecht für ein Event"] },
 ];
 
 /* ---------- Forum-Kategorien ---------- */
 const FORUM_CATEGORIES = [
-  { id: "news",        icon: "📢", title: "Ankündigungen", desc: "Offizielle Neuigkeiten vom Team." },
-  { id: "allgemein",   icon: "💬", title: "Allgemein",      desc: "Alles rund um Mavo City." },
-  { id: "support",     icon: "🛠️", title: "Support & Bugs", desc: "Probleme melden und Hilfe bekommen." },
-  { id: "vorschlaege", icon: "💡", title: "Vorschläge",      desc: "Ideen für Server und Community." },
-  { id: "bewerbungen", icon: "📝", title: "Bewerbungen",     desc: "Bewirb dich für Team oder Fraktionen." },
-  { id: "fraktionen",  icon: "🚓", title: "Fraktionen",      desc: "Vorstellungen und Infos der Fraktionen." },
+  { id: "news",        icon: "megaphone", title: "Ankündigungen", desc: "Offizielle Neuigkeiten vom Team." },
+  { id: "allgemein",   icon: "chat", title: "Allgemein",      desc: "Alles rund um Mavo City." },
+  { id: "support",     icon: "wrench", title: "Support & Bugs", desc: "Probleme melden und Hilfe bekommen." },
+  { id: "vorschlaege", icon: "lightbulb", title: "Vorschläge",      desc: "Ideen für Server und Community." },
+  { id: "bewerbungen", icon: "file", title: "Bewerbungen",     desc: "Bewirb dich für Team oder Fraktionen." },
+  { id: "fraktionen",  icon: "shield", title: "Fraktionen",      desc: "Vorstellungen und Infos der Fraktionen." },
 ];
 
 // Start-Beiträge für den Demo-Modus (ohne Supabase)
@@ -131,7 +138,7 @@ const EVENTS = [
    # Überschrift, **fett**, *kursiv*, [Link](https://…), - Liste, > Zitat, | Tabelle |   */
 const WIKI = [
   {
-    id: "einstieg", icon: "🚀", title: "Erste Schritte", category: "Einsteiger",
+    id: "einstieg", icon: "flag", title: "Erste Schritte", category: "Einsteiger",
     content: `# Willkommen in Mavo City!
 
 Nach der Einreise landest du am **Flughafen**. Von dort aus geht es los:
@@ -143,7 +150,7 @@ Nach der Einreise landest du am **Flughafen**. Von dort aus geht es los:
 > Tipp: Frag andere Spieler nach dem Weg – das ist gutes RP!`,
   },
   {
-    id: "tasten", icon: "⌨️", title: "Tastenbelegung", category: "Einsteiger",
+    id: "tasten", icon: "keyboard", title: "Tastenbelegung", category: "Einsteiger",
     content: `# Wichtige Tasten
 
 | Taste | Funktion |
@@ -156,7 +163,7 @@ Nach der Einreise landest du am **Flughafen**. Von dort aus geht es los:
 | X | Hände hoch |`,
   },
   {
-    id: "jobs", icon: "💼", title: "Jobs & Verdienst", category: "Wirtschaft",
+    id: "jobs", icon: "briefcase", title: "Jobs & Verdienst", category: "Wirtschaft",
     content: `# Legale Jobs
 
 - **Müllabfuhr** – guter Einstieg, kein Führerschein nötig
@@ -167,7 +174,7 @@ Nach der Einreise landest du am **Flughafen**. Von dort aus geht es los:
 Mehr Geld verdienst du in einer **Fraktion** oder mit einer eigenen Firma.`,
   },
   {
-    id: "strafkatalog", icon: "⚖️", title: "Strafkatalog", category: "Regeln",
+    id: "strafkatalog", icon: "scale", title: "Strafkatalog", category: "Regeln",
     content: `# Strafkatalog (Auszug)
 
 | Vergehen | Strafe | Haft |
