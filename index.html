@@ -4,12 +4,23 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mavo City – FiveM Roleplay</title>
-  <meta name="description" content="Mavo City – German FiveM Roleplay Server. Regeln, Forum und Anleitung zum Verbinden.">
+  <meta name="description" content="Mavo City – German FiveM Roleplay Server. Regeln, Forum, Fraktionen und Anleitung zum Verbinden.">
   <meta name="theme-color" content="#0d0f14">
+
+  <!-- Vorschau bei Links in Discord, WhatsApp usw. -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Mavo City – FiveM Roleplay">
+  <meta property="og:description" content="Ernsthaftes German Roleplay mit eigener Wirtschaft und aktiven Fraktionen.">
+  <meta property="og:image" content="https://mavocity.com/assets/og-image.png">
+  <meta property="og:url" content="https://mavocity.com/">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/pages.css">
   <link rel="stylesheet" href="css/forum.css">
 </head>
 <body>
@@ -18,7 +29,7 @@
   <header class="header">
     <div class="container header__inner">
       <a href="#start" class="logo" data-tab-link="start">
-        <span class="logo__mark">M</span>
+        <img class="logo__img" src="assets/logo.svg" alt="" width="38" height="38">
         <span class="logo__text">Mavo <strong>City</strong></span>
       </a>
 
@@ -30,9 +41,18 @@
         <button class="tab" role="tab" data-tab="start">Start</button>
         <button class="tab" role="tab" data-tab="verbinden">Verbinden</button>
         <button class="tab" role="tab" data-tab="regeln">Regeln</button>
+        <button class="tab" role="tab" data-tab="fraktionen">Fraktionen</button>
         <button class="tab" role="tab" data-tab="forum">Forum</button>
-        <button class="tab" role="tab" data-tab="team">Team</button>
-        <button class="tab" role="tab" data-tab="faq">FAQ</button>
+        <button class="tab" role="tab" data-tab="galerie">Galerie</button>
+        <div class="tab-more">
+          <button class="tab tab-more__btn" aria-haspopup="true" aria-expanded="false">Mehr <span class="caret">▾</span></button>
+          <div class="tab-more__menu">
+            <button class="tab" role="tab" data-tab="updates">Updates</button>
+            <button class="tab" role="tab" data-tab="team">Team</button>
+            <button class="tab" role="tab" data-tab="faq">FAQ</button>
+            <button class="tab" role="tab" data-tab="spenden">Unterstützen</button>
+          </div>
+        </div>
       </nav>
 
       <a class="btn btn--primary btn--sm header__cta" data-tab-link="verbinden" href="#verbinden">Jetzt spielen</a>
@@ -45,6 +65,7 @@
     <section id="start" class="panel" role="tabpanel">
       <div class="hero">
         <div class="container hero__inner">
+          <img class="hero__logo" src="assets/logo.svg" alt="Mavo City Logo" width="96" height="96">
           <span class="badge"><span class="dot" id="statusDot"></span><span id="statusText">Status wird geladen…</span></span>
           <h1>Willkommen in <span class="accent">Mavo City</span></h1>
           <p class="hero__lead">Ernsthaftes German Roleplay mit eigener Wirtschaft, aktiven Fraktionen und einem Team, das zuhört.</p>
@@ -81,9 +102,29 @@
         </div>
       </div>
 
-      <div class="container section">
-        <h2 class="section__title">Neuigkeiten</h2>
-        <div class="news" id="newsList"></div>
+      <div class="container section split">
+        <div>
+          <h2 class="section__title">Neuigkeiten</h2>
+          <div class="news" id="newsList"></div>
+          <a class="more-link" href="#updates" data-tab-link="updates">Alle Updates ansehen →</a>
+        </div>
+        <div>
+          <h2 class="section__title">Community</h2>
+          <!-- Discord-Widget: wird von js/main.js befüllt -->
+          <div class="discord-card" id="discordWidget">
+            <div class="discord-card__head">
+              <span class="discord-card__logo" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="28" height="28"><path fill="currentColor" d="M20.3 4.4A19.6 19.6 0 0 0 15.4 3l-.6 1.3a18 18 0 0 0-5.6 0L8.6 3a19.6 19.6 0 0 0-4.9 1.5C.6 9.1-.3 13.6.1 18a19.8 19.8 0 0 0 6 3l1.3-2.1a12.8 12.8 0 0 1-2-1l.5-.4a14 14 0 0 0 12.2 0l.5.4c-.6.4-1.3.7-2 1l1.3 2.1a19.7 19.7 0 0 0 6-3c.5-5.1-.8-9.6-3.6-13.6ZM8 15.3c-1.2 0-2.2-1.1-2.2-2.4S6.8 10.5 8 10.5s2.2 1.1 2.2 2.4-1 2.4-2.2 2.4Zm8 0c-1.2 0-2.2-1.1-2.2-2.4s1-2.4 2.2-2.4 2.2 1.1 2.2 2.4-1 2.4-2.2 2.4Z"/></svg>
+              </span>
+              <div>
+                <strong id="discordName">Mavo City Discord</strong>
+                <span class="discord-card__online"><span class="dot is-online"></span><span id="discordOnline">Komm vorbei!</span></span>
+              </div>
+            </div>
+            <div class="discord-card__members" id="discordMembers"></div>
+            <a class="btn btn--discord js-discord" href="#" target="_blank" rel="noopener">Discord beitreten</a>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -183,6 +224,22 @@
       </div>
     </section>
 
+    <!-- ================= TAB: FRAKTIONEN ================= -->
+    <section id="fraktionen" class="panel" role="tabpanel" hidden>
+      <div class="container section">
+        <h1 class="page-title">Fraktionen</h1>
+        <p class="page-lead">Finde deinen Platz in der Stadt – ob im Staatsdienst, als Unternehmer oder auf der anderen Seite des Gesetzes.</p>
+
+        <div class="chips" id="factionFilter">
+          <button class="chip is-active" data-filter="alle">Alle</button>
+          <button class="chip" data-filter="staat">Staat</button>
+          <button class="chip" data-filter="zivil">Zivil</button>
+          <button class="chip" data-filter="crime">Crime</button>
+        </div>
+        <div class="grid grid--2" id="factionGrid"></div>
+      </div>
+    </section>
+
     <!-- ================= TAB: FORUM ================= -->
     <section id="forum" class="panel" role="tabpanel" hidden>
       <div class="container section">
@@ -191,17 +248,31 @@
             <h1 class="page-title">Forum</h1>
             <p class="page-lead">Diskutiere mit der Community, stelle Fragen oder bewirb dich.</p>
           </div>
-          <div class="forum-user">
-            <span id="forumUserLabel">Nicht angemeldet</span>
-            <button class="btn btn--ghost btn--sm" id="forumLoginBtn">Namen festlegen</button>
-          </div>
+          <div class="forum-user" id="forumUser"></div>
         </div>
 
-        <!-- Breadcrumb -->
         <nav class="crumbs" id="forumCrumbs"></nav>
 
-        <!-- Hier rendert js/forum.js die Ansichten (Kategorien, Threads, Beiträge) -->
-        <div id="forumView"></div>
+        <!-- Hier rendert js/forum.js die Ansichten (Kategorien, Themen, Beiträge) -->
+        <div id="forumView"><div class="loader">Lade Forum…</div></div>
+      </div>
+    </section>
+
+    <!-- ================= TAB: GALERIE ================= -->
+    <section id="galerie" class="panel" role="tabpanel" hidden>
+      <div class="container section">
+        <h1 class="page-title">Galerie</h1>
+        <p class="page-lead">Eindrücke aus Mavo City – Screenshots und Clips aus der Community.</p>
+        <div class="gallery" id="galleryGrid"></div>
+      </div>
+    </section>
+
+    <!-- ================= TAB: UPDATES ================= -->
+    <section id="updates" class="panel" role="tabpanel" hidden>
+      <div class="container section">
+        <h1 class="page-title">Updates</h1>
+        <p class="page-lead">Was sich am Server geändert hat.</p>
+        <div class="changelog" id="changelog"></div>
       </div>
     </section>
 
@@ -223,8 +294,31 @@
           <details><summary>Wie alt muss ich sein?</summary><p>Mindestens 18 Jahre.</p></details>
           <details><summary>Ich bekomme beim Verbinden einen Fehler – was tun?</summary><p>Cache leeren, FiveM neu starten und prüfen, ob du die Whitelist hast. Hilft das nicht, öffne ein Ticket im Discord.</p></details>
           <details><summary>Kann ich mich als Teammitglied bewerben?</summary><p>Ja! Im Forum unter <em>Bewerbungen</em> findest du alle Infos.</p></details>
-          <details><summary>Gibt es Spenden / Pakete?</summary><p>Spenden sind freiwillig und bringen keine spielerischen Vorteile (Pay2Win gibt es bei uns nicht).</p></details>
+          <details><summary>Gibt es Spenden / Pakete?</summary><p>Ja, aber nur kosmetisch – Spenden bringen keine spielerischen Vorteile. Mehr dazu unter <a href="#spenden" data-tab-link="spenden">Unterstützen</a>.</p></details>
         </div>
+      </div>
+    </section>
+
+    <!-- ================= TAB: SPENDEN ================= -->
+    <section id="spenden" class="panel" role="tabpanel" hidden>
+      <div class="container section">
+        <h1 class="page-title">Mavo City unterstützen</h1>
+        <p class="page-lead">Server, Scripts und Entwicklung kosten Geld. Mit einer Spende hilfst du, die Stadt am Leben zu halten.</p>
+
+        <div class="nop2w">
+          <span class="nop2w__icon">🛡️</span>
+          <div>
+            <strong>Kein Pay2Win – versprochen.</strong>
+            Alle Pakete sind rein kosmetisch. Waffen, Geld, Fahrzeuge mit Leistungsvorteil oder Vorteile im RP gibt es bei uns nicht zu kaufen.
+          </div>
+        </div>
+
+        <div class="grid grid--3" id="packageGrid"></div>
+
+        <p class="fineprint">
+          Zahlungen laufen sicher über <strong>Tebex</strong>, den offiziellen Zahlungsanbieter für FiveM-Server.
+          Spenden sind freiwillig und nicht erstattbar. Bei Fragen öffne ein Ticket im Discord.
+        </p>
       </div>
     </section>
 
@@ -233,20 +327,33 @@
   <footer class="footer">
     <div class="container footer__inner">
       <span>© <span id="year"></span> Mavo City · Nicht mit Rockstar Games oder Take-Two verbunden.</span>
-      <div class="footer__links">
+      <div class="footer__links" id="footerLinks">
         <a class="js-discord" href="#" target="_blank" rel="noopener">Discord</a>
         <a href="#regeln" data-tab-link="regeln">Regeln</a>
         <a href="#faq" data-tab-link="faq">FAQ</a>
+        <a href="#spenden" data-tab-link="spenden">Unterstützen</a>
       </div>
     </div>
   </footer>
 
+  <!-- Lightbox für die Galerie -->
+  <div class="lightbox" id="lightbox" hidden>
+    <button class="lightbox__close" aria-label="Schließen">×</button>
+    <button class="lightbox__nav lightbox__nav--prev" aria-label="Vorheriges">‹</button>
+    <figure class="lightbox__content">
+      <div id="lightboxMedia"></div>
+      <figcaption id="lightboxCaption"></figcaption>
+    </figure>
+    <button class="lightbox__nav lightbox__nav--next" aria-label="Nächstes">›</button>
+  </div>
+
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <!-- Reihenfolge wichtig: config -> data -> main -> forum -->
+  <!-- Reihenfolge wichtig: config -> data -> main -> pages -> forum -->
   <script src="js/config.js"></script>
   <script src="js/data.js"></script>
   <script src="js/main.js"></script>
+  <script src="js/pages.js"></script>
   <script src="js/forum.js"></script>
 </body>
 </html>

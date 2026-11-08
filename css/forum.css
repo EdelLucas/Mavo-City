@@ -104,3 +104,22 @@
   }
   .post__avatar { margin: 0; width: 36px; height: 36px; }
 }
+
+/* ---------- Ergänzungen: Links statt Buttons, Login, Admin ---------- */
+a.forum-cat, a.thread-row { color: var(--text); }
+.forum-cat__title, .forum-cat__desc, .thread-row__title, .thread-row__meta { display: block; }
+
+.forum-user__avatar {
+  width: 30px; height: 30px; border-radius: 50%; object-fit: cover;
+  display: grid; place-items: center; font-weight: 800; font-size: .85rem;
+  background: var(--accent); color: #1a1205;
+}
+img.post__avatar { object-fit: cover; background: var(--surface-2); }
+
+.admin-bar {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  margin-bottom: 16px; padding: 10px 14px;
+  border: 1px dashed var(--accent); border-radius: 10px; color: var(--muted); font-size: .9rem;
+}
+
+.loader { color: var(--muted); padding: 40px 0; text-align: center; }

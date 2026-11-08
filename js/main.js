@@ -1,11 +1,14 @@
 /* ==========================================================
-   Mavo City – Hauptlogik: Tabs, Verbinden, Status, Inhalte
+   Mavo City – Hauptlogik: Tabs, Verbinden, Status, Discord
    ========================================================== */
 (() => {
   const $ = (sel, root = document) => root.querySelector(sel);
   const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 
-  /* ---------- Toast (global nutzbar) ---------- */
+  /* ---------- Globale Helfer ---------- */
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  window.escapeHtml = esc;
+
   let toastTimer;
   window.showToast = (msg) => {
     const el = $("#toast");
@@ -16,11 +19,18 @@
   };
 
   /* ---------- Tab-System (mit URL-Hash, z.B. #forum) ---------- */
-  const tabs = $$(".tab");
+  const tabs = $$(".tab[data-tab]");
   const panels = $$(".panel");
   const nav = $(".tabs");
   const navToggle = $(".nav-toggle");
+  const more = $(".tab-more");
+  const moreBtn = $(".tab-more__btn");
   const validTabs = panels.map((p) => p.id);
+
+  const closeMore = () => {
+    more.classList.remove("is-open");
+    moreBtn.setAttribute("aria-expanded", "false");
+  };
 
   function openTab(name, { updateHash = true } = {}) {
     if (!validTabs.includes(name)) name = "start";
@@ -30,18 +40,28 @@
       t.classList.toggle("is-active", active);
       t.setAttribute("aria-selected", active);
     });
+    // "Mehr" hervorheben, wenn ein Tab daraus aktiv ist
+    moreBtn.classList.toggle("is-active", !!$(`.tab-more__menu [data-tab="${name}"]`));
     panels.forEach((p) => (p.hidden = p.id !== name));
 
-    if (updateHash && location.hash !== "#" + name) {
-      history.pushState(null, "", "#" + name);
-    }
+    if (updateHash && location.hash !== "#" + name) history.pushState(null, "", "#" + name);
+
     nav.classList.remove("is-open");
     navToggle.setAttribute("aria-expanded", "false");
+    closeMore();
     window.scrollTo({ top: 0 });
     document.dispatchEvent(new CustomEvent("tabchange", { detail: name }));
   }
 
   tabs.forEach((t) => t.addEventListener("click", () => openTab(t.dataset.tab)));
+
+  moreBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const open = more.classList.toggle("is-open");
+    moreBtn.setAttribute("aria-expanded", open);
+  });
+  document.addEventListener("click", (e) => { if (!more.contains(e.target)) closeMore(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeMore(); });
 
   // Alle Links mit data-tab-link öffnen den passenden Tab
   document.addEventListener("click", (e) => {
@@ -58,11 +78,17 @@
 
   const tabFromHash = () => location.hash.slice(1).split("/")[0] || "start";
   window.addEventListener("popstate", () => openTab(tabFromHash(), { updateHash: false }));
+  window.openTab = openTab;
   openTab(tabFromHash(), { updateHash: false });
 
   /* ---------- Links aus der Config ---------- */
   $$(".js-discord").forEach((a) => (a.href = CONFIG.discordUrl));
   $("#year").textContent = new Date().getFullYear();
+
+  const socials = [["TikTok", CONFIG.tiktokUrl], ["YouTube", CONFIG.youtubeUrl], ["Instagram", CONFIG.instagramUrl]];
+  socials.filter(([, url]) => url).forEach(([label, url]) => {
+    $("#footerLinks").insertAdjacentHTML("afterbegin", `<a href="${esc(url)}" target="_blank" rel="noopener">${label}</a>`);
+  });
 
   /* ---------- Verbinden ---------- */
   const connectCmd = `connect ${CONFIG.connectAddress}`;
@@ -80,23 +106,6 @@
       showToast("Kopieren nicht möglich – bitte manuell markieren.");
     }
   });
-
-  /* ---------- News & Team rendern ---------- */
-  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-  window.escapeHtml = esc;
-
-  $("#newsList").innerHTML = NEWS.map((n) => `
-    <article class="news__item">
-      <span class="news__date">${esc(n.date)}</span>
-      <div><h3>${esc(n.title)}</h3><p>${esc(n.text)}</p></div>
-    </article>`).join("");
-
-  $("#teamGrid").innerHTML = TEAM.map((m) => `
-    <article class="card member">
-      <div class="member__avatar">${esc(m.name[0])}</div>
-      <h3>${esc(m.name)}</h3>
-      <span class="member__role">${esc(m.role)}</span>
-    </article>`).join("");
 
   /* ---------- Live-Serverstatus (FiveM-API) ---------- */
   const dot = $("#statusDot");
@@ -123,4 +132,25 @@
   }
   loadStatus();
   setInterval(loadStatus, 60_000);
+
+  /* ---------- Discord-Widget ----------
+     Nutzt die öffentliche widget.json – funktioniert nur, wenn im Discord
+     unter Servereinstellungen → Widget das Server-Widget aktiviert ist. */
+  async function loadDiscord() {
+    if (!CONFIG.discordServerId) return;
+    try {
+      const res = await fetch(`https://discord.com/api/guilds/${CONFIG.discordServerId}/widget.json`);
+      if (!res.ok) throw new Error(res.status);
+      const data = await res.json();
+      $("#discordName").textContent = data.name;
+      $("#discordOnline").textContent = `${data.presence_count} Mitglieder online`;
+      $("#discordMembers").innerHTML = (data.members || []).slice(0, 12).map((m) =>
+        `<img src="${esc(m.avatar_url)}" alt="${esc(m.username)}" title="${esc(m.username)}" width="32" height="32" loading="lazy">`
+      ).join("");
+      if (data.instant_invite && (!CONFIG.discordUrl || CONFIG.discordUrl.includes("DEIN-INVITE"))) {
+        $$(".js-discord").forEach((a) => (a.href = data.instant_invite));
+      }
+    } catch { /* Widget deaktiviert oder nicht erreichbar – Standardtext bleibt */ }
+  }
+  loadDiscord();
 })();

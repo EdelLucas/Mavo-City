@@ -85,11 +85,6 @@ code, kbd {
 
 .logo { display: flex; align-items: center; gap: 10px; color: var(--text); font-size: 1.15rem; }
 .logo:hover { color: var(--text); }
-.logo__mark {
-  width: 36px; height: 36px; display: grid; place-items: center;
-  background: linear-gradient(135deg, var(--accent), #ff5e1c);
-  color: #1a1205; font-weight: 800; border-radius: 10px;
-}
 .logo__text strong { color: var(--accent); }
 
 .tabs { display: flex; gap: 4px; margin-left: auto; }
@@ -120,9 +115,15 @@ code, kbd {
     radial-gradient(ellipse at 70% 0%, rgba(255, 159, 28, .18), transparent 60%),
     radial-gradient(ellipse at 10% 100%, rgba(255, 94, 28, .12), transparent 50%),
     linear-gradient(180deg, var(--bg-2), var(--bg));
+  overflow: hidden;
   border-bottom: 1px solid var(--border);
 }
-.hero__inner { text-align: center; }
+.hero::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 220px; pointer-events: none;
+  background: url("../assets/skyline.svg") bottom center / auto 100% repeat-x;
+  opacity: .55;
+}
+.hero__inner { text-align: center; position: relative; z-index: 1; }
 .hero h1 { font-size: clamp(2.2rem, 6vw, 3.8rem); font-weight: 800; letter-spacing: -.02em; }
 .hero__lead { color: var(--muted); font-size: 1.15rem; max-width: 620px; margin: 0 auto 32px; }
 .hero__actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
@@ -241,7 +242,7 @@ code, kbd {
 .toast.is-visible { transform: translate(-50%, 0); opacity: 1; visibility: visible; }
 
 /* ---------- Responsive ---------- */
-@media (max-width: 860px) {
+@media (max-width: 1100px) {
   .header__cta { display: none; }
   .nav-toggle {
     display: flex; flex-direction: column; gap: 5px; margin-left: auto;
@@ -252,12 +253,16 @@ code, kbd {
     position: absolute; top: var(--header-h); left: 0; right: 0;
     flex-direction: column; gap: 0; padding: 8px 16px 16px;
     background: var(--bg-2); border-bottom: 1px solid var(--border);
+    max-height: calc(100vh - var(--header-h)); overflow-y: auto;
     display: none;
   }
   .tabs.is-open { display: flex; }
   .tab { text-align: left; padding: .8em 1em; }
   .tab.is-active { background: var(--surface); }
   .tab.is-active::after { display: none; }
+}
+
+@media (max-width: 860px) {
   .step { flex-direction: column; gap: 12px; }
   .hero { padding: 64px 0 48px; }
 }
