@@ -89,8 +89,24 @@ assets/                           Logo, Favicon, Skyline, Karte, Vorschaubild, G
 
 ---
 
+## 1b. Update 3 einspielen (Forum & Admin-Panel)
+
+Wer Supabase **vor** diesem Update eingerichtet hat: einmal `supabase/update-3-forum-admin.sql`
+komplett im **SQL Editor** ausführen (*New query* → einfügen → *Run*). Danach gibt es:
+Profile, Ränge, Rollen (Mitglied / Team / Admin), Likes, Benachrichtigungen, Sperren,
+frei bearbeitbare Forum-Kategorien und die Übersicht im Admin-Panel.
+(Neue Installationen bekommen das automatisch über `schema.sql`.)
+
+**Forum-Funktionen:** Werkzeugleiste zum Formatieren, Zitieren, Likes (♥), Glocke mit Benachrichtigungen
+bei Antworten und Likes, Profile mit Beschreibung, Ränge nach Beitragszahl (Neuling → Bürger → Stammgast →
+Urgestein → Legende), Suche über alle Kategorien, Sortierung, Markierung ungelesener Themen.
+
 ## 2. Admin-Bereich (`mavocity.com/admin.html`)
 
+- **Übersicht:** Kennzahlen (Mitglieder, Beiträge, Meldungen, Quiz), neueste Forenbeiträge, Schnellaktionen.
+- **Nutzer:** Rollen per Klick vergeben (Mitglied / Team / Admin) und Personen im Forum sperren.
+  Weitere Admins brauchen also keinen SQL-Befehl mehr.
+- **Forum-Kategorien:** Kategorien anlegen, umbenennen, sortieren, Symbol wählen und „nur Admins“ festlegen.
 - **Inhalte:** News, Events, Updates, Wiki, Team, Fraktionen, Galerie, Startseiten-Bilder, Karte, Streamer,
   Regel-Quiz und Spenden-Pakete mit Formularen bearbeiten. *Speichern & veröffentlichen* → sofort live.
   Bilder können direkt hochgeladen werden (max. 5 MB). Orte auf der Karte per Klick positionieren.

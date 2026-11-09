@@ -21,6 +21,7 @@
     map: MAP_LOCATIONS,
     quiz: QUIZ,
     hero: HERO_IMAGES.map((src) => ({ src })),
+    forum: FORUM_CATEGORIES,
   };
 
   window.CONTENT = { ...CONTENT_DEFAULTS };

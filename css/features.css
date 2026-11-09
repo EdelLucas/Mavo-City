@@ -218,29 +218,6 @@
 .poll__result.is-mine { border-color: var(--accent); }
 .poll__meta { color: var(--muted); font-size: .85rem; margin: 0; }
 
-/* ---------- Forum-Erweiterungen ---------- */
-.pager { display: flex; gap: 6px; flex-wrap: wrap; margin: 0 0 16px; }
-.pager__item {
-  min-width: 36px; height: 36px; padding: 0 10px; display: grid; place-items: center;
-  background: var(--surface); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-weight: 600;
-}
-.pager__item:hover { border-color: var(--accent); color: var(--accent); }
-.pager__item.is-active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
-.pager__gap { align-self: center; color: var(--muted); }
-
-.post__actions { display: flex; gap: 12px; }
-.post__actions button { background: none; border: 0; color: var(--muted); cursor: pointer; font: inherit; font-size: .8rem; padding: 0; }
-.post__actions button:hover { color: var(--accent); }
-.post__actions .post__delete { color: var(--danger); }
-.post__text.md { white-space: normal; }
-
-.form__hint { font-size: .8rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-.form__hint code { font-size: .75rem; }
-.form__preview {
-  background: var(--bg); border: 1px dashed var(--border); border-radius: 10px; padding: 14px;
-}
-.form--inline { background: none; border: 0; padding: 0; }
-
 /* ---------- Responsive ---------- */
 @media (max-width: 860px) {
   .wiki, .citymap { grid-template-columns: 1fr; }
@@ -304,7 +281,6 @@
 .chip .icon, .tag .icon, .map-list .icon { width: 1em; height: 1em; vertical-align: -.15em; }
 .tag { display: inline-flex; align-items: center; gap: 5px; }
 .tag .dot { width: 6px; height: 6px; }
-.forum-notice { display: flex; align-items: center; gap: 10px; }
 .empty .icon { width: 1.2em; height: 1.2em; vertical-align: -.25em; margin-right: 4px; }
 .lightbox__close, .lightbox__nav { display: grid; place-items: center; }
 .lightbox__close .icon { width: 20px; height: 20px; }

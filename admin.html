@@ -7,6 +7,7 @@
   <meta name="robots" content="noindex, nofollow">
   <meta name="theme-color" content="#0a0a0b">
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="preload" href="assets/fonts/InterDisplay-Bold.woff" as="font" type="font/woff" crossorigin>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/pages.css">
   <link rel="stylesheet" href="css/features.css">
@@ -14,48 +15,56 @@
   <link rel="stylesheet" href="css/admin.css">
   <script>try{if(localStorage.getItem("mavo_theme")==="light")document.documentElement.dataset.theme="light";}catch(e){}</script>
 </head>
-<body>
+<body class="admin-page">
 
-  <header class="header">
-    <div class="container header__inner">
-      <a href="index.html" class="logo">
-        <img class="logo__img" src="assets/logo.svg" alt="" width="38" height="38">
-        <span class="logo__text">Mavo <strong>City</strong> <span class="admin-badge">Admin</span></span>
+  <header class="header admin-header">
+    <div class="admin-header__inner">
+      <a href="#dashboard" class="logo" data-nav="dashboard">
+        <img class="logo__img" src="assets/logo.svg" alt="" width="34" height="34">
+        <span class="logo__text">Mavo <strong>City</strong></span>
+        <span class="admin-badge">Admin</span>
       </a>
       <div class="admin-user" id="adminUser"></div>
     </div>
   </header>
 
-  <main>
-    <div class="container section">
+  <div class="admin-shell">
+    <!-- Seitenleiste: auf Handy/Tablet über "Bereiche" aufklappbar -->
+    <aside class="admin-nav" aria-label="Admin-Navigation">
+      <button class="admin-nav__toggle" id="adminNavToggle" aria-controls="adminNavList">
+        <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#menu"></use></svg>
+        <span id="adminNavCurrent">Übersicht</span>
+        <svg class="icon caret" aria-hidden="true"><use href="assets/icons.svg#chevron-down"></use></svg>
+      </button>
+      <nav class="admin-nav__list" id="adminNavList"></nav>
+    </aside>
+
+    <main class="admin-main">
       <div id="adminNotice"></div>
 
-      <nav class="admin-tabs" id="adminTabs">
-        <button class="chip is-active" data-view="content">📝 Inhalte</button>
-        <button class="chip" data-view="reports">🚩 Meldungen <span class="count" id="reportCount"></span></button>
-        <button class="chip" data-view="polls">📊 Umfragen</button>
-        <button class="chip" data-view="quiz">✅ Quiz-Ergebnisse</button>
-      </nav>
-
-      <!-- Inhalte bearbeiten -->
-      <section class="admin-view" data-view-panel="content">
-        <div class="admin-layout">
-          <aside class="admin-sections" id="sectionList"></aside>
-          <div class="admin-editor" id="editor"></div>
-        </div>
+      <section data-view-panel="dashboard" hidden><div id="dashView"></div></section>
+      <section data-view-panel="content" hidden><div class="admin-editor" id="editor"></div></section>
+      <section data-view-panel="reports" hidden>
+        <div class="view-head"><div><span class="eyebrow">Community</span><h2>Meldungen</h2><p class="muted">Von Nutzern gemeldete Forenbeiträge.</p></div></div>
+        <div id="reportsView"></div>
       </section>
-
-      <section class="admin-view" data-view-panel="reports" hidden><div id="reportsView"></div></section>
-      <section class="admin-view" data-view-panel="polls" hidden><div id="pollsView"></div></section>
-      <section class="admin-view" data-view-panel="quiz" hidden><div id="quizView"></div></section>
-    </div>
-  </main>
+      <section data-view-panel="users" hidden><div id="usersView"></div></section>
+      <section data-view-panel="polls" hidden>
+        <div class="view-head"><div><span class="eyebrow">Community</span><h2>Umfragen</h2><p class="muted">Die neueste aktive Umfrage erscheint auf der Startseite.</p></div></div>
+        <div id="pollsView"></div>
+      </section>
+      <section data-view-panel="quiz" hidden>
+        <div class="view-head"><div><span class="eyebrow">Community</span><h2>Quiz-Ergebnisse</h2><p class="muted">Wer das Regel-Quiz gemacht hat – praktisch für Whitelist-Anträge.</p></div></div>
+        <div id="quizView"></div>
+      </section>
+    </main>
+  </div>
 
   <!-- Karte zum Positionieren von Orten -->
   <div class="lightbox" id="mapPicker" hidden>
-    <button class="lightbox__close" aria-label="Schließen">×</button>
+    <button class="lightbox__close" aria-label="Schließen"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#x"></use></svg></button>
     <div class="map-picker">
-      <p>Klicke auf die Stelle, an der der Ort auf der Karte erscheinen soll.</p>
+      <p>Tippe auf die Stelle, an der der Ort auf der Karte erscheinen soll.</p>
       <div class="map-picker__canvas" id="mapPickerCanvas"></div>
     </div>
   </div>
@@ -68,6 +77,7 @@
   <script src="js/supabase.js"></script>
   <script src="js/content.js"></script>
   <script src="js/markdown.js"></script>
+  <script src="js/editor.js"></script>
   <script src="js/admin.js"></script>
 </body>
 </html>

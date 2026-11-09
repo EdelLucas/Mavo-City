@@ -98,9 +98,11 @@ const DONATION_PACKAGES = [
   { name: "Partner", price: "19,99 €", icon: "trophy", perks: ["Alles aus Unterstützer+", "Erwähnung im Credits-Kanal", "Vorschlagsrecht für ein Event"] },
 ];
 
-/* ---------- Forum-Kategorien ---------- */
+/* ---------- Forum-Kategorien ----------
+   id: nur a-z, 0-9 und "-" · adminOnly: true = nur Admins dürfen dort Themen erstellen
+   Im Admin-Bereich unter „Forum-Kategorien“ bearbeitbar.                     */
 const FORUM_CATEGORIES = [
-  { id: "news",        icon: "megaphone", title: "Ankündigungen", desc: "Offizielle Neuigkeiten vom Team." },
+  { id: "news",        icon: "megaphone", title: "Ankündigungen", desc: "Offizielle Neuigkeiten vom Team.", adminOnly: true },
   { id: "allgemein",   icon: "chat", title: "Allgemein",      desc: "Alles rund um Mavo City." },
   { id: "support",     icon: "wrench", title: "Support & Bugs", desc: "Probleme melden und Hilfe bekommen." },
   { id: "vorschlaege", icon: "lightbulb", title: "Vorschläge",      desc: "Ideen für Server und Community." },

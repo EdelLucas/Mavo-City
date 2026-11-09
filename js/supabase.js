@@ -57,6 +57,8 @@
       const { data } = await sb.rpc("is_forum_admin");
       isAdmin = !!data;
     } catch { /* kein Admin */ }
+    // Profil (Name, Avatar) mit Discord abgleichen – benötigt supabase/update-3-forum-admin.sql
+    sb.rpc("forum_touch_profile").then(() => {}, () => {});
     Auth.user = {
       id: session.user.id,
       name: meta.custom_claims?.global_name || meta.full_name || meta.name || "Unbekannt",
