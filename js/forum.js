@@ -429,7 +429,11 @@
     panel.innerHTML = `
       <div class="notif__head"><strong>${t("Benachrichtigungen")}</strong>
         ${notes.some((n) => !n.read) ? `<button class="link-btn" data-action="read-all">${t("Alle gelesen")}</button>` : ""}</div>
-      ${notes.length ? notes.map((n) => `
+      ${notes.length ? notes.map((n) => n.kind === "application" ? `
+        <a class="notif__item ${n.read ? "" : "is-unread"}" href="#fraktionen">
+          <span class="notif__icon">${icon("file")}</span>
+          <span><strong>${t("Bewerbung")}</strong> ${esc(n.title)}<small>${ago(n.created_at)}</small></span>
+        </a>` : `
         <a class="notif__item ${n.read ? "" : "is-unread"}" href="#forum/thread/${esc(n.thread_id)}/last">
           <span class="notif__icon">${icon(n.kind === "like" ? "heart" : "chat")}</span>
           <span><strong>${esc(n.actor_name)}</strong> ${n.kind === "like" ? t("gefällt dein Beitrag in") : t("hat geantwortet in")}
@@ -977,6 +981,7 @@
             <button class="btn btn--ghost btn--sm ${prof.banned ? "" : "btn--danger"}" data-ban>${prof.banned ? t("Entsperren") : t("Im Forum sperren")}</button>
           </div>` : ""}
       </section>
+      <div id="profileChars"></div>
       <h3 class="profile__title">${t("Letzte Beiträge")}</h3>
       <div class="profile-posts">${prof.recent.length ? prof.recent.map((p) => `
         <a class="profile-post" href="#forum/thread/${esc(p.threadId)}">
@@ -985,6 +990,7 @@
           <small>${ago(p.date)}</small>
         </a>`).join("") : `<div class="empty">${t("Noch keine Beiträge.")}</div>`}</div>`;
 
+    if (store.mode === "supabase") window.renderProfileCharacters?.(userId, $("#profileChars", view));
     $("[data-logout]", view)?.addEventListener("click", async () => { await store.logout(); notes = []; renderUser(); showToast(t("Abgemeldet.")); go("#forum"); });
     $("[data-bio]", view)?.addEventListener("click", () => {
       const box = $(".profile__bio", view);
@@ -1033,7 +1039,7 @@
   let ready = false;
   function route() {
     if (!ready) return;
-    const [tab, type, id, p] = location.hash.slice(1).split("/");
+    const [tab, type, id, p] = (location.hash.slice(1) || document.body.dataset.page || "").split("/");
     if (tab !== "forum") return;
     const page = p === "last" ? "last" : Math.max(1, parseInt(p, 10) || 1);
     const did = decodeURIComponent(id || "");

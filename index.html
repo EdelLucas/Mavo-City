@@ -35,6 +35,10 @@
   </script>
 
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="assets/app/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="preload" href="assets/fonts/InterDisplay-Bold.woff" as="font" type="font/woff" crossorigin>
   <!-- Farbschema vor dem Laden setzen (kein Aufblitzen) -->
   <script>try{var th=localStorage.getItem("mavo_theme");if(th==="light")document.documentElement.dataset.theme="light";}catch(e){}</script>
@@ -42,6 +46,7 @@
   <link rel="stylesheet" href="css/pages.css">
   <link rel="stylesheet" href="css/features.css">
   <link rel="stylesheet" href="css/forum.css">
+  <link rel="stylesheet" href="css/extras.css">
 </head>
 <body>
 
@@ -63,6 +68,7 @@
             <button class="tab" role="tab" data-tab="regeln"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#file"></use></svg><span data-i18n="nav.rules">Regelwerk</span></button>
             <button class="tab" role="tab" data-tab="quiz"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#clipboard"></use></svg><span data-i18n="nav.quiz">Regel-Quiz</span></button>
             <button class="tab" role="tab" data-tab="fraktionen"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#shield"></use></svg><span data-i18n="nav.factions">Fraktionen</span></button>
+            <button class="tab" role="tab" data-tab="status"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#activity"></use></svg><span data-i18n="nav.status">Server-Status</span></button>
           </div>
         </div>
         <button class="tab" role="tab" data-tab="forum"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#chat"></use></svg><span>Forum</span></button>
@@ -71,6 +77,7 @@
           <span class="nav-group__label" data-i18n="nav.community">Community</span>
           <div class="nav-group__menu">
             <button class="tab" role="tab" data-tab="events"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#calendar"></use></svg><span>Events</span></button>
+            <button class="tab" role="tab" data-tab="buerger"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#id-card"></use></svg><span data-i18n="nav.citizens">Bürgerregister</span></button>
             <button class="tab" role="tab" data-tab="streamer"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#twitch"></use></svg><span>Streamer</span></button>
             <button class="tab" role="tab" data-tab="galerie"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#image"></use></svg><span data-i18n="nav.gallery">Galerie</span></button>
             <button class="tab" role="tab" data-tab="team"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#users"></use></svg><span>Team</span></button>
@@ -90,6 +97,7 @@
       </nav>
 
       <div class="header__actions">
+        <button class="icon-btn search-btn" id="searchBtn" aria-label="Suchen (Strg+K)" title="Suchen (Strg+K)"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#search"></use></svg></button>
         <button class="icon-btn" id="langSwitch" aria-label="Sprache wechseln / Switch language">EN</button>
         <button class="icon-btn" id="themeSwitch" aria-label="Hell/Dunkel umschalten"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#sun"></use></svg></button>
         <a class="btn btn--primary btn--sm header__cta" data-tab-link="verbinden" href="#verbinden"><span data-i18n="cta.play">Jetzt spielen</span></a>
@@ -114,9 +122,10 @@
               <a class="btn btn--ghost js-discord" href="#" target="_blank" rel="noopener"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#discord"></use></svg><span data-i18n="discord.join">Discord beitreten</span></a>
             </div>
             <div class="stats">
-              <div class="stat"><span class="stat__value" id="statPlayers">–</span><span class="stat__label" data-i18n="stats.online">Spieler online</span></div>
+              <div class="stat" id="statPlayersWrap" hidden><span class="stat__value" id="statPlayers">–</span><span class="stat__label" data-i18n="stats.online">Spieler online</span></div>
               <div class="stat"><span class="stat__value" id="statMax">–</span><span class="stat__label">Slots</span></div>
               <div class="stat"><span class="stat__value">18+</span><span class="stat__label" data-i18n="stats.age">Mindestalter</span></div>
+              <div class="stat"><span class="stat__value">0</span><span class="stat__label" data-i18n="stats.wl">Whitelist nötig</span></div>
             </div>
             <details class="playerlist" id="playerList" hidden>
               <summary data-i18n="stats.who">Wer ist gerade online?</summary>
@@ -129,42 +138,52 @@
       <div class="container section">
         <span class="eyebrow" data-i18n="start.eyebrow1">Die Stadt</span>
         <h2 class="section__title" data-i18n="start.expect">Was dich erwartet</h2>
-        <div class="grid grid--3">
-          <article class="card feature-card">
+        <div class="grid grid--3 features">
+          <a class="card feature-card feature-card--staat" href="#fraktionen" data-tab-link="fraktionen" data-faction-filter="staat">
             <div class="card__icon"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#shield"></use></svg></div>
             <div data-i18n="start.card1"><h3>Staatliche Fraktionen</h3>
             <p>LSPD, Rettungsdienst und Justiz mit Ausbildung, Rängen und echten Abläufen.</p></div>
-          </article>
-          <article class="card feature-card">
+            <span class="feature-card__more"><span data-i18n="start.more">Mehr erfahren</span> <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#arrow-right"></use></svg></span>
+            <svg class="icon feature-card__bg" aria-hidden="true"><use href="assets/icons.svg#shield"></use></svg>
+          </a>
+          <a class="card feature-card feature-card--zivil" href="#fraktionen" data-tab-link="fraktionen" data-faction-filter="zivil">
             <div class="card__icon"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#briefcase"></use></svg></div>
             <div data-i18n="start.card2"><h3>Eigene Wirtschaft</h3>
             <p>Firmen gründen, Immobilien kaufen, handeln – die Stadt lebt von ihren Bürgern.</p></div>
-          </article>
-          <article class="card feature-card">
+            <span class="feature-card__more"><span data-i18n="start.more">Mehr erfahren</span> <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#arrow-right"></use></svg></span>
+            <svg class="icon feature-card__bg" aria-hidden="true"><use href="assets/icons.svg#briefcase"></use></svg>
+          </a>
+          <a class="card feature-card feature-card--crime" href="#fraktionen" data-tab-link="fraktionen" data-faction-filter="crime">
             <div class="card__icon"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#mask"></use></svg></div>
             <div data-i18n="start.card3"><h3>Crime mit Tiefgang</h3>
             <p>Gangs und Organisationen mit Gebieten, Ruf und Konsequenzen.</p></div>
-          </article>
+            <span class="feature-card__more"><span data-i18n="start.more">Mehr erfahren</span> <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#arrow-right"></use></svg></span>
+            <svg class="icon feature-card__bg" aria-hidden="true"><use href="assets/icons.svg#mask"></use></svg>
+          </a>
         </div>
       </div>
 
-      <div class="container section split section--flush">
-        <div>
-          <span class="eyebrow" data-i18n="start.eyebrow2">Aktuell</span>
-          <h2 class="section__title" data-i18n="start.news">Neuigkeiten</h2>
-          <div class="news" id="newsList"></div>
+      <div class="container section section--flush">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow" data-i18n="start.eyebrow2">Aktuell</span>
+            <h2 class="section__title" data-i18n="start.news">Neuigkeiten</h2>
+          </div>
           <a class="more-link" href="#updates" data-tab-link="updates"><span data-i18n="start.allUpdates">Alle Updates ansehen</span> <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#arrow-right"></use></svg></a>
         </div>
-        <div class="stack">
-          <div>
-            <span class="eyebrow" data-i18n="start.eyebrow3">Demnächst</span>
-            <h2 class="section__title" data-i18n="start.nextEvent">Nächstes Event</h2>
-            <div id="nextEvent"></div>
-          </div>
-          <div>
-            <h2 class="section__title" data-i18n="start.poll">Umfrage</h2>
-            <div id="pollBox"></div>
-          </div>
+        <div class="news news--cards" id="newsList"></div>
+      </div>
+
+      <div class="container section split split--even section--flush">
+        <div>
+          <span class="eyebrow" data-i18n="start.eyebrow3">Demnächst</span>
+          <h2 class="section__title" data-i18n="start.nextEvent">Nächstes Event</h2>
+          <div id="nextEvent"></div>
+        </div>
+        <div>
+          <span class="eyebrow" data-i18n="start.eyebrow4">Deine Meinung</span>
+          <h2 class="section__title" data-i18n="start.poll">Umfrage</h2>
+          <div id="pollBox"></div>
         </div>
       </div>
 
@@ -227,12 +246,12 @@
             <div class="step__num">3</div>
             <div class="step__body">
               <div data-i18n="join.s3">
-                <h3>Regel-Quiz &amp; Whitelist</h3>
-                <p>Lies das Regelwerk, bestehe unser kurzes <strong>Regel-Quiz</strong> und stelle danach im Discord im Kanal <code>#whitelist</code> deinen Antrag.</p>
+                <h3>Regeln lesen</h3>
+                <p>Lies dir kurz das <strong>Regelwerk</strong> durch – mit unserem <strong>Regel-Quiz</strong> kannst du dein Wissen testen. Eine Whitelist gibt es nicht.</p>
               </div>
               <div class="btn-row">
-                <a class="btn btn--primary btn--sm" href="#quiz" data-tab-link="quiz" data-i18n="join.s3quiz">Zum Regel-Quiz</a>
-                <a class="btn btn--ghost btn--sm js-discord" href="#" target="_blank" rel="noopener" data-i18n="join.s3discord">Zum Discord</a>
+                <a class="btn btn--primary btn--sm" href="#regeln" data-tab-link="regeln" data-i18n="join.s3rules">Zum Regelwerk</a>
+                <a class="btn btn--ghost btn--sm" href="#quiz" data-tab-link="quiz" data-i18n="join.s3quiz">Zum Regel-Quiz</a>
               </div>
             </div>
           </li>
@@ -267,8 +286,13 @@
         <h1 class="page-title" data-i18n="nav.rules">Regelwerk</h1>
         <p class="page-lead" data-i18n="rules.lead">Mit dem Betreten des Servers akzeptierst du diese Regeln. Unwissenheit schützt nicht vor Strafe.</p>
 
-        <div class="accordion">
-          <details open data-i18n="rules.r1">
+        <div class="rules-tools">
+          <label class="search-field"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#search"></use></svg><input type="search" id="rulesSearch" class="input" placeholder="Regeln durchsuchen… (z. B. RDM)" aria-label="Regeln durchsuchen"></label>
+          <span class="rules-updated" id="rulesUpdated"></span>
+        </div>
+
+        <div class="accordion rules" id="rulesList">
+          <details open id="regel-1" data-i18n="rules.r1">
             <summary>§1 Allgemeines</summary>
             <ul>
               <li>Respektvoller Umgang mit allen Spielern und Teammitgliedern.</li>
@@ -276,7 +300,7 @@
               <li>Mindestalter 18 Jahre.</li>
             </ul>
           </details>
-          <details data-i18n="rules.r2">
+          <details id="regel-2" data-i18n="rules.r2">
             <summary>§2 Roleplay</summary>
             <ul>
               <li><strong>Fail-RP</strong>: Unrealistisches Verhalten ist verboten.</li>
@@ -285,7 +309,7 @@
               <li><strong>Powergaming</strong>: Anderen keine Aktionen aufzwingen.</li>
             </ul>
           </details>
-          <details data-i18n="rules.r3">
+          <details id="regel-3" data-i18n="rules.r3">
             <summary>§3 Fraktionen &amp; Crime</summary>
             <ul>
               <li>Überfälle nur mit ausreichend Beamten im Dienst.</li>
@@ -293,7 +317,7 @@
               <li>Maximal 6 Personen pro Gruppe bei Aktionen.</li>
             </ul>
           </details>
-          <details data-i18n="rules.r4">
+          <details id="regel-4" data-i18n="rules.r4">
             <summary>§4 Technisches</summary>
             <ul>
               <li>Cheats, Mod-Menüs und Exploits = permanenter Bann.</li>
@@ -302,6 +326,7 @@
             </ul>
           </details>
         </div>
+        <div class="empty" id="rulesEmpty" hidden>Keine Regel gefunden.</div>
         <p class="more-link-wrap"><a class="more-link" href="#wiki/strafkatalog"><span data-i18n="rules.penalties">Zum Strafkatalog im Wiki</span> <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#arrow-right"></use></svg></a></p>
       </div>
     </section>
@@ -320,6 +345,32 @@
           <button class="chip" data-filter="crime">Crime</button>
         </div>
         <div class="grid grid--2" id="factionGrid"></div>
+      </div>
+    </section>
+
+    <!-- ================= TAB: SERVER-STATUS ================= -->
+    <section id="status" class="panel" role="tabpanel" hidden>
+      <div class="container section">
+        <span class="eyebrow" data-i18n="eb.play">Spielen</span>
+        <h1 class="page-title" data-i18n="status.title">Server-Status</h1>
+        <p class="page-lead" data-i18n="status.lead">Ist der Server online, wie voll ist es gerade und wann ist am meisten los? Hier siehst du es auf einen Blick.</p>
+        <!-- wird von js/status.js befüllt -->
+        <div id="statusView"><div class="loader">…</div></div>
+      </div>
+    </section>
+
+    <!-- ================= TAB: BÜRGERREGISTER (Charaktere) ================= -->
+    <section id="buerger" class="panel" role="tabpanel" hidden>
+      <div class="container section">
+        <div class="forum-head">
+          <div>
+            <span class="eyebrow" data-i18n="eb.community">Community</span>
+            <h1 class="page-title" data-i18n="citizens.title">Bürgerregister</h1>
+            <p class="page-lead" data-i18n="citizens.lead">Die Bürger von Mavo City – stell deinen Charakter vor und lerne die anderen kennen.</p>
+          </div>
+        </div>
+        <!-- wird von js/characters.js befüllt -->
+        <div id="charView"><div class="loader">…</div></div>
       </div>
     </section>
 
@@ -408,7 +459,7 @@
       <div class="container section">
         <span class="eyebrow" data-i18n="eb.play">Spielen</span>
         <h1 class="page-title" data-i18n="nav.quiz">Regel-Quiz</h1>
-        <p class="page-lead" data-i18n="quiz.lead">Teste dein Regelwissen. Bestehe das Quiz, bevor du deinen Whitelist-Antrag stellst.</p>
+        <p class="page-lead" data-i18n="quiz.lead">Teste dein Regelwissen – freiwillig, aber eine gute Vorbereitung für deinen Start in der Stadt.</p>
         <div id="quizBox"></div>
       </div>
     </section>
@@ -439,9 +490,9 @@
         <span class="eyebrow" data-i18n="eb.info">Wissen</span>
         <h1 class="page-title" data-i18n="faq.title">Häufige Fragen</h1>
         <div class="accordion">
-          <details data-i18n="faq.q1"><summary>Brauche ich eine Whitelist?</summary><p>Ja. Bestehe zuerst das <a href="#quiz">Regel-Quiz</a> und stelle dann deinen Antrag in unserem Discord im Kanal <code>#whitelist</code>.</p></details>
+          <details data-i18n="faq.q1"><summary>Brauche ich eine Whitelist?</summary><p>Nein. Mavo City hat keine Whitelist – lies das <a href="#regeln">Regelwerk</a> und verbinde dich einfach. Mit dem <a href="#quiz">Regel-Quiz</a> kannst du vorher dein Wissen testen.</p></details>
           <details data-i18n="faq.q2"><summary>Wie alt muss ich sein?</summary><p>Mindestens 18 Jahre.</p></details>
-          <details data-i18n="faq.q3"><summary>Ich bekomme beim Verbinden einen Fehler – was tun?</summary><p>Cache leeren, FiveM neu starten und prüfen, ob du die Whitelist hast. Hilft das nicht, öffne ein Ticket im Discord.</p></details>
+          <details data-i18n="faq.q3"><summary>Ich bekomme beim Verbinden einen Fehler – was tun?</summary><p>Cache leeren und FiveM neu starten. Prüfe außerdem, ob der Server gerade online ist (Seite „Server-Status“). Hilft das nicht, öffne ein Ticket im Discord.</p></details>
           <details data-i18n="faq.q4"><summary>Kann ich mich als Teammitglied bewerben?</summary><p>Ja! Im Forum unter <em>Bewerbungen</em> findest du alle Infos.</p></details>
           <details data-i18n="faq.q5"><summary>Gibt es Spenden / Pakete?</summary><p>Ja, aber nur kosmetisch – Spenden bringen keine spielerischen Vorteile. Mehr dazu unter <a href="#spenden">Unterstützen</a>.</p></details>
           <details data-i18n="faq.q6"><summary>Gibt es eine englische Version?</summary><p>Die Website gibt es auch auf Englisch (Button oben rechts). Auf dem Server wird jedoch Deutsch gesprochen.</p></details>
@@ -509,7 +560,6 @@
             <a href="impressum.html" data-i18n="footer.imprint">Impressum</a>
             <a href="datenschutz.html" data-i18n="footer.privacy">Datenschutz</a>
             <a href="#faq" data-tab-link="faq">FAQ</a>
-            <a href="admin.html">Admin</a>
           </div>
         </div>
       </div>
@@ -540,6 +590,26 @@
     <button class="lightbox__nav lightbox__nav--next" aria-label="Nächstes">›</button>
   </div>
 
+  <!-- Dialog (Bewerbungen, Charaktere) -->
+  <div class="modal" id="modal" hidden>
+    <div class="modal__box" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button class="modal__close" data-modal-close aria-label="Schließen"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#x"></use></svg></button>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <!-- Suche (Strg+K) -->
+  <div class="search-dialog" id="searchDialog" hidden>
+    <div class="search-dialog__box" role="dialog" aria-modal="true" aria-label="Suche">
+      <label class="search-dialog__field">
+        <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#search"></use></svg>
+        <input type="search" id="searchInput" placeholder="Seiten, Regeln, Wiki, Forum durchsuchen…" autocomplete="off" aria-label="Suchbegriff">
+        <kbd>Esc</kbd>
+      </label>
+      <div class="search-dialog__results" id="searchResults" role="listbox"></div>
+    </div>
+  </div>
+
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <noscript><p class="container section">Bitte aktiviere JavaScript, um alle Funktionen der Seite zu nutzen.</p></noscript>
@@ -562,5 +632,12 @@
   <script src="js/quiz.js"></script>
   <script src="js/polls.js"></script>
   <script src="js/forum.js"></script>
+  <script src="js/modal.js"></script>
+  <script src="js/applications.js"></script>
+  <script src="js/characters.js"></script>
+  <script src="js/status.js"></script>
+  <script src="js/rules.js"></script>
+  <script src="js/search.js"></script>
+  <script src="js/pwa.js"></script>
 </body>
 </html>

@@ -8,6 +8,8 @@
   /* ---------- Globale Helfer ---------- */
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   window.escapeHtml = esc;
+  // Aktuelle Route ohne "#" – auf Unterseiten wie /forum/ ohne Hash gilt die Seite selbst
+  window.routeHash = () => decodeURIComponent(location.hash.slice(1)) || document.body.dataset.page || "";
 
   let toastTimer;
   window.showToast = (msg) => {
@@ -112,10 +114,12 @@
     const link = e.target.closest("[data-tab-link]");
     if (!link) return;
     e.preventDefault();
+    if (link.dataset.factionFilter) window.setFactionFilter?.(link.dataset.factionFilter);
     openTab(link.dataset.tabLink);
   });
 
-  const tabFromHash = () => decodeURIComponent(location.hash.slice(1).split("/")[0]) || "start";
+  // Unterseiten wie /regeln/ (für Google) setzen data-page am <body>
+  const tabFromHash = () => decodeURIComponent(location.hash.slice(1).split("/")[0]) || document.body.dataset.page || "start";
   // Unterseiten (z.B. #forum/thread/…) behandeln die Module selbst über "hashchange"
   const syncTab = () => { if (tabFromHash() !== currentTab) openTab(tabFromHash(), { updateHash: false }); };
   window.addEventListener("popstate", syncTab);
@@ -215,25 +219,49 @@
   let status = "loading";
 
   function renderStatusText() {
+    // Ohne Live-Daten keinen "toten" Server zeigen, sondern eine Einladung
     statusText.textContent = {
       loading: t("Status wird geladen…"),
       online: t("Server online"),
-      unknown: t("Status unbekannt"),
-      none: "German Roleplay",
+      unknown: t("German Roleplay · ohne Whitelist"),
+      none: t("German Roleplay · ohne Whitelist"),
     }[status];
   }
+
+  /* Zahlen hochzählen lassen */
+  window.countUp = (el, to) => {
+    const target = Number(to);
+    if (!el || !Number.isFinite(target)) { if (el) el.textContent = to; return; }
+    const from = Number(el.textContent) || 0;
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches || from === target) { el.textContent = target; return; }
+    const start = performance.now(), dur = 900;
+    const step = (now) => {
+      const p = Math.min(1, (now - start) / dur);
+      el.textContent = Math.round(from + (target - from) * (1 - Math.pow(1 - p, 3)));
+      if (p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  };
   document.addEventListener("langchange", renderStatusText);
 
   async function loadStatus() {
-    if (!CONFIG.liveStatus || !CONFIG.cfxCode) { status = "none"; return renderStatusText(); }
+    if (!CONFIG.liveStatus || !CONFIG.cfxCode) {
+      status = "none";
+      window.SERVER_LIVE = null;
+      document.dispatchEvent(new CustomEvent("serverstatus", { detail: null }));
+      return renderStatusText();
+    }
     try {
       const res = await fetch(`https://servers-frontend.fivem.net/api/servers/single/${encodeURIComponent(CONFIG.cfxCode)}`);
       if (!res.ok) throw new Error(res.status);
       const { Data } = await res.json();
       dot.className = "dot is-online";
       status = "online";
-      $("#statPlayers").textContent = Data.clients ?? 0;
-      $("#statMax").textContent = Data.sv_maxclients ?? CONFIG.maxPlayers;
+      $("#statPlayersWrap").hidden = false;
+      countUp($("#statPlayers"), Data.clients ?? 0);
+      countUp($("#statMax"), Data.sv_maxclients ?? CONFIG.maxPlayers);
+      window.SERVER_LIVE = Data;
+      document.dispatchEvent(new CustomEvent("serverstatus", { detail: Data }));
 
       const players = (Data.players || []).map((p) => p.name).filter(Boolean).sort((a, b) => a.localeCompare(b));
       const list = $("#playerList");
@@ -242,6 +270,10 @@
     } catch {
       dot.className = "dot";
       status = "unknown";
+      $("#statPlayersWrap").hidden = true;
+      $("#playerList").hidden = true;
+      window.SERVER_LIVE = null;
+      document.dispatchEvent(new CustomEvent("serverstatus", { detail: null }));
     }
     renderStatusText();
   }
@@ -267,6 +299,8 @@
       $("#discordName").textContent = data.name;
       discordCount = data.presence_count;
       renderDiscordCount();
+      window.DISCORD_WIDGET = data;
+      document.dispatchEvent(new CustomEvent("discordwidget", { detail: data }));
       $("#discordMembers").innerHTML = (data.members || []).slice(0, 12).map((m) =>
         `<img src="${esc(m.avatar_url)}" alt="${esc(m.username)}" title="${esc(m.username)}" width="32" height="32" loading="lazy">`
       ).join("");

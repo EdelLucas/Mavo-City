@@ -24,6 +24,7 @@ css/style.css         Grund-Design, Header, Startseite
 css/pages.css         Fraktionen, Galerie, Updates, Spenden, Discord-Widget, Navigation "Mehr"
 css/features.css      Wiki, Events, Karte, Streamer, Quiz, Umfragen, Formatierung
 css/forum.css         Forum
+css/extras.css        Update 5: Startseite, Dialoge, Suche, Server-Status, Bürgerregister
 css/admin.css         Admin-Bereich
 css/legal.css         Impressum & Datenschutz
 
@@ -42,6 +43,16 @@ js/streamers.js       Streamer + Twitch-Live-Status
 js/quiz.js            Regel-Quiz
 js/polls.js           Umfrage auf der Startseite
 js/forum.js           Forum
+js/applications.js    Fraktions-Bewerbungen (Formular)
+js/characters.js      Bürgerregister (Charaktere)
+js/status.js          Server-Status mit Verlauf
+js/rules.js           Regelwerk: Suche, Links, "Stand"
+js/search.js          Suche über die ganze Seite (Strg+K)
+js/modal.js           Dialog-Fenster
+js/pwa.js             App-Installation
+sw.js, manifest.webmanifest   App / Offline
+tools/build-pages.mjs erzeugt Unterseiten (/regeln/ …) + sitemap.xml
+regeln/, forum/, …    automatisch erzeugte Unterseiten – nicht von Hand bearbeiten
 js/admin.js           Admin-Bereich
 js/legal.js           Helfer für Impressum/Datenschutz
 
@@ -112,6 +123,24 @@ Das Forum ist in **Bereiche** gegliedert (Wichtige Informationen, Allgemein, Sup
 Bewerbungen, Fraktionen & Wirtschaft). Bereiche, Foren, Vorlagen und Status-Präfixe stellst du im
 Admin-Bereich unter **Forum-Kategorien** ein.
 
+## 1d. Update 5 einspielen (Bewerbungen, Bürgerregister, Events, Server-Status)
+
+`supabase/update-5-website.sql` genauso im SQL Editor ausführen. Damit gibt es:
+- **Fraktions-Bewerbungen:** „Jetzt bewerben“ auf der Fraktions-Seite öffnet ein Formular (Discord-Login nötig).
+  Bewerbungen verwaltest du im Admin-Bereich unter **Bewerbungen** (In Bearbeitung · Annehmen · Ablehnen,
+  optional mit Notiz). Die Person sieht den Status auf der Fraktions-Seite und bekommt eine Benachrichtigung (Glocke im Forum).
+  Neue Bewerbungen gehen an den Discord-Webhook aus Abschnitt 3 – oder an einen eigenen:
+  `insert into public.app_settings (key, value) values ('discord_webhook_applications', 'https://discord.com/api/webhooks/...');`
+- **Bürgerregister:** Spieler stellen bis zu 3 Charaktere mit Bild und Geschichte vor (Community → Bürgerregister).
+  Die Charaktere erscheinen auch im Forum-Profil. Admins können fremde Charaktere bearbeiten/löschen.
+- **Event-Anmeldung:** „Ich bin dabei“ bei jedem Event, mit Anzahl und Profilbildern der Teilnehmer.
+  Der Kalender-Export erinnert 30 Minuten vorher.
+- **Server-Status mit Verlauf** (Spielen → Server-Status): Damit der Spielerverlauf und „Wann ist am meisten los?“
+  echte Werte zeigen, einmal den Join-Code eintragen:
+  `insert into public.app_settings (key, value) values ('cfx_code', 'DEIN-CODE') on conflict (key) do update set value = excluded.value;`
+  Die Datenbank fragt dann alle 5 Minuten die Spielerzahl ab (pg_cron). Bis genug Daten da sind, zeigt die Seite
+  Beispieldaten mit Hinweis. Neustart-Zeiten stehen in `js/config.js` → `restartTimes`.
+
 ## 2. Admin-Bereich (`mavocity.com/admin.html`)
 
 - **Übersicht:** Kennzahlen (Mitglieder, Beiträge, Meldungen, Quiz), neueste Forenbeiträge, Schnellaktionen.
@@ -123,7 +152,7 @@ Admin-Bereich unter **Forum-Kategorien** ein.
   Bilder können direkt hochgeladen werden (max. 5 MB). Orte auf der Karte per Klick positionieren.
 - **Meldungen:** gemeldete Forenbeiträge ansehen, erledigen oder löschen.
 - **Umfragen:** neue Umfrage starten (erscheint auf der Startseite), beenden, Ergebnisse sehen.
-- **Quiz-Ergebnisse:** wer das Regel-Quiz bestanden hat – praktisch für Whitelist-Anträge.
+- **Quiz-Ergebnisse:** wer das Regel-Quiz bestanden hat.
 - *Auf Standard zurücksetzen* stellt die Inhalte aus `js/data.js` wieder her.
 
 **Ohne Supabase** funktioniert der Editor auch: Statt Speichern gibt es den Knopf *Code für data.js erzeugen*.
@@ -206,6 +235,25 @@ Bei neuen externen Diensten muss die Datenschutzerklärung ergänzt werden. Die 
 `sitemap.xml` und `robots.txt` liegen im Hauptordner. In der [Google Search Console](https://search.google.com/search-console)
 die Domain hinzufügen und `https://mavocity.com/sitemap.xml` einreichen.
 
+**Eigene Unterseiten:** Jeder Bereich hat zusätzlich eine eigene Adresse mit passendem Titel und Beschreibung,
+z. B. `mavocity.com/regeln/`, `mavocity.com/fraktionen/`, `mavocity.com/status/`. Diese Ordner werden automatisch
+aus `index.html` erzeugt. **Nach jeder Änderung an `index.html`** einmal ausführen:
+
+```
+node tools/build-pages.mjs
+```
+
+Das erzeugt die Unterseiten und die `sitemap.xml` neu. (Inhalte aus dem Admin-Bereich oder `js/data.js` brauchen das nicht.)
+
+## 10b. Als App installieren & Suche
+
+- **App:** Auf dem Handy kann man die Seite „zum Startbildschirm hinzufügen“ – sie öffnet sich dann wie eine App
+  und funktioniert auch offline (Startseite, Regeln, Wiki). Dateien: `manifest.webmanifest`, `sw.js`, Icons in `assets/app/`.
+  Nach größeren Änderungen in `sw.js` die Zeile `VERSION` hochzählen.
+- **Suche:** Lupe oben rechts oder `Strg+K` / `/` – durchsucht Seiten, Regeln, FAQ, Wiki, Fraktionen, Events, News und Forenthemen.
+- **Regelwerk:** Suchfeld über den Regeln, jeder Paragraph hat einen Link-Knopf (z. B. `mavocity.com/#regeln/2`).
+  Das Datum „Stand“ steht in `js/config.js` → `rulesUpdated`.
+
 ## 11. Design „Clean Premium“
 
 - **Farben** stehen ganz oben in `css/style.css` (`:root` = dunkel, `[data-theme="light"]` = hell).
@@ -219,5 +267,9 @@ die Domain hinzufügen und `https://mavocity.com/sitemap.xml` einreichen.
 - **Startseite mit Video:** kurzes, stummes `.mp4` (am besten < 8 MB) nach `assets/` legen und in `js/config.js`
   `heroVideo: "assets/hero.mp4"` eintragen (optional `heroVideoPoster` als Standbild).
   Alternativ Bilder über Admin → *Startseiten-Bilder*.
+- **Team-Farben:** Im Admin-Bereich bei jedem Teammitglied den *Rang* wählen (Projektleitung, Administration, Moderation,
+  Entwicklung, Support). Mit *Discord-Name* erscheint ein grüner Punkt, wenn die Person gerade im Discord online ist.
+- **Fraktionen:** optional *Mitglieder*, *Ansprechpartner* und ein *Titelbild* pro Fraktion.
+- **Galerie:** Der Menüpunkt erscheint erst, wenn mindestens ein Bild oder Video eingetragen ist.
 - **Navigation:** Start · Spielen ▾ · Forum · Community ▾ · Wissen ▾. Auf Handy/Tablet gibt es unten eine Leiste
   (Start, Spielen, Forum, Events, Menü).

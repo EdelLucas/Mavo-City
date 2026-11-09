@@ -79,7 +79,7 @@
         <h2>${passed ? t("Bestanden!") : t("Leider nicht bestanden")}</h2>
         <p class="quiz__score">${score} / ${qs.length} (${percent} %)</p>
         <p>${passed
-          ? t("Super! Du kennst die wichtigsten Regeln. Stelle jetzt deinen Whitelist-Antrag im Discord.")
+          ? t("Super! Du kennst die wichtigsten Regeln. Jetzt kann es losgehen.")
           : t("Lies dir das Regelwerk noch einmal durch und versuche es erneut.")}</p>
         ${wrong.length ? `
           <details class="quiz__review">
@@ -92,7 +92,7 @@
           </details>` : ""}
         <div class="btn-row">
           ${passed
-            ? `<a class="btn btn--primary js-discord" href="${esc(CONFIG.discordUrl)}" target="_blank" rel="noopener">${t("Zum Whitelist-Antrag")}</a>`
+            ? `<a class="btn btn--primary" href="#verbinden" data-tab-link="verbinden">${t("Jetzt verbinden")}</a>`
             : `<a class="btn btn--primary" href="#regeln">${t("Regeln lesen")}</a>`}
           <button class="btn btn--ghost" data-quiz="start">${t("Nochmal")}</button>
           ${passed ? saveBox : ""}

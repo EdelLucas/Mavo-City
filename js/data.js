@@ -6,15 +6,18 @@
 /* ---------- News (Start-Tab) ---------- */
 const NEWS = [
   { date: "08.11.2026", title: "Neue Website ist online", text: "Forum, Fraktionen, Galerie, Updates und eine Schritt-für-Schritt-Anleitung zum Verbinden – alles an einem Ort." },
-  { date: "01.11.2026", title: "Whitelist geöffnet", text: "Ab sofort könnt ihr eure Anträge im Discord einreichen." },
+  { date: "01.11.2026", title: "Server geöffnet", text: "Mavo City ist online – ohne Whitelist. Regeln lesen, verbinden, losspielen!" },
 ];
 
-/* ---------- Team ---------- */
+/* ---------- Team ----------
+   group:   leitung | admin | mod | dev | support  (Farbe der Karte)
+   discord: Discord-Name (optional) – grüner Punkt, wenn online im Discord
+   avatar:  Bild-URL (optional)                                       */
 const TEAM = [
-  { name: "Lucas", role: "Projektleitung" },
-  { name: "Max", role: "Administration" },
-  { name: "Lena", role: "Moderation" },
-  { name: "Tim", role: "Entwicklung" },
+  { name: "Lucas", role: "Projektleitung", group: "leitung" },
+  { name: "Max", role: "Administration", group: "admin" },
+  { name: "Lena", role: "Moderation", group: "mod" },
+  { name: "Tim", role: "Entwicklung", group: "dev" },
 ];
 
 /* ---------- Symbole ----------
@@ -25,12 +28,16 @@ const TEAM = [
    (Ein Emoji funktioniert weiterhin, sieht aber je nach Gerät anders aus.)  */
 
 /* ---------- Fraktionen ----------
-   type:   "staat" | "crime" | "zivil"
-   status: "offen" | "geschlossen"                                   */
+   type:    "staat" | "crime" | "zivil"
+   status:  "offen" | "geschlossen"
+   members: z. B. "14 Mitglieder" (optional)
+   contact: Ansprechpartner (optional)
+   image:   Titelbild, z. B. "assets/lspd.jpg" (optional)            */
 const FACTIONS = [
   {
     name: "Los Santos Police Department", short: "LSPD", type: "staat", icon: "shield", status: "offen",
     desc: "Recht und Ordnung in der Stadt. Streife, Ermittlungen, SWAT und Ausbildung neuer Kadetten.",
+    members: "", contact: "",
     requirements: ["Mindestens 18 Jahre", "Sauberes Führungszeugnis im RP", "Gutes Mikrofon & Funkdisziplin"],
   },
   {
@@ -84,7 +91,7 @@ const CHANGELOG = [
   {
     version: "1.0.0", date: "01.11.2026", title: "Server-Start",
     items: [
-      { type: "neu", text: "Whitelist geöffnet" },
+      { type: "neu", text: "Server geöffnet (ohne Whitelist)" },
       { type: "neu", text: "Grundlegende Fraktionen: LSPD, EMS, Werkstatt" },
       { type: "fix", text: "Diverse Startprobleme behoben" },
     ],

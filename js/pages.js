@@ -6,36 +6,84 @@
   const $ = (sel) => document.querySelector(sel);
   const esc = window.escapeHtml;
 
-  /* ---------- News ---------- */
+  /* ---------- Datum "08.11.2026" oder "2026-11-08" -> Date ---------- */
+  window.parseDeDate = (s) => {
+    const str = String(s || "").trim();
+    let m = str.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})/);
+    if (m) return new Date(+m[3], +m[2] - 1, +m[1]);
+    m = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (m) return new Date(+m[1], +m[2] - 1, +m[3]);
+    return null;
+  };
+
+  /* ---------- News (neueste zuerst, auf der Startseite die 3 neuesten) ---------- */
   function renderNews() {
-    $("#newsList").innerHTML = CONTENT.news.map((n) => `
-      <article class="news__item">
-        <span class="news__date">${esc(n.date)}</span>
-        <div><h3>${esc(n.title)}</h3><p>${esc(n.text)}</p></div>
+    const list = CONTENT.news
+      .map((n, i) => ({ ...n, i, at: parseDeDate(n.date) }))
+      .sort((a, b) => (b.at || 0) - (a.at || 0) || a.i - b.i)
+      .slice(0, 3);
+    const fresh = (d) => d && Date.now() - d.getTime() < 7 * 86400_000;
+    $("#newsList").innerHTML = list.map((n) => `
+      <article class="news__item card">
+        <div class="news__top">
+          <span class="news__date">${icon("calendar")} ${esc(n.date)}</span>
+          ${fresh(n.at) ? `<span class="tag tag--accent">${t("Neu")}</span>` : ""}
+        </div>
+        <h3>${esc(n.title)}</h3><p>${esc(n.text)}</p>
       </article>`).join("") || `<div class="empty">${t("Noch keine Neuigkeiten.")}</div>`;
   }
 
-  /* ---------- Team ---------- */
-  function renderTeam() {
-    $("#teamGrid").innerHTML = CONTENT.team.map((m) => `
-      <article class="card member">
-        ${m.avatar
-          ? `<img class="member__avatar" src="${esc(m.avatar)}" alt="" width="80" height="80" loading="lazy">`
-          : `<div class="member__avatar">${esc((m.name || "?")[0])}</div>`}
-        <h3>${esc(m.name)}</h3>
-        <span class="member__role">${esc(m.role)}</span>
-      </article>`).join("");
+  /* ---------- Team ----------
+     group: leitung | admin | mod | dev | support  (Farbe der Karte)
+     discord: Discord-Name – damit wird "online" aus dem Discord-Widget erkannt */
+  const GROUPS = { leitung: "Projektleitung", admin: "Administration", mod: "Moderation", dev: "Entwicklung", support: "Support" };
+  const guessGroup = (role) => {
+    const r = String(role || "").toLowerCase();
+    if (/leit|owner|inhaber|founder/.test(r)) return "leitung";
+    if (/admin/.test(r)) return "admin";
+    if (/mod/.test(r)) return "mod";
+    if (/entwick|dev|script/.test(r)) return "dev";
+    return "support";
+  };
+  function onlineNames() {
+    const w = window.DISCORD_WIDGET;
+    return new Set((w?.members || []).map((m) => String(m.username || "").toLowerCase()));
   }
+  function renderTeam() {
+    const online = onlineNames();
+    $("#teamGrid").innerHTML = CONTENT.team.map((m) => {
+      const group = m.group || guessGroup(m.role);
+      const isOn = online.has(String(m.discord || m.name || "").toLowerCase());
+      return `
+      <article class="card member member--${esc(group)}">
+        <div class="member__pic">
+          ${m.avatar
+            ? `<img class="member__avatar" src="${esc(m.avatar)}" alt="" width="84" height="84" loading="lazy">`
+            : `<div class="member__avatar">${esc((m.name || "?")[0])}</div>`}
+          ${isOn ? `<span class="member__online" title="${t("Gerade im Discord online")}"></span>` : ""}
+        </div>
+        <h3>${esc(m.name)}</h3>
+        <span class="member__role">${esc(m.role || GROUPS[group])}</span>
+      </article>`;
+    }).join("");
+  }
+  document.addEventListener("discordwidget", renderTeam);
 
   /* ---------- Fraktionen ---------- */
   let factionFilter = "alle";
+  window.setFactionFilter = (f) => {
+    factionFilter = f;
+    document.querySelectorAll("#factionFilter .chip").forEach((c) => c.classList.toggle("is-active", c.dataset.filter === f));
+    renderFactions();
+  };
   function renderFactions() {
     const typeLabel = { staat: t("Staat"), zivil: t("Zivil"), crime: "Crime" };
-    const list = CONTENT.factions.filter((f) => factionFilter === "alle" || f.type === factionFilter);
+    const list = CONTENT.factions.map((f, i) => ({ ...f, i })).filter((f) => factionFilter === "alle" || f.type === factionFilter);
     $("#factionGrid").innerHTML = list.map((f) => {
       const open = f.status === "offen";
       return `
         <article class="card faction faction--${esc(f.type)}">
+          ${f.image ? `<div class="faction__banner" style="background-image:url('${esc(f.image).replace(/'/g, "%27")}')"></div>` : ""}
           <div class="faction__head">
             <span class="faction__icon">${iconOrText(f.icon, "shield")}</span>
             <div>
@@ -45,11 +93,16 @@
             </div>
           </div>
           <p>${esc(f.desc)}</p>
+          ${f.members || f.contact ? `
+            <div class="faction__facts">
+              ${f.members ? `<span>${icon("users")} ${esc(f.members)}</span>` : ""}
+              ${f.contact ? `<span>${icon("chat")} ${t("Ansprechpartner")}: <strong>${esc(f.contact)}</strong></span>` : ""}
+            </div>` : ""}
           ${f.requirements?.length ? `
             <h4>${t("Voraussetzungen")}</h4>
             <ul class="checklist">${f.requirements.map((r) => `<li>${esc(r)}</li>`).join("")}</ul>` : ""}
           ${open
-            ? `<a class="btn btn--primary btn--sm" href="#forum/cat/bewerbungen">${t("Jetzt bewerben")}</a>`
+            ? `<button class="btn btn--primary btn--sm" data-apply="${f.i}">${t("Jetzt bewerben")}</button>`
             : `<button class="btn btn--ghost btn--sm" disabled>${t("Aktuell keine Bewerbungen")}</button>`}
         </article>`;
     }).join("") || `<div class="empty">${t("Keine Fraktionen in dieser Kategorie.")}</div>`;
@@ -68,14 +121,12 @@
   const hasMedia = (g) => (g.type === "video" ? !!g.youtubeId : !!g.src);
 
   function renderGallery() {
+    // Solange es keine echten Bilder gibt, den Menüpunkt ausblenden – leere Platzhalter wirken unfertig
+    const any = CONTENT.gallery.some(hasMedia);
+    document.querySelectorAll('[data-tab="galerie"], [data-tab-link="galerie"]').forEach((el) => (el.hidden = !any));
+    if (!any) { $("#galleryGrid").innerHTML = `<div class="empty">${t("Noch keine Bilder.")}</div>`; return; }
     $("#galleryGrid").innerHTML = CONTENT.gallery.map((g, i) => {
-      if (!hasMedia(g)) {
-        return `
-          <figure class="gallery__item gallery__item--placeholder">
-            <div class="gallery__ph">${icon(g.type === "video" ? "video" : "camera")}<span>${t("Bald verfügbar")}</span></div>
-            <figcaption>${esc(g.title)}</figcaption>
-          </figure>`;
-      }
+      if (!hasMedia(g)) return "";
       const thumb = g.type === "video" ? ytThumb(g.youtubeId) : g.src;
       return `
         <figure class="gallery__item" data-index="${i}" tabindex="0" role="button" aria-label="${esc(g.title)}">

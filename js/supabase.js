@@ -23,6 +23,8 @@
     });
   })().catch((err) => {
     console.error("Supabase nicht erreichbar – Demo-Modus", err);
+    // Ganze Seite einheitlich im Demo-Modus weiterlaufen lassen
+    if (window.MavoAuth) window.MavoAuth.enabled = false;
     return null;
   }));
 
@@ -34,10 +36,13 @@
     async login() {
       const sb = await getSupabase();
       if (!sb) return;
-      try { sessionStorage.setItem(RETURN_KEY, location.pathname + location.hash); } catch { /* egal */ }
+      // Rücksprung immer auf die Hauptseite (nur sie muss in Supabase als Redirect-URL eingetragen sein)
+      const hash = location.hash.slice(1) || document.body.dataset.page || "";
+      try { sessionStorage.setItem(RETURN_KEY, hash); } catch { /* egal */ }
+      const home = new URL("./", document.baseURI);
       const { error } = await sb.auth.signInWithOAuth({
         provider: "discord",
-        options: { redirectTo: location.origin + location.pathname },
+        options: { redirectTo: document.body.classList.contains("admin-page") ? location.origin + location.pathname : home.href },
       });
       if (error) throw error;
     },
@@ -84,9 +89,9 @@
     // Nach dem Discord-Login zur vorherigen Seite zurück
     let back = null;
     try { back = sessionStorage.getItem(RETURN_KEY); sessionStorage.removeItem(RETURN_KEY); } catch { /* egal */ }
-    if (back && Auth.user) {
-      const [path, hash = ""] = back.split("#");
-      if (path === location.pathname && hash && location.hash !== "#" + hash) {
+    if (back !== null && Auth.user) {
+      const hash = back;
+      if (hash && location.hash !== "#" + hash) {
         history.replaceState(null, "", "#" + hash);
         window.dispatchEvent(new PopStateEvent("popstate"));
       }

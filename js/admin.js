@@ -75,17 +75,19 @@
     team: {
       label: "Team", icon: "users", varName: "TEAM",
       title: (i) => `${i.name || "Neues Mitglied"} – ${i.role || ""}`,
-      blank: () => ({ name: "", role: "", avatar: "" }),
+      blank: () => ({ name: "", role: "", group: "support", discord: "", avatar: "" }),
       fields: [
         { k: "name", label: "Name", type: "text" },
         { k: "role", label: "Rolle", type: "text" },
+        { k: "group", label: "Rang (Farbe)", type: "select", options: [["leitung", "Projektleitung"], ["admin", "Administration"], ["mod", "Moderation"], ["dev", "Entwicklung"], ["support", "Support"]] },
+        { k: "discord", label: "Discord-Name (optional)", type: "text", help: "Zeigt einen grünen Punkt, wenn die Person im Discord online ist (Discord-Widget nötig)" },
         { k: "avatar", label: "Profilbild (optional)", type: "image", wide: true },
       ],
     },
     factions: {
       label: "Fraktionen", icon: "shield", varName: "FACTIONS",
       title: (i) => i.name || "Neue Fraktion",
-      blank: () => ({ name: "", short: "", type: "zivil", icon: "building", status: "offen", desc: "", requirements: [] }),
+      blank: () => ({ name: "", short: "", type: "zivil", icon: "building", status: "offen", desc: "", members: "", contact: "", image: "", requirements: [] }),
       fields: [
         { k: "name", label: "Name", type: "text" },
         { k: "short", label: "Kürzel", type: "text" },
@@ -93,6 +95,9 @@
         { k: "status", label: "Bewerbungen", type: "select", options: [["offen", "offen"], ["geschlossen", "geschlossen"]] },
         { k: "icon", label: "Symbol", type: "icon" },
         { k: "desc", label: "Beschreibung", type: "textarea", wide: true },
+        { k: "members", label: "Mitglieder (optional)", type: "text", help: "z. B. 14 Mitglieder" },
+        { k: "contact", label: "Ansprechpartner (optional)", type: "text", help: "z. B. Chief Miller" },
+        { k: "image", label: "Titelbild (optional)", type: "image", wide: true },
         { k: "requirements", label: "Voraussetzungen", type: "list", wide: true, help: "Eine pro Zeile" },
       ],
     },
@@ -637,6 +642,79 @@
   });
 
   /* ==========================================================
+     Fraktions-Bewerbungen
+     ========================================================== */
+  const APP_STATUS = { offen: "Offen", bearbeitung: "In Bearbeitung", angenommen: "Angenommen", abgelehnt: "Abgelehnt" };
+  let appFilter = { status: "aktiv", faction: "" };
+  async function loadApplications() {
+    const view = $("#appsView");
+    if (!canSave) { view.innerHTML = `<div class="empty">Benötigt Supabase und Admin-Rechte.</div>`; return; }
+    const { data, error } = await sb.from("faction_applications").select("*").order("created_at", { ascending: false }).limit(500);
+    if (error) {
+      view.innerHTML = `<div class="notice notice--warn"><strong>Bewerbungen noch nicht aktiv.</strong><br>
+        Bitte <code>supabase/update-5-website.sql</code> im Supabase SQL-Editor ausführen und die Seite neu laden.</div>`;
+      return;
+    }
+    const factions = [...new Set(data.map((a) => a.faction))].sort();
+    const list = data.filter((a) =>
+      (appFilter.status === "alle" || (appFilter.status === "aktiv" ? ["offen", "bearbeitung"].includes(a.status) : a.status === appFilter.status)) &&
+      (!appFilter.faction || a.faction === appFilter.faction));
+    view.innerHTML = `
+      <div class="filter-bar">
+        <select class="select" id="appStatus">
+          ${[["aktiv", "Offen & in Bearbeitung"], ["alle", "Alle"], ...Object.entries(APP_STATUS)].map(([v, l]) =>
+            `<option value="${v}" ${appFilter.status === v ? "selected" : ""}>${l}</option>`).join("")}
+        </select>
+        <select class="select" id="appFaction">
+          <option value="">Alle Fraktionen</option>
+          ${factions.map((f) => `<option ${appFilter.faction === f ? "selected" : ""}>${esc(f)}</option>`).join("")}
+        </select>
+      </div>
+      <div class="accordion">${list.map((a) => `
+        <details>
+          <summary>
+            <span style="display:flex;align-items:center;gap:12px;min-width:0">
+              ${a.user_avatar ? `<img class="avatar avatar--sm" src="${esc(a.user_avatar)}" alt="">` : `<span class="avatar avatar--sm avatar--letter">${esc((a.user_name || "?")[0])}</span>`}
+              <span><strong>${esc(a.char_name)}</strong> · ${esc(a.faction)}<br><small class="muted">${esc(a.user_name)} · ${new Date(a.created_at).toLocaleString("de-DE")}</small></span>
+            </span>
+            <span class="app-status app-status--${esc(a.status)}" style="margin-left:auto">${APP_STATUS[a.status] || esc(a.status)}</span>
+          </summary>
+          <div>
+            <p><strong>Discord:</strong> ${esc(a.user_name)} · <strong>Alter:</strong> ${esc(a.age ?? "–")} · <strong>Charakter-Alter:</strong> ${esc(a.char_age ?? "–")} · <strong>Spielzeit:</strong> ${esc(a.playtime || "–")}</p>
+            <h4>Lebenslauf</h4><p style="white-space:pre-wrap">${esc(a.story)}</p>
+            <h4>Warum diese Fraktion?</h4><p style="white-space:pre-wrap">${esc(a.motivation)}</p>
+            <div class="field" style="margin:14px 0"><span>Notiz an die Person (optional, sichtbar für sie)</span>
+              <input class="input" data-app-note="${a.id}" maxlength="1000" value="${esc(a.team_note || "")}" placeholder="z. B. Bitte melde dich bei Chief Miller im Discord."></div>
+            <div class="btn-row">
+              <button class="btn btn--sm btn--ghost" data-app-set="bearbeitung" data-id="${a.id}">In Bearbeitung</button>
+              <button class="btn btn--sm btn--primary" data-app-set="angenommen" data-id="${a.id}">Annehmen</button>
+              <button class="btn btn--sm btn--ghost btn--danger" data-app-set="abgelehnt" data-id="${a.id}">Ablehnen</button>
+              <button class="btn btn--sm btn--ghost btn--danger" data-app-del="${a.id}" style="margin-left:auto">Löschen</button>
+            </div>
+          </div>
+        </details>`).join("") || `<div class="empty">Keine Bewerbungen in dieser Ansicht.</div>`}</div>`;
+    $("#appStatus").addEventListener("change", (e) => { appFilter.status = e.target.value; loadApplications(); });
+    $("#appFaction").addEventListener("change", (e) => { appFilter.faction = e.target.value; loadApplications(); });
+  }
+
+  $("#appsView").addEventListener("click", async (e) => {
+    const set = e.target.closest("[data-app-set]");
+    const del = e.target.closest("[data-app-del]");
+    if (set) {
+      const note = $(`[data-app-note="${set.dataset.id}"]`)?.value || null;
+      const { error } = await sb.rpc("faction_app_set_status", { p_id: set.dataset.id, p_status: set.dataset.appSet, p_note: note });
+      if (error) return showToast("Fehler: " + error.message);
+      showToast(`Status: ${APP_STATUS[set.dataset.appSet]} ✓`);
+      loadApplications();
+    }
+    if (del && confirm("Bewerbung endgültig löschen?")) {
+      const { error } = await sb.from("faction_applications").delete().eq("id", del.dataset.appDel);
+      if (error) return showToast("Fehler: " + error.message);
+      loadApplications();
+    }
+  });
+
+  /* ==========================================================
      Übersicht (Dashboard)
      ========================================================== */
   async function loadDashboard() {
@@ -693,6 +771,10 @@
           stat("flag", s.reports_open, "Offene Meldungen", s.reports_open ? "Bitte prüfen" : "Alles erledigt", "reports"),
           stat("check-circle", s.quiz_passed, "Quiz bestanden", `+${s.quiz_7d} diese Woche`, "quiz"),
           stat("chart", s.polls_active, "Aktive Umfragen", "", "polls"),
+          ...(s.apps_open !== undefined ? [
+            stat("file", s.apps_open, "Offene Bewerbungen", s.apps_open ? "Bitte prüfen" : "Alles erledigt", "applications"),
+            stat("id-card", s.characters, "Charaktere im Bürgerregister"),
+          ] : []),
         ].join("");
 
     // Neueste Beiträge
@@ -804,12 +886,13 @@
      Navigation (Seitenleiste) & Start
      ========================================================== */
   const COMMUNITY = [
+    ["applications", "file", "Bewerbungen"],
     ["reports", "flag", "Meldungen"],
     ["users", "users", "Nutzer"],
     ["polls", "chart", "Umfragen"],
     ["quiz", "check-circle", "Quiz-Ergebnisse"],
   ];
-  const loaders = { dashboard: loadDashboard, reports: loadReports, users: loadUsers, polls: loadPolls, quiz: loadQuiz };
+  const loaders = { dashboard: loadDashboard, applications: loadApplications, reports: loadReports, users: loadUsers, polls: loadPolls, quiz: loadQuiz };
   let current = "dashboard";
   let openCount = 0;
 

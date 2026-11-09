@@ -56,10 +56,82 @@
           <p class="event__meta"><span>${icon("clock")} ${esc(fmt(e.at))}</span>${e.location ? `<span>${icon("pin")} ${esc(e.location)}</span>` : ""}</p>
           ${e.desc ? `<p>${esc(e.desc)}</p>` : ""}
           ${!isPast(e) && !isRunning(e) ? `<div class="cd" data-countdown="${e.at.getTime()}">${countdown(e.at)}</div>` : ""}
-          ${!isPast(e) ? `<button class="btn btn--ghost btn--sm" data-ics="${e.i}">${icon("calendar")} ${t("In Kalender eintragen")}</button>` : ""}
+          ${!isPast(e) ? `
+            <div class="event__actions">
+              ${signupHtml(e)}
+              <button class="btn btn--ghost btn--sm" data-ics="${e.i}">${icon("calendar")} ${t("In Kalender eintragen")}</button>
+            </div>` : ""}
         </div>
       </article>`;
   }
+
+  /* ---------- Anmeldung ("Ich bin dabei") ----------
+     Mit Supabase: Tabelle event_signups, sonst nur lokal im Browser. */
+  const LOCAL = "mavo_demo_signups";
+  const keyOf = (e) => `${String(e.date).slice(0, 16)}-${String(e.title).toLowerCase().replace(/[^a-z0-9äöüß]+/g, "-").slice(0, 100)}`;
+  let signups = {}; // key -> [{ user_id, user_name, user_avatar }]
+
+  function signupHtml(e) {
+    const key = keyOf(e);
+    const list = signups[key] || [];
+    const uid = MavoAuth.enabled ? MavoAuth.user?.id : "demo";
+    const joined = list.some((s) => s.user_id === uid);
+    const faces = list.slice(0, 5).map((s) => s.user_avatar
+      ? `<img src="${esc(s.user_avatar)}" alt="" title="${esc(s.user_name)}" loading="lazy">`
+      : `<span title="${esc(s.user_name)}">${esc((s.user_name || "?")[0])}</span>`).join("");
+    return `
+      <button class="btn btn--sm ${joined ? "btn--ghost is-joined" : "btn--primary"}" data-signup="${esc(key)}" aria-pressed="${joined}">
+        ${icon(joined ? "check-circle" : "plus")} ${joined ? t("Du bist dabei") : t("Ich bin dabei")}
+      </button>
+      ${list.length ? `<span class="event__signup"><span class="avatars">${faces}</span><span class="signup-count">${t("{n} dabei", { n: list.length })}</span></span>` : ""}`;
+  }
+
+  async function loadSignups() {
+    const keys = sorted().filter((e) => !isPast(e)).map(keyOf);
+    if (!keys.length) return;
+    await getSupabase();
+    if (!MavoAuth.enabled) {
+      try { signups = JSON.parse(localStorage.getItem(LOCAL)) || {}; } catch { signups = {}; }
+      return;
+    }
+    const sb = await getSupabase();
+    if (!sb) return;
+    const { data, error } = await sb.from("event_signups").select("event_key, user_id, user_name, user_avatar").in("event_key", keys);
+    if (error) return;
+    signups = {};
+    data.forEach((s) => (signups[s.event_key] ||= []).push(s));
+  }
+
+  async function toggleSignup(key) {
+    const list = signups[key] || [];
+    await getSupabase();
+    if (!MavoAuth.enabled) {
+      const i = list.findIndex((s) => s.user_id === "demo");
+      if (i >= 0) list.splice(i, 1); else list.push({ user_id: "demo", user_name: t("Du") });
+      signups[key] = list;
+      try { localStorage.setItem(LOCAL, JSON.stringify(signups)); } catch { /* egal */ }
+      return render();
+    }
+    await MavoAuth.ready;
+    if (!MavoAuth.user) {
+      if (confirm(t("Zum Anmelden musst du dich mit Discord einloggen. Jetzt einloggen?"))) MavoAuth.login();
+      return;
+    }
+    const sb = await getSupabase();
+    const joined = list.some((s) => s.user_id === MavoAuth.user.id);
+    const { error } = joined
+      ? await sb.from("event_signups").delete().eq("event_key", key).eq("user_id", MavoAuth.user.id)
+      : await sb.from("event_signups").insert({ event_key: key });
+    if (error) return showToast(t("Fehler") + ": " + error.message);
+    showToast(joined ? t("Abgemeldet.") : t("Angemeldet – bis dann!"));
+    await loadSignups();
+    render();
+  }
+
+  document.addEventListener("click", (ev) => {
+    const b = ev.target.closest("[data-signup]");
+    if (b) { b.disabled = true; toggleSignup(b.dataset.signup).finally(() => (b.disabled = false)); }
+  });
 
   function render() {
     const list = sorted();
@@ -104,6 +176,8 @@
       `SUMMARY:${icsText("Mavo City: " + e.title)}`,
       `DESCRIPTION:${icsText(e.desc || "")}`,
       `LOCATION:${icsText(e.location || "Mavo City")}`,
+      // Erinnerung 30 Minuten vorher
+      "BEGIN:VALARM", "ACTION:DISPLAY", `DESCRIPTION:${icsText("Mavo City: " + e.title)}`, "TRIGGER:-PT30M", "END:VALARM",
       "END:VEVENT", "END:VCALENDAR",
     ].join("\r\n");
     const a = document.createElement("a");
@@ -113,6 +187,7 @@
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   });
 
-  contentReady.then(render);
+  contentReady.then(async () => { render(); await loadSignups(); render(); });
+  MavoAuth.onChange(async () => { await loadSignups(); render(); });
   document.addEventListener("langchange", render);
 })();

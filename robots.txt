@@ -2,5 +2,6 @@ User-agent: *
 Allow: /
 Disallow: /admin.html
 Disallow: /supabase/
+Disallow: /tools/
 
 Sitemap: https://mavocity.com/sitemap.xml

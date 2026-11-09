@@ -8,7 +8,7 @@
   let query = "";
 
   const currentId = () => {
-    const [tab, id] = location.hash.slice(1).split("/");
+    const [tab, id] = (location.hash.slice(1) || document.body.dataset.page || "").split("/");
     return tab === "wiki" ? decodeURIComponent(id || "") : "";
   };
 

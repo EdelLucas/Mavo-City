@@ -14,6 +14,9 @@ const CONFIG = {
 
   maxPlayers: 64,
 
+  // Feste tägliche Neustarts (deutsche Zeit) – erscheinen auf der Seite "Server-Status". Leer = keine.
+  restartTimes: ["06:00", "18:00"],
+
   // Live-Status + Spielerliste über die öffentliche FiveM-API laden (benötigt cfxCode)
   liveStatus: true,
   showPlayerList: true,
@@ -34,6 +37,9 @@ const CONFIG = {
 
   /* ---------- Spenden (Tebex) ---------- */
   tebexUrl: "",          // z.B. "https://mavocity.tebex.io" – leer = "Shop bald verfügbar"
+
+  /* ---------- Regelwerk ---------- */
+  rulesUpdated: "08.11.2026", // "Stand" über dem Regelwerk – bei Regeländerungen anpassen
 
   /* ---------- Regel-Quiz ---------- */
   quizPassPercent: 80,   // so viel Prozent richtige Antworten zum Bestehen

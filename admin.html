@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="css/pages.css">
   <link rel="stylesheet" href="css/features.css">
   <link rel="stylesheet" href="css/forum.css">
+  <link rel="stylesheet" href="css/extras.css">
   <link rel="stylesheet" href="css/admin.css">
   <script>try{if(localStorage.getItem("mavo_theme")==="light")document.documentElement.dataset.theme="light";}catch(e){}</script>
 </head>
@@ -48,13 +49,17 @@
         <div class="view-head"><div><span class="eyebrow">Community</span><h2>Meldungen</h2><p class="muted">Von Nutzern gemeldete Forenbeiträge.</p></div></div>
         <div id="reportsView"></div>
       </section>
+      <section data-view-panel="applications" hidden>
+        <div class="view-head"><div><span class="eyebrow">Community</span><h2>Fraktions-Bewerbungen</h2><p class="muted">Bewerbungen von der Fraktions-Seite. Die Person sieht den Status auf der Website und bekommt eine Benachrichtigung.</p></div></div>
+        <div id="appsView"></div>
+      </section>
       <section data-view-panel="users" hidden><div id="usersView"></div></section>
       <section data-view-panel="polls" hidden>
         <div class="view-head"><div><span class="eyebrow">Community</span><h2>Umfragen</h2><p class="muted">Die neueste aktive Umfrage erscheint auf der Startseite.</p></div></div>
         <div id="pollsView"></div>
       </section>
       <section data-view-panel="quiz" hidden>
-        <div class="view-head"><div><span class="eyebrow">Community</span><h2>Quiz-Ergebnisse</h2><p class="muted">Wer das Regel-Quiz gemacht hat – praktisch für Whitelist-Anträge.</p></div></div>
+        <div class="view-head"><div><span class="eyebrow">Community</span><h2>Quiz-Ergebnisse</h2><p class="muted">Wer das Regel-Quiz gemacht und sein Ergebnis gespeichert hat.</p></div></div>
         <div id="quizView"></div>
       </section>
     </main>
