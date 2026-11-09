@@ -26,8 +26,8 @@ const CONFIG = {
   /* ---------- Supabase (Forum, Admin-Bereich, Umfragen, Quiz) ----------
      Leer lassen = Demo-Modus (alles nur lokal im Browser).
      Einrichtung: siehe ANLEITUNG.md                                     */
-  supabaseUrl: "",       // z.B. "https://abcdefgh.supabase.co"
-  supabaseAnonKey: "",   // "anon public" Key (darf öffentlich sein)
+  supabaseUrl: "https://gfgbrahibtktjcknhtig.supabase.co",
+  supabaseAnonKey: "sb_publishable_K2CyQdVx6I6qZJHSnf24lQ_i8yZX1XI", // Publishable key (darf öffentlich sein – NIEMALS den Secret key!)
 
   // Twitch-Live-Erkennung über die Supabase-Funktion "twitch-live" (siehe ANLEITUNG.md)
   twitchLiveCheck: false,
