@@ -137,18 +137,24 @@ a.chip-mini:hover { color: var(--text); }
 
 .threads { display: grid; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: var(--surface); }
 .thread-row {
-  display: grid; grid-template-columns: auto 1fr 90px 110px; gap: 16px; align-items: center;
-  padding: 16px 20px; color: var(--text); border-bottom: 1px solid var(--border); transition: background .15s;
+  position: relative; display: grid; grid-template-columns: auto 1fr 90px 200px; gap: 16px; align-items: center;
+  padding: 14px 20px; color: var(--text); border-bottom: 1px solid var(--border); transition: background .15s;
 }
 .thread-row:last-child { border-bottom: 0; }
 .thread-row:hover { color: var(--text); background: var(--surface-2); }
 .thread-row__main { min-width: 0; display: grid; gap: 4px; }
-.thread-row__title { font-weight: 600; line-height: 1.35; }
+.thread-row__title { font-weight: 600; line-height: 1.35; color: var(--text); }
+.thread-row__title:hover { color: var(--accent-ink); }
 .thread-row__meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; color: var(--muted); font-size: .82rem; }
 .thread-row__stat, .thread-row__last { text-align: center; color: var(--muted); font-size: .82rem; line-height: 1.3; }
 .thread-row__stat strong { display: block; color: var(--text); font-size: 1.05rem; }
-.thread-row__last { text-align: right; }
-.thread-row__last small, .thread-row__stat small { display: block; font-size: .7rem; text-transform: uppercase; letter-spacing: .06em; color: var(--faint); }
+.thread-row__last {
+  position: relative; z-index: 1; display: flex; align-items: center; justify-content: flex-end; gap: 10px;
+  text-align: right; color: var(--muted); min-width: 0;
+}
+.thread-row__last:hover { color: var(--text); }
+.thread-row__last strong { display: block; color: var(--text); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 140px; }
+.thread-row__stat small { display: block; font-size: .7rem; text-transform: uppercase; letter-spacing: .06em; color: var(--faint); }
 .threads > .empty, .threads > .loader { border: 0; border-radius: 0; }
 
 .empty { text-align: center; color: var(--muted); padding: 44px 16px; border: 1px dashed var(--border-strong); border-radius: var(--radius); }
@@ -264,11 +270,103 @@ a.chip-mini:hover { color: var(--text); }
 .profile-post small { color: var(--faint); }
 
 /* ---------- Responsive ---------- */
+/* ==========================================================
+   Aufbau wie große RP-Foren: Bereiche → Foren → Themen
+   ========================================================== */
+.stretched::after { content: ""; position: absolute; inset: 0; }
+.node, .thread-row { position: relative; }
+
+.node-groups { display: grid; gap: 28px; }
+.node-group__title {
+  font-family: var(--font-body); font-size: .78rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase;
+  color: var(--accent-ink); margin: 0 0 10px 4px; display: flex; align-items: center; gap: 10px;
+}
+.node-group__title::before { content: ""; width: 18px; height: 2px; background: var(--accent); border-radius: 2px; }
+.node-list { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: var(--surface); }
+.node-list__head, .threads__head {
+  display: grid; grid-template-columns: 1fr 80px 80px 260px; gap: 16px; padding: 10px 20px 10px 88px;
+  background: var(--surface-2); border-bottom: 1px solid var(--border);
+  font-size: .68rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--faint);
+}
+.node-list__head span:nth-child(2), .node-list__head span:nth-child(3) { text-align: center; }
+.node {
+  display: grid; grid-template-columns: 52px 1fr 80px 80px 260px; gap: 16px; align-items: center;
+  padding: 16px 20px; border-bottom: 1px solid var(--border); transition: background .15s;
+}
+.node:last-child { border-bottom: 0; }
+.node:hover { background: var(--surface-2); }
+.node__icon {
+  width: 52px; height: 52px; border-radius: 14px; display: grid; place-items: center;
+  color: var(--accent-ink); background: var(--accent-soft); border: 1px solid var(--accent-soft);
+}
+.node__icon .icon { width: 26px; height: 26px; }
+.node__main { min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; }
+.node__title { color: var(--text); font-weight: 700; font-size: 1.02rem; }
+.node__title:hover { color: var(--accent-ink); }
+.node__desc { flex-basis: 100%; color: var(--muted); font-size: .88rem; line-height: 1.45; }
+.node__stat { text-align: center; line-height: 1.2; }
+.node__stat strong { display: block; font-size: 1.05rem; }
+.node__stat small { color: var(--faint); font-size: .72rem; }
+.node__last {
+  position: relative; z-index: 1; display: flex; align-items: center; gap: 10px; min-width: 0;
+  color: var(--text); padding: 6px 8px; margin: -6px -8px; border-radius: 10px;
+}
+.node__last:hover { color: var(--text); background: var(--surface); }
+.node__last > span { min-width: 0; display: grid; }
+.node__last strong { font-size: .86rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.node__last small { color: var(--faint); font-size: .76rem; }
+.node__none { color: var(--faint); font-size: .85rem; }
+
+.threads__head { grid-template-columns: 1fr 90px 200px; padding-left: 76px; }
+.threads__head span:nth-child(2) { text-align: center; }
+.threads__head span:nth-child(3) { text-align: right; }
+
+/* Status-Präfixe */
+.prefix {
+  display: inline-flex; align-items: center; vertical-align: .1em; margin-right: 8px;
+  font-size: .66rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase;
+  padding: .25em .6em; border-radius: 6px; white-space: nowrap;
+}
+.prefix--open { background: var(--info-soft); color: var(--info); }
+.prefix--progress { background: var(--accent-soft); color: var(--accent-ink); }
+.prefix--ok { background: var(--success-soft); color: var(--success); }
+.prefix--no { background: var(--danger-soft); color: var(--danger); }
+.prefix--closed { background: var(--surface-2); color: var(--faint); }
+.thread-head h2 .prefix { font-size: .4em; vertical-align: .35em; }
+.dot--open { background: var(--info); } .dot--progress { background: var(--accent); }
+.dot--ok { background: var(--success); } .dot--no { background: var(--danger); } .dot--closed { background: var(--faint); }
+.status-chips { margin-bottom: 14px; }
+.status-chips .chip { display: inline-flex; align-items: center; gap: 8px; }
+.status-chips .chip.is-active .dot { box-shadow: 0 0 0 2px var(--on-accent); }
+.status-bar { background: var(--surface); border-color: var(--border); color: var(--text); }
+.status-bar .btn { gap: 8px; }
+.status-bar .btn.is-current { border-color: var(--accent); color: var(--accent-ink); background: var(--accent-soft); }
+.compose__hint { display: flex; align-items: center; gap: 8px; margin: -4px 0 0; color: var(--muted); font-size: .88rem; }
+.compose__hint:empty { display: none; }
+.compose__hint .icon { color: var(--accent-ink); flex: none; }
+
+@media (max-width: 1180px) {
+  .node { grid-template-columns: 52px 1fr 70px 70px 220px; }
+  .node-list__head { grid-template-columns: 1fr 70px 70px 220px; }
+}
+@media (max-width: 1023px) {
+  .node { grid-template-columns: 48px 1fr 220px; }
+  .node__stat { display: none; }
+  .node-list__head { display: none; }
+  .threads__head { display: none; }
+}
+@media (max-width: 640px) {
+  .node { grid-template-columns: 44px 1fr; gap: 12px; padding: 14px 16px; }
+  .node__icon { width: 44px; height: 44px; }
+  .node__last { grid-column: 2; margin: 2px 0 0; padding: 8px 10px; background: var(--bg-2); }
+  .thread-row__last { display: none; }
+}
+
 @media (max-width: 1023px) {
   .forum-layout { grid-template-columns: 1fr; }
   .forum-side { position: static; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
-  .thread-row { grid-template-columns: auto 1fr 80px; }
-  .thread-row__last { display: none; }
+  .thread-row { grid-template-columns: auto 1fr 170px; }
+  .thread-row__stat { display: none; }
 }
 @media (max-width: 640px) {
   .forum-cat { grid-template-columns: auto 1fr; padding: 16px; gap: 14px; }

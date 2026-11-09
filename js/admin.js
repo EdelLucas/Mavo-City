@@ -149,15 +149,18 @@
     },
     forum: {
       label: "Forum-Kategorien", icon: "chat", varName: "FORUM_CATEGORIES",
-      hint: "Kategorien im Forum. Den Kurznamen (ID) nach dem Anlegen nicht mehr ändern – sonst verschwinden die Themen darin.",
-      title: (i) => `${i.title || "Neue Kategorie"}${i.adminOnly ? " (nur Admins)" : ""}`,
-      blank: () => ({ id: "", icon: "chat", title: "", desc: "", adminOnly: false }),
+      hint: "Foren und Bereiche des Forums. Reihenfolge hier = Reihenfolge im Forum. Den Kurznamen (ID) nach dem Anlegen nicht mehr ändern – sonst verschwinden die Themen darin.",
+      title: (i) => `${i.group ? i.group + " › " : ""}${i.title || "Neue Kategorie"}${i.adminOnly ? " (nur Admins)" : ""}${i.statuses ? " · Status" : ""}`,
+      blank: () => ({ id: "", group: "Allgemein", icon: "chat", title: "", desc: "", adminOnly: false, statuses: false, template: "" }),
       fields: [
         { k: "title", label: "Name", type: "text" },
+        { k: "group", label: "Bereich", type: "text", help: "z. B. „Support & Beschwerden“ – gleicher Text = gleicher Bereich" },
         { k: "id", label: "Kurzname (ID)", type: "text", help: "nur a-z, 0-9 und - (z. B. marktplatz)" },
-        { k: "desc", label: "Beschreibung", type: "text", wide: true },
         { k: "icon", label: "Symbol", type: "icon" },
+        { k: "desc", label: "Beschreibung", type: "text", wide: true },
         { k: "adminOnly", label: "Nur Admins dürfen hier Themen erstellen", type: "check" },
+        { k: "statuses", label: "Status-Präfixe (Offen, In Bearbeitung, Angenommen …)", type: "check" },
+        { k: "template", label: "Vorlage für neue Themen (optional)", type: "md", wide: true },
       ],
     },
     packages: {
@@ -352,7 +355,8 @@
       const idx = prevBtn.dataset.mdprev;
       const box = $(`#prev-${idx}`);
       box.hidden = !box.hidden;
-      box.innerHTML = renderMarkdown(items()[idx].content || "");
+      const it = items()[idx];
+      box.innerHTML = renderMarkdown(it.content ?? it.template ?? "");
       prevBtn.textContent = box.hidden ? "Vorschau anzeigen" : "Vorschau ausblenden";
       return;
     }

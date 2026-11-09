@@ -101,6 +101,17 @@ frei bearbeitbare Forum-Kategorien und die Übersicht im Admin-Panel.
 bei Antworten und Likes, Profile mit Beschreibung, Ränge nach Beitragszahl (Neuling → Bürger → Stammgast →
 Urgestein → Legende), Suche über alle Kategorien, Sortierung, Markierung ungelesener Themen.
 
+## 1c. Update 4 einspielen (Forum-Struktur)
+
+Danach `supabase/update-4-forum-struktur.sql` genauso im SQL Editor ausführen. Damit gibt es:
+- **Status-Präfixe** (Offen · In Bearbeitung · Angenommen · Abgelehnt · Geschlossen) für Foren mit
+  „Status-Präfixe“ – Team und Admins setzen sie im Thema per Klick. Angenommen/Abgelehnt/Geschlossen sperrt das Thema.
+- **„Letzter Beitrag“** mit Name und Profilbild in der Forenübersicht.
+
+Das Forum ist in **Bereiche** gegliedert (Wichtige Informationen, Allgemein, Support & Beschwerden,
+Bewerbungen, Fraktionen & Wirtschaft). Bereiche, Foren, Vorlagen und Status-Präfixe stellst du im
+Admin-Bereich unter **Forum-Kategorien** ein.
+
 ## 2. Admin-Bereich (`mavocity.com/admin.html`)
 
 - **Übersicht:** Kennzahlen (Mitglieder, Beiträge, Meldungen, Quiz), neueste Forenbeiträge, Schnellaktionen.

@@ -99,15 +99,61 @@ const DONATION_PACKAGES = [
 ];
 
 /* ---------- Forum-Kategorien ----------
-   id: nur a-z, 0-9 und "-" · adminOnly: true = nur Admins dürfen dort Themen erstellen
+   id: nur a-z, 0-9 und "-" (nach dem Anlegen nicht mehr ändern!)
+   group:     Bereich, in dem das Forum angezeigt wird (gleicher Text = gleicher Bereich)
+   adminOnly: true = nur Admins dürfen dort Themen erstellen
+   statuses:  true = Themen haben einen Status (Offen, In Bearbeitung, Angenommen, …)
+   template:  Vorlage, die beim Erstellen eines Themas schon im Textfeld steht
    Im Admin-Bereich unter „Forum-Kategorien“ bearbeitbar.                     */
 const FORUM_CATEGORIES = [
-  { id: "news",        icon: "megaphone", title: "Ankündigungen", desc: "Offizielle Neuigkeiten vom Team.", adminOnly: true },
-  { id: "allgemein",   icon: "chat", title: "Allgemein",      desc: "Alles rund um Mavo City." },
-  { id: "support",     icon: "wrench", title: "Support & Bugs", desc: "Probleme melden und Hilfe bekommen." },
-  { id: "vorschlaege", icon: "lightbulb", title: "Vorschläge",      desc: "Ideen für Server und Community." },
-  { id: "bewerbungen", icon: "file", title: "Bewerbungen",     desc: "Bewirb dich für Team oder Fraktionen." },
-  { id: "fraktionen",  icon: "shield", title: "Fraktionen",      desc: "Vorstellungen und Infos der Fraktionen." },
+  /* ===== Wichtige Informationen ===== */
+  { id: "news", group: "Wichtige Informationen", icon: "megaphone", title: "Ankündigungen",
+    desc: "Offizielle Neuigkeiten, Wartungen und Events vom Team.", adminOnly: true },
+  { id: "regeln", group: "Wichtige Informationen", icon: "scale", title: "Regelwerk & Änderungen",
+    desc: "Aktuelle Regeln, Strafkatalog und Regeländerungen.", adminOnly: true },
+  { id: "guides", group: "Wichtige Informationen", icon: "book", title: "Guides & Tutorials",
+    desc: "Anleitungen von Team und Community für den Einstieg." },
+
+  /* ===== Allgemein ===== */
+  { id: "allgemein", group: "Allgemein", icon: "chat", title: "Allgemeine Diskussion",
+    desc: "Alles rund um Mavo City." },
+  { id: "vorschlaege", group: "Allgemein", icon: "lightbulb", title: "Vorschläge",
+    desc: "Ideen für Server, Scripts und Community.", statuses: true,
+    template: "**Mein Vorschlag:**\n\n\n**Warum wäre das gut für den Server?**\n\n\n**Gibt es Nachteile?**\n" },
+  { id: "medien", group: "Allgemein", icon: "camera", title: "Screenshots & Videos",
+    desc: "Zeigt eure besten Momente aus der Stadt." },
+  { id: "offtopic", group: "Allgemein", icon: "gamepad", title: "Off-Topic",
+    desc: "Alles, was nichts mit dem Server zu tun hat." },
+
+  /* ===== Support & Beschwerden ===== */
+  { id: "support", group: "Support & Beschwerden", icon: "wrench", title: "Technischer Support & Bugs",
+    desc: "Probleme beim Verbinden, Fehler und Bugs melden.", statuses: true,
+    template: "**Discord-Name:**\n**Ingame-Name:**\n**Was ist passiert?**\n\n**Wann ist es passiert? (Datum, Uhrzeit)**\n\n**Screenshot / Video (Link):**\n" },
+  { id: "beschwerden-spieler", group: "Support & Beschwerden", icon: "flag", title: "Beschwerden über Spieler",
+    desc: "Regelverstöße anderer Spieler melden – nur mit Beweisen.", statuses: true,
+    template: "**Dein Ingame-Name:**\n**Name des Spielers:**\n**Datum & Uhrzeit:**\n**Verstoß gegen Regel (§):**\n\n**Was ist passiert?**\n\n\n**Beweis (Video-Link, Pflicht):**\n" },
+  { id: "beschwerden-team", group: "Support & Beschwerden", icon: "shield", title: "Beschwerden über Teammitglieder",
+    desc: "Fehlverhalten eines Teammitglieds melden – wird von der Projektleitung bearbeitet.", statuses: true,
+    template: "**Dein Ingame-Name:**\n**Name des Teammitglieds:**\n**Datum & Uhrzeit:**\n\n**Was ist passiert?**\n\n\n**Beweis (Video-Link):**\n" },
+  { id: "entbannung", group: "Support & Beschwerden", icon: "lock", title: "Entbannungsanträge",
+    desc: "Hier kannst du einen Antrag auf Entbannung stellen.", statuses: true,
+    template: "**Discord-Name:**\n**Ingame-Name:**\n**Datum des Banns:**\n**Grund des Banns:**\n**Gebannt von (falls bekannt):**\n\n**Warum sollten wir dich entbannen?**\n" },
+
+  /* ===== Bewerbungen ===== */
+  { id: "bewerbungen", group: "Bewerbungen", icon: "file", title: "Team-Bewerbungen",
+    desc: "Bewirb dich als Supporter, Moderator oder Entwickler.", statuses: true,
+    template: "**Name / Alter:**\n**Discord-Name:**\n**Spielzeit auf Mavo City:**\n**Erfahrung (RP & Team):**\n\n**Warum möchtest du ins Team?**\n\n\n**Wie viel Zeit kannst du investieren?**\n" },
+  { id: "bewerbungen-fraktionen", group: "Bewerbungen", icon: "users", title: "Fraktions-Bewerbungen",
+    desc: "Bewerbungen für LSPD, Rettungsdienst, Justiz und weitere.", statuses: true,
+    template: "**Fraktion:**\n**Ingame-Name / Alter (Charakter):**\n**Discord-Name:**\n\n**Lebenslauf deines Charakters:**\n\n\n**Warum diese Fraktion?**\n" },
+
+  /* ===== Fraktionen & Wirtschaft ===== */
+  { id: "fraktionen", group: "Fraktionen & Wirtschaft", icon: "building", title: "Staatliche Fraktionen",
+    desc: "Vorstellungen und Infos von LSPD, Rettungsdienst und Justiz." },
+  { id: "crime", group: "Fraktionen & Wirtschaft", icon: "mask", title: "Gangs & Organisationen",
+    desc: "Vorstellungen krimineller Gruppierungen (im RP)." },
+  { id: "unternehmen", group: "Fraktionen & Wirtschaft", icon: "store", title: "Unternehmen & Marktplatz",
+    desc: "Firmen stellen sich vor, Stellenanzeigen und Handel." },
 ];
 
 // Start-Beiträge für den Demo-Modus (ohne Supabase)

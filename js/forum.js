@@ -64,7 +64,8 @@
       id: th.id, title: th.title, category: th.cat, pinned: !!th.pinned, locked: !!th.locked,
       author: th.posts[0]?.author || "?", authorId: th.posts[0]?.author || "?",
       createdAt: th.posts[0]?.date, lastAt: th.posts.at(-1)?.date || th.posts[0]?.date,
-      lastAuthor: th.posts.at(-1)?.author, replies: Math.max(0, th.posts.length - 1),
+      lastAuthor: th.posts.at(-1)?.author, lastAvatar: "", replies: Math.max(0, th.posts.length - 1),
+      status: th.status || null,
     });
     const find = (id) => threads.find((x) => x.id === id);
     const allPosts = () => threads.flatMap((th) => th.posts.map((p) => ({ ...p, thread: th })));
@@ -88,8 +89,9 @@
         const latest = sortThreads([...list], "activity").slice(0, 6);
         return { stats, latest, totals: { threads: list.length, posts: allPosts().length, members: new Set(allPosts().map((p) => p.author)).size } };
       },
-      async listThreads(cat, { page, q, sort }) {
-        const all = sortThreads(threads.filter((th) => (!cat || th.cat === cat) && th.title.toLowerCase().includes(q.toLowerCase())).map(summary), sort);
+      async listThreads(cat, { page, q, sort, status }) {
+        const all = sortThreads(threads.filter((th) => (!cat || th.cat === cat) && th.title.toLowerCase().includes(q.toLowerCase())).map(summary)
+          .filter((th) => !status || (th.status || "offen") === status), sort);
         return { items: pageOf(all, page, THREADS_PER_PAGE), total: all.length };
       },
       async getThread(id, page) {
@@ -126,6 +128,9 @@
       },
       async report() { throw new Error(t("Melden ist im Demo-Modus nicht verfügbar.")); },
       async setPinned() {}, async setLocked() {}, async deleteThread() {},
+      async setStatus(id, status) {
+        const th = find(id); th.status = status; th.locked = ["angenommen", "abgelehnt", "geschlossen"].includes(status); save();
+      },
       async profiles(ids) {
         const counts = {};
         allPosts().forEach((p) => (counts[p.author] = (counts[p.author] || 0) + 1));
@@ -165,9 +170,22 @@
       id: th.id, title: th.title, category: th.category, pinned: th.pinned, locked: th.locked,
       author: th.author_name, authorId: th.author_id, avatar: th.author_avatar,
       createdAt: th.created_at, lastAt: th.last_post_at, replies: th.reply_count,
+      status: th.status || null, lastAuthor: th.last_author_name || null, lastAvatar: th.last_author_avatar || null,
     });
     const likeEscape = (s) => s.replace(/[\\%_]/g, (c) => "\\" + c);
-    const COLS = "id, title, category, pinned, locked, author_id, author_name, author_avatar, created_at, last_post_at, reply_count";
+    const COLS_BASE = "id, title, category, pinned, locked, author_id, author_name, author_avatar, created_at, last_post_at, reply_count";
+    // Spalten aus Update 4 (Status, letzter Beitrag) – falls noch nicht eingespielt, ohne sie weiter
+    let v4 = true;
+    const cols = () => (v4 ? COLS_BASE + ", status, last_author_name, last_author_avatar" : COLS_BASE);
+    async function threadsQuery(build) {
+      let res = await build(cols());
+      if (res.error && v4 && /status|last_author/.test(res.error.message || "")) {
+        v4 = false;
+        console.warn("Update 4 noch nicht eingespielt – Forum ohne Status-Präfixe");
+        res = await build(cols());
+      }
+      return res;
+    }
 
     return {
       mode: "supabase",
@@ -175,7 +193,7 @@
       login: () => MavoAuth.login(),
       logout: () => MavoAuth.logout(),
       async overview() {
-        const rows = check(await sb.from("forum_threads").select(COLS).order("last_post_at", { ascending: false }).limit(1000));
+        const rows = check(await threadsQuery((c) => sb.from("forum_threads").select(c).order("last_post_at", { ascending: false }).limit(1000)));
         const stats = {};
         let posts = 0;
         rows.forEach((r) => {
@@ -191,16 +209,19 @@
         }, null);
         return { stats, latest: rows.slice(0, 6).map(toSummary), totals: { threads: rows.length, posts, members } };
       },
-      async listThreads(cat, { page, q, sort }) {
-        let query = sb.from("forum_threads").select(COLS, { count: "exact" });
-        if (cat) query = query.eq("category", cat);
-        if (q) query = query.ilike("title", `%${likeEscape(q)}%`);
-        query = query.order("pinned", { ascending: false });
-        if (sort === "new") query = query.order("created_at", { ascending: false });
-        else if (sort === "replies") query = query.order("reply_count", { ascending: false });
-        else query = query.order("last_post_at", { ascending: false });
+      async listThreads(cat, { page, q, sort, status }) {
         const from = (page - 1) * THREADS_PER_PAGE;
-        const { data, count, error } = await query.range(from, from + THREADS_PER_PAGE - 1);
+        const { data, count, error } = await threadsQuery((c) => {
+          let query = sb.from("forum_threads").select(c, { count: "exact" });
+          if (cat) query = query.eq("category", cat);
+          if (q) query = query.ilike("title", `%${likeEscape(q)}%`);
+          if (status && v4) query = status === "offen" ? query.or("status.is.null,status.eq.offen") : query.eq("status", status);
+          query = query.order("pinned", { ascending: false });
+          if (sort === "new") query = query.order("created_at", { ascending: false });
+          else if (sort === "replies") query = query.order("reply_count", { ascending: false });
+          else query = query.order("last_post_at", { ascending: false });
+          return query.range(from, from + THREADS_PER_PAGE - 1);
+        });
         if (error) throw error;
         return { items: data.map(toSummary), total: count ?? data.length };
       },
@@ -237,6 +258,7 @@
         check(await sb.from("forum_reports").insert({ post_id: postId, reason }));
       },
       async setPinned(id, pinned) { check(await sb.from("forum_threads").update({ pinned }).eq("id", id)); },
+      async setStatus(id, status) { check(await sb.rpc("forum_set_status", { p_thread: id, p_status: status })); },
       async setLocked(id, locked) { check(await sb.from("forum_threads").update({ locked }).eq("id", id)); },
       async deleteThread(id) { check(await sb.from("forum_threads").delete().eq("id", id)); },
       async profiles(ids) {
@@ -448,28 +470,70 @@
   const demoNotice = () => store.mode === "local"
     ? `<p class="forum-notice">${icon("info")} ${t("Demo-Modus: Beiträge werden nur lokal in deinem Browser gespeichert.")}</p>` : "";
 
-  function threadRow(th, showCat = false) {
-    const c = catById(th.category);
+  /* ---------- Status-Präfixe ---------- */
+  const STATUS = {
+    offen: { label: "Offen", cls: "open" },
+    bearbeitung: { label: "In Bearbeitung", cls: "progress" },
+    angenommen: { label: "Angenommen", cls: "ok" },
+    abgelehnt: { label: "Abgelehnt", cls: "no" },
+    geschlossen: { label: "Geschlossen", cls: "closed" },
+  };
+  const statusOf = (th) => th.status || (catById(th.category)?.statuses ? "offen" : null);
+  const prefix = (status) => status && STATUS[status]
+    ? `<span class="prefix prefix--${STATUS[status].cls}">${t(STATUS[status].label)}</span>` : "";
+
+  // Kategorien nach Bereich gruppieren (Reihenfolge wie im Admin-Bereich)
+  function groupedCats() {
+    const groups = [];
+    cats().forEach((c) => {
+      const name = c.group || t("Forum");
+      let g = groups.find((x) => x.name === name);
+      if (!g) groups.push((g = { name, cats: [] }));
+      g.cats.push(c);
+    });
+    return groups;
+  }
+  const groupOf = (c) => c?.group || "";
+
+  function lastPostHtml(th) {
+    if (!th) return `<span class="node__none">${t("Noch keine Themen")}</span>`;
+    const name = th.lastAuthor || th.author;
     return `
-      <a class="thread-row ${isUnread(th) ? "is-unread" : ""}" href="#forum/thread/${th.id}">
-        ${avatarHtml(th.author, th.avatar, "avatar")}
-        <span class="thread-row__main">
-          <span class="thread-row__title">
-            ${th.pinned ? `<span class="th-flag" title="${t("Angepinnt")}">${icon("pinned")}</span>` : ""}
-            ${th.locked ? `<span class="th-flag" title="${t("Gesperrt")}">${icon("lock")}</span>` : ""}
-            ${esc(th.title)}
-          </span>
-          <span class="thread-row__meta">
-            ${showCat && c ? `<span class="chip-mini">${esc(catTitle(c))}</span>` : ""}
-            ${t("von")} ${esc(th.author)} · ${ago(th.createdAt || th.lastAt)}
-          </span>
+      <a class="node__last" href="#forum/thread/${th.id}/last">
+        ${avatarHtml(name, th.lastAvatar || (th.lastAuthor ? "" : th.avatar), "avatar avatar--sm")}
+        <span>
+          <strong>${prefix(statusOf(th))}${esc(th.title)}</strong>
+          <small>${esc(name)} · ${ago(th.lastAt)}</small>
         </span>
-        <span class="thread-row__stat"><strong>${th.replies}</strong><small>${th.replies === 1 ? t("Antwort") : t("Antworten")}</small></span>
-        <span class="thread-row__last"><small>${t("Aktivität")}</small>${ago(th.lastAt)}</span>
       </a>`;
   }
 
-  /* ---------- Ansicht: Übersicht ---------- */
+  function threadRow(th, showCat = false) {
+    const c = catById(th.category);
+    const last = th.lastAuthor || th.author;
+    return `
+      <div class="thread-row ${isUnread(th) ? "is-unread" : ""}">
+        ${avatarHtml(th.author, th.avatar, "avatar")}
+        <span class="thread-row__main">
+          <a class="thread-row__title stretched" href="#forum/thread/${th.id}">
+            ${th.pinned ? `<span class="th-flag" title="${t("Angepinnt")}">${icon("pinned")}</span>` : ""}
+            ${th.locked ? `<span class="th-flag" title="${t("Gesperrt")}">${icon("lock")}</span>` : ""}
+            ${prefix(statusOf(th))}${esc(th.title)}
+          </a>
+          <span class="thread-row__meta">
+            ${showCat && c ? `<span class="chip-mini">${esc(catTitle(c))}</span>` : ""}
+            ${esc(th.author)} · ${ago(th.createdAt || th.lastAt)}
+          </span>
+        </span>
+        <span class="thread-row__stat"><strong>${th.replies}</strong><small>${th.replies === 1 ? t("Antwort") : t("Antworten")}</small></span>
+        <a class="thread-row__last" href="#forum/thread/${th.id}/last">
+          <span><strong>${esc(last)}</strong><small>${ago(th.lastAt)}</small></span>
+          ${avatarHtml(last, th.lastAvatar || (th.lastAuthor ? "" : th.avatar), "avatar avatar--sm")}
+        </a>
+      </div>`;
+  }
+
+  /* ---------- Ansicht: Übersicht (Bereiche mit Foren) ---------- */
   async function renderHome() {
     setCrumbs([{ label: "Forum" }]);
     const { stats, latest, totals } = await store.overview();
@@ -482,32 +546,47 @@
         <a class="btn btn--primary" href="#forum/new">${icon("chat")} ${t("Neues Thema")}</a>
       </div>
       <div class="forum-layout">
-        <div class="forum-cats">${cats().map((c) => {
-          const s = stats[c.id] || { threads: 0, posts: 0, latest: null };
-          return `
-            <a class="forum-cat" href="#forum/cat/${esc(c.id)}">
-              <span class="forum-cat__icon">${iconOrText(c.icon, "chat")}</span>
-              <span class="forum-cat__body">
-                <span class="forum-cat__title">${esc(catTitle(c))}${c.adminOnly ? ` <span class="role role--admin">${t("Offiziell")}</span>` : ""}</span>
-                <span class="forum-cat__desc">${esc(t(c.desc || ""))}</span>
-                ${s.latest ? `<span class="forum-cat__latest">${icon("chat")} ${esc(s.latest.title)} · ${ago(s.latest.lastAt)}</span>` : ""}
-              </span>
-              <span class="forum-cat__meta"><strong>${s.threads}</strong>${t("Themen")}<br><strong>${s.posts}</strong>${t("Beiträge")}</span>
-            </a>`;
-        }).join("")}</div>
+        <div class="node-groups">${groupedCats().map((g) => `
+          <section class="node-group">
+            <h2 class="node-group__title">${esc(g.name)}</h2>
+            <div class="node-list">
+              <div class="node-list__head" aria-hidden="true">
+                <span>${t("Forum")}</span><span>${t("Themen")}</span><span>${t("Beiträge")}</span><span>${t("Letzter Beitrag")}</span>
+              </div>
+              ${g.cats.map((c) => {
+                const s = stats[c.id] || { threads: 0, posts: 0, latest: null };
+                return `
+                <div class="node">
+                  <span class="node__icon">${iconOrText(c.icon, "chat")}</span>
+                  <span class="node__main">
+                    <a class="node__title stretched" href="#forum/cat/${esc(c.id)}">${esc(catTitle(c))}</a>
+                    ${c.adminOnly ? `<span class="role role--admin">${t("Offiziell")}</span>` : ""}
+                    <span class="node__desc">${esc(t(c.desc || ""))}</span>
+                  </span>
+                  <span class="node__stat"><strong>${s.threads}</strong><small>${t("Themen")}</small></span>
+                  <span class="node__stat"><strong>${s.posts}</strong><small>${t("Beiträge")}</small></span>
+                  ${lastPostHtml(s.latest)}
+                </div>`;
+              }).join("")}
+            </div>
+          </section>`).join("")}
+        </div>
         <aside class="forum-side">
           <div class="side-card">
             <h3>${t("Neueste Aktivität")}</h3>
             ${latest.length ? latest.map((th) => `
-              <a class="side-item ${isUnread(th) ? "is-unread" : ""}" href="#forum/thread/${th.id}">
-                ${avatarHtml(th.author, th.avatar, "avatar avatar--sm")}
-                <span><strong>${esc(th.title)}</strong><small>${esc(th.author)} · ${ago(th.lastAt)}</small></span>
+              <a class="side-item ${isUnread(th) ? "is-unread" : ""}" href="#forum/thread/${th.id}/last">
+                ${avatarHtml(th.lastAuthor || th.author, th.lastAvatar || th.avatar, "avatar avatar--sm")}
+                <span><strong>${prefix(statusOf(th))}${esc(th.title)}</strong><small>${esc(th.lastAuthor || th.author)} · ${ago(th.lastAt)}</small></span>
               </a>`).join("") : `<p class="muted">${t("Noch keine Themen.")}</p>`}
           </div>
-          <div class="side-card side-stats">
-            <div><strong>${totals.threads}</strong><small>${t("Themen")}</small></div>
-            <div><strong>${totals.posts}</strong><small>${t("Beiträge")}</small></div>
-            ${totals.members != null ? `<div><strong>${totals.members}</strong><small>${t("Mitglieder")}</small></div>` : ""}
+          <div class="side-card">
+            <h3>${t("Forum-Statistik")}</h3>
+            <div class="side-stats">
+              <div><strong>${totals.threads}</strong><small>${t("Themen")}</small></div>
+              <div><strong>${totals.posts}</strong><small>${t("Beiträge")}</small></div>
+              ${totals.members != null ? `<div><strong>${totals.members}</strong><small>${t("Mitglieder")}</small></div>` : ""}
+            </div>
           </div>
           ${!u && store.mode === "supabase" ? `
           <div class="side-card side-cta">
@@ -526,11 +605,14 @@
   /* ---------- Ansicht: Themenliste (Kategorie oder Suche) ---------- */
   let searchTimer;
   let sortMode = "activity";
+  let statusFilter = "";
+  let lastListCat = null;
   async function renderList({ catId = null, query = "", page = 1 }) {
     const cat = catId ? catById(catId) : null;
     if (catId && !cat) return renderHome();
+    if (lastListCat !== catId) { statusFilter = ""; lastListCat = catId; }
     setCrumbs(cat
-      ? [{ label: "Forum", hash: "#forum" }, { label: catTitle(cat) }]
+      ? [{ label: "Forum", hash: "#forum" }, ...(cat.group ? [{ label: cat.group, hash: "#forum" }] : []), { label: catTitle(cat) }]
       : [{ label: "Forum", hash: "#forum" }, { label: t("Suche") }]);
     const u = store.user();
     const canCreate = !cat || !cat.adminOnly || u?.isAdmin || store.mode === "local";
@@ -540,9 +622,14 @@
       ${cat ? `
       <div class="cat-head">
         <span class="forum-cat__icon">${iconOrText(cat.icon, "chat")}</span>
-        <div><h2>${esc(catTitle(cat))}</h2><p class="muted">${esc(t(cat.desc || ""))}</p></div>
+        <div>${cat.group ? `<span class="eyebrow">${esc(cat.group)}</span>` : ""}<h2>${esc(catTitle(cat))}</h2><p class="muted">${esc(t(cat.desc || ""))}</p></div>
         ${canCreate ? `<a class="btn btn--primary" href="#forum/new/${esc(cat.id)}">${icon("chat")} ${t("Neues Thema")}</a>` : ""}
       </div>` : `<div class="cat-head"><div><h2>${t("Suche")}</h2></div></div>`}
+      ${cat?.statuses ? `
+      <div class="chips status-chips" id="statusChips">
+        <button class="chip ${!statusFilter ? "is-active" : ""}" data-status="">${t("Alle")}</button>
+        ${Object.entries(STATUS).map(([k, v]) => `<button class="chip ${statusFilter === k ? "is-active" : ""}" data-status="${k}"><span class="dot dot--${v.cls}"></span>${t(v.label)}</button>`).join("")}
+      </div>` : ""}
       <div class="forum-toolbar">
         <label class="search-field">${icon("search")}
           <input type="search" class="input" id="threadSearch" placeholder="${t("Themen durchsuchen…")}" value="${esc(query)}">
@@ -558,10 +645,11 @@
 
     const draw = async (p, q) => {
       if (!cat && !q) { $("#threadList").innerHTML = `<div class="empty">${t("Gib einen Suchbegriff ein.")}</div>`; return; }
-      const { items, total } = await store.listThreads(cat?.id || null, { page: p, q, sort: sortMode });
+      const { items, total } = await store.listThreads(cat?.id || null, { page: p, q, sort: sortMode, status: statusFilter });
       $("#threadList").innerHTML = items.length
-        ? items.map((th) => threadRow(th, !cat)).join("")
-        : `<div class="empty">${q ? t("Keine Treffer.") : t("Noch keine Themen hier. Starte das erste!")}</div>`;
+        ? `<div class="threads__head" aria-hidden="true"><span>${t("Thema")}</span><span>${t("Antworten")}</span><span>${t("Letzter Beitrag")}</span></div>`
+          + items.map((th) => threadRow(th, !cat)).join("")
+        : `<div class="empty">${q || statusFilter ? t("Keine Treffer.") : t("Noch keine Themen hier. Starte das erste!")}</div>`;
       $("#threadPager").innerHTML = pager(p, total, THREADS_PER_PAGE, base);
     };
     await draw(page, query);
@@ -574,6 +662,13 @@
       sortMode = e.target.value;
       guard(() => draw(1, $("#threadSearch").value.trim()));
     });
+    $("#statusChips")?.addEventListener("click", (e) => {
+      const b = e.target.closest("[data-status]");
+      if (!b) return;
+      statusFilter = b.dataset.status;
+      $$("#statusChips .chip").forEach((c) => c.classList.toggle("is-active", c === b));
+      guard(() => draw(1, $("#threadSearch").value.trim()));
+    });
   }
 
   /* ---------- Ansicht: Neues Thema ---------- */
@@ -582,18 +677,23 @@
     if (!(await requireLogin())) { if (store.mode === "supabase") go("#forum"); return; }
     const u = store.user();
     const allowed = cats().filter((c) => !c.adminOnly || u?.isAdmin || store.mode === "local");
-    const preset = allowed.find((c) => c.id === catId)?.id || allowed.find((c) => c.id === "allgemein")?.id || allowed[0]?.id;
+    const preset = allowed.find((c) => c.id === catId) || allowed.find((c) => c.id === "allgemein") || allowed[0];
+
+    const options = groupedCats().map((g) => {
+      const list = g.cats.filter((c) => allowed.includes(c));
+      return list.length ? `<optgroup label="${esc(g.name)}">${list.map((c) =>
+        `<option value="${esc(c.id)}" ${c === preset ? "selected" : ""}>${esc(catTitle(c))}</option>`).join("")}</optgroup>` : "";
+    }).join("");
 
     view.innerHTML = `
       <form class="form compose" id="newThread">
         <h2>${t("Neues Thema erstellen")}</h2>
-        <label class="field"><span>${t("Kategorie")}</span>
-          <select class="select" name="cat">${allowed.map((c) => `<option value="${esc(c.id)}" ${c.id === preset ? "selected" : ""}>${esc(catTitle(c))}</option>`).join("")}</select>
-        </label>
+        <label class="field"><span>${t("Forum")}</span><select class="select" name="cat">${options}</select></label>
+        <p class="compose__hint" id="catHint"></p>
         <label class="field"><span>${t("Titel")}</span>
           <input name="title" class="input" minlength="3" maxlength="100" required placeholder="${t("Worum geht es?")}">
         </label>
-        <div class="field"><span>${t("Beitrag")}</span>${composer("text", t("Schreib deinen Beitrag…"))}</div>
+        <div class="field"><span>${t("Beitrag")}</span>${composer("text", t("Schreib deinen Beitrag…"), preset?.template || "")}</div>
         <div class="form__preview md" hidden></div>
         <div class="form__actions">
           <button type="button" class="btn btn--ghost btn--sm" data-preview>${t("Vorschau")}</button>
@@ -602,12 +702,28 @@
         </div>
       </form>`;
     const form = $("#newThread");
+    let lastTemplate = preset?.template || "";
+    const showHint = () => {
+      const c = catById(form.elements.cat.value);
+      $("#catHint").innerHTML = c?.template
+        ? `${icon("info")} ${t("Bitte fülle die Vorlage vollständig aus – unvollständige Anträge werden abgelehnt.")}`
+        : c?.desc ? `${icon("info")} ${esc(t(c.desc))}` : "";
+    };
+    showHint();
+    form.elements.cat.addEventListener("change", () => {
+      const c = catById(form.elements.cat.value);
+      const ta = form.elements.text;
+      // Vorlage nur ersetzen, wenn noch nichts Eigenes geschrieben wurde
+      if (!ta.value.trim() || ta.value === lastTemplate) { ta.value = c?.template || ""; lastTemplate = ta.value; }
+      showHint();
+    });
     form.elements.title.focus();
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const title = form.elements.title.value.trim();
       const text = form.elements.text.value.trim();
       if (title.length < 3 || !text) return;
+      if (lastTemplate && text === lastTemplate.trim()) return showToast(t("Bitte fülle die Vorlage aus."));
       const btn = $("[data-submit]", form);
       btn.disabled = true;
       try {
@@ -628,19 +744,30 @@
     const { thread: th, posts, total, offset } = data;
     const cat = catById(th.category) || { id: th.category, title: th.category, desc: "" };
     const u = store.user();
-    setCrumbs([{ label: "Forum", hash: "#forum" }, { label: catTitle(cat), hash: `#forum/cat/${cat.id}` }, { label: th.title }]);
+    setCrumbs([{ label: "Forum", hash: "#forum" }, ...(cat.group ? [{ label: cat.group, hash: "#forum" }] : []),
+      { label: catTitle(cat), hash: `#forum/cat/${cat.id}` }, { label: th.title }]);
     markSeen(threadId);
 
-    const ids = [...new Set(posts.map((p) => p.authorId))];
+    const ids = [...new Set([...posts.map((p) => p.authorId), ...(u ? [u.id] : [])])];
     const [profiles, likes] = await Promise.all([store.profiles(ids), store.likes(posts.map((p) => p.id))]);
+    const isTeam = !!(u && (u.isAdmin || ["team", "admin"].includes(profiles[u.id]?.role)));
+    const status = statusOf(th);
 
-    const adminBar = u?.isAdmin ? `
+    const statusBar = isTeam && (cat.statuses || th.status) ? `
+      <div class="admin-bar status-bar">
+        <span>${icon("flag")} ${t("Status")}</span>
+        ${Object.entries(STATUS).map(([k, v]) => `
+          <button class="btn btn--ghost btn--sm ${status === k ? "is-current" : ""}" data-setstatus="${k}">
+            <span class="dot dot--${v.cls}"></span>${t(v.label)}</button>`).join("")}
+      </div>` : "";
+
+    const adminBar = statusBar + (u?.isAdmin ? `
       <div class="admin-bar">
         <span>${icon("shield")} Admin</span>
         <button class="btn btn--ghost btn--sm" data-admin="pin">${icon("pinned")} ${th.pinned ? t("Lösen") : t("Anpinnen")}</button>
         <button class="btn btn--ghost btn--sm" data-admin="lock">${icon("lock")} ${th.locked ? t("Entsperren") : t("Sperren")}</button>
         <button class="btn btn--ghost btn--sm btn--danger" data-admin="delete">${icon("x")} ${t("Thema löschen")}</button>
-      </div>` : "";
+      </div>` : "");
 
     const canReply = !th.locked || u?.isAdmin;
     const pagerHtml = pager(data.page, total, POSTS_PER_PAGE, `#forum/thread/${threadId}`);
@@ -648,7 +775,7 @@
     view.innerHTML = `
       <header class="thread-head">
         <a class="chip-mini" href="#forum/cat/${esc(cat.id)}">${iconOrText(cat.icon, "chat")} ${esc(catTitle(cat))}</a>
-        <h2>${th.pinned ? `<span class="th-flag">${icon("pinned")}</span>` : ""}${th.locked ? `<span class="th-flag">${icon("lock")}</span>` : ""}${esc(th.title)}</h2>
+        <h2>${th.pinned ? `<span class="th-flag">${icon("pinned")}</span>` : ""}${th.locked ? `<span class="th-flag">${icon("lock")}</span>` : ""}${prefix(status)}${esc(th.title)}</h2>
         <p class="muted">${t("von")} ${userLink(th.authorId, th.author)} · ${fmtDate(th.createdAt)} · ${total - 1} ${total - 1 === 1 ? t("Antwort") : t("Antworten")}</p>
       </header>
       ${adminBar}
@@ -775,6 +902,12 @@
           });
         });
       }));
+
+    $$("[data-setstatus]", view).forEach((b) => b.addEventListener("click", () => guard(async () => {
+      await store.setStatus(threadId, b.dataset.setstatus);
+      showToast(t("Status geändert: {s}", { s: t(STATUS[b.dataset.setstatus].label) }));
+      await renderThread(threadId, data.page);
+    })));
 
     $$("[data-admin]", view).forEach((b) =>
       b.addEventListener("click", () => guard(async () => {
