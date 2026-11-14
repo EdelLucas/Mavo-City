@@ -33,6 +33,18 @@
     "publisher": { "@type": "Organization", "name": "Mavo City", "logo": "https://mavocity.com/assets/og-image.png" }
   }
   </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      { "@type": "Question", "name": "Brauche ich eine Whitelist für Mavo City?", "acceptedAnswer": { "@type": "Answer", "text": "Ja. Bestehe zuerst das Regel-Quiz und schick dann deine Whitelist-Bewerbung direkt auf mavocity.com." } },
+      { "@type": "Question", "name": "Wie alt muss ich sein?", "acceptedAnswer": { "@type": "Answer", "text": "Mindestens 18 Jahre." } },
+      { "@type": "Question", "name": "Wie verbinde ich mich mit Mavo City?", "acceptedAnswer": { "@type": "Answer", "text": "GTA V und FiveM installieren, Whitelist erhalten und dann über „Direkt verbinden“ oder die F8-Konsole auf den Server." } },
+      { "@type": "Question", "name": "Ist Mavo City Pay2Win?", "acceptedAnswer": { "@type": "Answer", "text": "Nein. Alle Spendenpakete sind rein kosmetisch und bringen keine Vorteile im Roleplay." } }
+    ]
+  }
+  </script>
 
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <link rel="preload" href="assets/fonts/InterDisplay-Bold.woff" as="font" type="font/woff" crossorigin>
@@ -44,6 +56,7 @@
   <link rel="stylesheet" href="css/forum.css">
 </head>
 <body>
+  <a class="skip-link" href="#main" data-i18n="a11y.skip">Zum Inhalt springen</a>
 
   <!-- ================= HEADER / NAVIGATION ================= -->
   <header class="header">
@@ -61,7 +74,8 @@
           <div class="nav-group__menu">
             <button class="tab" role="tab" data-tab="verbinden"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#gamepad"></use></svg><span data-i18n="nav.join">So kommst du drauf</span></button>
             <button class="tab" role="tab" data-tab="regeln"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#file"></use></svg><span data-i18n="nav.rules">Regelwerk</span></button>
-            <button class="tab" role="tab" data-tab="quiz"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#clipboard"></use></svg><span data-i18n="nav.quiz">Regel-Quiz</span></button>
+            <button class="tab" role="tab" data-tab="quiz"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#check-circle"></use></svg><span data-i18n="nav.quiz">Regel-Quiz</span></button>
+            <button class="tab" role="tab" data-tab="bewerbung"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#clipboard"></use></svg><span data-i18n="nav.apply">Whitelist-Bewerbung</span></button>
             <button class="tab" role="tab" data-tab="fraktionen"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#shield"></use></svg><span data-i18n="nav.factions">Fraktionen</span></button>
           </div>
         </div>
@@ -97,14 +111,14 @@
     </div>
   </header>
 
-  <main>
+  <main id="main" tabindex="-1">
 
     <!-- ================= TAB: START ================= -->
     <section id="start" class="panel" role="tabpanel">
       <div class="hero force-dark">
         <!-- Hintergrund: Video (CONFIG.heroVideo) oder Bilder (Admin → Startseiten-Bilder) -->
         <div class="hero__slides" id="heroSlides" aria-hidden="true"></div>
-        <div class="container hero__inner">
+        <div class="container hero__inner hero__grid">
           <div class="hero__content">
             <span class="badge"><span class="dot" id="statusDot"></span><span id="statusText">Status wird geladen…</span></span>
             <h1 data-i18n="hero.title">Deine Geschichte beginnt in <span class="gold-text">Mavo City</span>.</h1>
@@ -114,15 +128,46 @@
               <a class="btn btn--ghost js-discord" href="#" target="_blank" rel="noopener"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#discord"></use></svg><span data-i18n="discord.join">Discord beitreten</span></a>
             </div>
             <div class="stats">
-              <div class="stat"><span class="stat__value" id="statPlayers">–</span><span class="stat__label" data-i18n="stats.online">Spieler online</span></div>
               <div class="stat"><span class="stat__value" id="statMax">–</span><span class="stat__label">Slots</span></div>
               <div class="stat"><span class="stat__value">18+</span><span class="stat__label" data-i18n="stats.age">Mindestalter</span></div>
+              <div class="stat"><span class="stat__value">0&nbsp;%</span><span class="stat__label">Pay2Win</span></div>
+            </div>
+          </div>
+
+          <!-- Server-Karte: Live-Status, Auslastung, Verbinden (js/main.js) -->
+          <aside class="server-card" aria-label="Server">
+            <div class="server-card__head">
+              <img src="assets/logo.svg" alt="" width="44" height="44">
+              <div>
+                <strong>Mavo City</strong>
+                <span class="muted" data-i18n="card.sub">German Roleplay · Whitelist</span>
+              </div>
+            </div>
+            <div class="server-card__players">
+              <div class="server-card__row">
+                <span><strong id="statPlayers">–</strong> <span class="muted" id="statPlayersOf"></span></span>
+                <span class="muted" id="statPlayersLabel" data-i18n="stats.online">Spieler online</span>
+              </div>
+              <div class="meter" aria-hidden="true"><span id="statMeter"></span></div>
             </div>
             <details class="playerlist" id="playerList" hidden>
               <summary data-i18n="stats.who">Wer ist gerade online?</summary>
               <ul id="playerListItems"></ul>
             </details>
-          </div>
+            <div class="server-card__connect">
+              <span class="server-card__label" data-i18n="card.f8">F8-Konsole</span>
+              <button class="server-card__cmd" id="heroCopy" type="button" title="Kopieren">
+                <code class="js-connect-cmd">connect …</code>
+                <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#copy"></use></svg>
+              </button>
+            </div>
+            <a class="btn btn--primary btn--block js-join" href="#"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#play"></use></svg><span data-i18n="join.direct">Direkt verbinden</span></a>
+            <ul class="server-card__checks">
+              <li><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#check-circle"></use></svg><span data-i18n="card.c1">Eigene Scripts &amp; Wirtschaft</span></li>
+              <li><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#check-circle"></use></svg><span data-i18n="card.c2">Aktives Support-Team</span></li>
+              <li><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#check-circle"></use></svg><span data-i18n="card.c3">Bewerbung direkt auf der Website</span></li>
+            </ul>
+          </aside>
         </div>
       </div>
 
@@ -148,6 +193,28 @@
         </div>
       </div>
 
+      <div class="container section section--flush">
+        <span class="eyebrow" data-i18n="start.eyebrowSteps">Dein Weg in die Stadt</span>
+        <h2 class="section__title" data-i18n="start.steps">In drei Schritten dabei</h2>
+        <ol class="path">
+          <li class="path__item card">
+            <span class="path__num">01</span>
+            <div data-i18n="start.p1"><h3>Regeln &amp; Quiz</h3><p>Lies das Regelwerk und bestehe das kurze Regel-Quiz.</p></div>
+            <a class="more-link" href="#quiz" data-tab-link="quiz"><span data-i18n="start.p1btn">Zum Quiz</span> <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#arrow-right"></use></svg></a>
+          </li>
+          <li class="path__item card">
+            <span class="path__num">02</span>
+            <div data-i18n="start.p2"><h3>Whitelist-Bewerbung</h3><p>Stell deinen Charakter vor – direkt hier auf der Website.</p></div>
+            <a class="more-link" href="#bewerbung" data-tab-link="bewerbung"><span data-i18n="start.p2btn">Jetzt bewerben</span> <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#arrow-right"></use></svg></a>
+          </li>
+          <li class="path__item card">
+            <span class="path__num">03</span>
+            <div data-i18n="start.p3"><h3>Verbinden &amp; loslegen</h3><p>Nach der Freischaltung mit einem Klick auf den Server.</p></div>
+            <a class="more-link" href="#verbinden" data-tab-link="verbinden"><span data-i18n="start.p3btn">So verbindest du dich</span> <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#arrow-right"></use></svg></a>
+          </li>
+        </ol>
+      </div>
+
       <div class="container section split section--flush">
         <div>
           <span class="eyebrow" data-i18n="start.eyebrow2">Aktuell</span>
@@ -161,7 +228,7 @@
             <h2 class="section__title" data-i18n="start.nextEvent">Nächstes Event</h2>
             <div id="nextEvent"></div>
           </div>
-          <div>
+          <div id="pollWrap" hidden>
             <h2 class="section__title" data-i18n="start.poll">Umfrage</h2>
             <div id="pollBox"></div>
           </div>
@@ -228,11 +295,11 @@
             <div class="step__body">
               <div data-i18n="join.s3">
                 <h3>Regel-Quiz &amp; Whitelist</h3>
-                <p>Lies das Regelwerk, bestehe unser kurzes <strong>Regel-Quiz</strong> und stelle danach im Discord im Kanal <code>#whitelist</code> deinen Antrag.</p>
+                <p>Lies das Regelwerk, bestehe unser kurzes <strong>Regel-Quiz</strong> und schick danach deine <strong>Whitelist-Bewerbung</strong> direkt hier auf der Website.</p>
               </div>
               <div class="btn-row">
                 <a class="btn btn--primary btn--sm" href="#quiz" data-tab-link="quiz" data-i18n="join.s3quiz">Zum Regel-Quiz</a>
-                <a class="btn btn--ghost btn--sm js-discord" href="#" target="_blank" rel="noopener" data-i18n="join.s3discord">Zum Discord</a>
+                <a class="btn btn--ghost btn--sm" href="#bewerbung" data-tab-link="bewerbung" data-i18n="join.s3apply">Zur Bewerbung</a>
               </div>
             </div>
           </li>
@@ -244,10 +311,10 @@
                 <p>Klicke auf <em>Direkt verbinden</em> oder öffne in FiveM die Konsole mit <kbd>F8</kbd> und gib folgenden Befehl ein:</p>
               </div>
               <div class="copybox">
-                <code id="connectCmd">connect …</code>
+                <code id="connectCmd" class="js-connect-cmd">connect …</code>
                 <button class="btn btn--sm btn--primary" id="copyConnect"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#copy"></use></svg><span data-i18n="join.copy">Kopieren</span></button>
               </div>
-              <a class="btn btn--primary" id="joinBtn" href="#"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#play"></use></svg><span data-i18n="join.direct">Direkt verbinden</span></a>
+              <a class="btn btn--primary js-join" id="joinBtn" href="#"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#play"></use></svg><span data-i18n="join.direct">Direkt verbinden</span></a>
             </div>
           </li>
         </ol>
@@ -267,7 +334,13 @@
         <h1 class="page-title" data-i18n="nav.rules">Regelwerk</h1>
         <p class="page-lead" data-i18n="rules.lead">Mit dem Betreten des Servers akzeptierst du diese Regeln. Unwissenheit schützt nicht vor Strafe.</p>
 
-        <div class="accordion">
+        <div class="rules-tools">
+          <label class="search-field"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#search"></use></svg><input type="search" id="rulesSearch" class="input" placeholder="Regeln durchsuchen, z. B. „RDM“…" aria-label="Regeln durchsuchen"></label>
+          <button class="btn btn--ghost btn--sm" id="rulesToggle" type="button"><span data-i18n="rules.expand">Alle aufklappen</span></button>
+        </div>
+        <p class="empty" id="rulesEmpty" hidden data-i18n="rules.none">Keine Regel gefunden. Versuch einen anderen Begriff.</p>
+
+        <div class="accordion" id="rulesList">
           <details open data-i18n="rules.r1">
             <summary>§1 Allgemeines</summary>
             <ul>
@@ -303,6 +376,17 @@
           </details>
         </div>
         <p class="more-link-wrap"><a class="more-link" href="#wiki/strafkatalog"><span data-i18n="rules.penalties">Zum Strafkatalog im Wiki</span> <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#arrow-right"></use></svg></a></p>
+      </div>
+    </section>
+
+    <!-- ================= TAB: BEWERBUNG ================= -->
+    <section id="bewerbung" class="panel" role="tabpanel" hidden>
+      <div class="container section">
+        <span class="eyebrow" data-i18n="eb.play">Spielen</span>
+        <h1 class="page-title" data-i18n="apply.title">Whitelist-Bewerbung</h1>
+        <p class="page-lead" data-i18n="apply.lead">Erzähl uns von dir und deinem Charakter. Das Team prüft jede Bewerbung persönlich – den Status siehst du jederzeit hier.</p>
+        <!-- Hier rendert js/apply.js Formular bzw. Status -->
+        <div id="applyView"><div class="loader">…</div></div>
       </div>
     </section>
 
@@ -439,7 +523,7 @@
         <span class="eyebrow" data-i18n="eb.info">Wissen</span>
         <h1 class="page-title" data-i18n="faq.title">Häufige Fragen</h1>
         <div class="accordion">
-          <details data-i18n="faq.q1"><summary>Brauche ich eine Whitelist?</summary><p>Ja. Bestehe zuerst das <a href="#quiz">Regel-Quiz</a> und stelle dann deinen Antrag in unserem Discord im Kanal <code>#whitelist</code>.</p></details>
+          <details data-i18n="faq.q1"><summary>Brauche ich eine Whitelist?</summary><p>Ja. Bestehe zuerst das <a href="#quiz">Regel-Quiz</a> und schick dann deine <a href="#bewerbung">Whitelist-Bewerbung</a> direkt hier auf der Website. Das Team meldet sich in der Regel innerhalb von 48 Stunden.</p></details>
           <details data-i18n="faq.q2"><summary>Wie alt muss ich sein?</summary><p>Mindestens 18 Jahre.</p></details>
           <details data-i18n="faq.q3"><summary>Ich bekomme beim Verbinden einen Fehler – was tun?</summary><p>Cache leeren, FiveM neu starten und prüfen, ob du die Whitelist hast. Hilft das nicht, öffne ein Ticket im Discord.</p></details>
           <details data-i18n="faq.q4"><summary>Kann ich mich als Teammitglied bewerben?</summary><p>Ja! Im Forum unter <em>Bewerbungen</em> findest du alle Infos.</p></details>
@@ -491,6 +575,7 @@
             <a href="#verbinden" data-tab-link="verbinden" data-i18n="nav.join">So kommst du drauf</a>
             <a href="#regeln" data-tab-link="regeln" data-i18n="nav.rules">Regelwerk</a>
             <a href="#quiz" data-tab-link="quiz" data-i18n="nav.quiz">Regel-Quiz</a>
+            <a href="#bewerbung" data-tab-link="bewerbung" data-i18n="nav.apply">Whitelist-Bewerbung</a>
             <a href="#fraktionen" data-tab-link="fraktionen" data-i18n="nav.factions">Fraktionen</a>
           </div>
         </div>
@@ -560,6 +645,7 @@
   <script src="js/map.js"></script>
   <script src="js/streamers.js"></script>
   <script src="js/quiz.js"></script>
+  <script src="js/apply.js"></script>
   <script src="js/polls.js"></script>
   <script src="js/forum.js"></script>
 </body>

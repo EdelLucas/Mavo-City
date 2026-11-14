@@ -237,3 +237,25 @@ a.feed-item:hover { background: var(--surface-2); color: var(--text); }
   .save-bar { border-radius: 12px; }
   .save-bar .hint { flex-basis: 100%; }
 }
+
+/* ---------- Whitelist-Bewerbungen ---------- */
+.wl-list { display: grid; gap: 10px; }
+.wl-item { padding: 0; }
+.wl-item > summary {
+  display: flex; align-items: center; gap: 14px; padding: 16px 20px; cursor: pointer; list-style: none;
+}
+.wl-item > summary::-webkit-details-marker { display: none; }
+.wl-item > summary img, .wl-item .avatar-fallback {
+  width: 36px; height: 36px; border-radius: 50%; flex: none; object-fit: cover;
+  display: grid; place-items: center; background: var(--accent-soft); color: var(--accent-ink); font-weight: 700;
+}
+.wl-item__who { display: grid; min-width: 0; flex: 1; }
+.wl-item__who .muted { font-size: .82rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wl-item[open] > summary { border-bottom: 1px solid var(--border); }
+.wl-item__body { padding: 18px 20px 20px; display: grid; gap: 10px; }
+.wl-item__body h4 { margin: 8px 0 0; font-size: .82rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.wl-text { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.wl-facts { display: flex; flex-wrap: wrap; gap: 8px 28px; margin: 0; }
+.wl-facts dt { font-size: .75rem; color: var(--faint); }
+.wl-facts dd { margin: 0; font-weight: 600; }
+.wl-item .btn-row { margin-top: 6px; }

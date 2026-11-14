@@ -6,7 +6,7 @@
 /* ---------- News (Start-Tab) ---------- */
 const NEWS = [
   { date: "08.11.2026", title: "Neue Website ist online", text: "Forum, Fraktionen, Galerie, Updates und eine Schritt-für-Schritt-Anleitung zum Verbinden – alles an einem Ort." },
-  { date: "01.11.2026", title: "Whitelist geöffnet", text: "Ab sofort könnt ihr eure Anträge im Discord einreichen." },
+  { date: "01.11.2026", title: "Whitelist geöffnet", text: "Ab sofort könnt ihr eure Bewerbung direkt hier auf der Website einreichen." },
 ];
 
 /* ---------- Team ---------- */

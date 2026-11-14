@@ -308,3 +308,70 @@
 
 /* Karten in Unterseiten: kein Hochspringen bei interaktiven Elementen */
 .quiz.card:hover, .poll.card:hover { transform: none; box-shadow: none; }
+
+/* ---------- Whitelist-Bewerbung ---------- */
+.apply { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 28px; align-items: start; }
+.apply__side { display: grid; gap: 16px; position: sticky; top: calc(var(--header-h) + 20px); }
+.apply__side .card { padding: 22px; }
+.apply__side h3 { font-size: 1rem; margin-bottom: 14px; }
+.apply-reqs { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.apply-req { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; color: var(--muted); font-size: .92rem; }
+.apply-req > .icon { color: var(--danger); }
+.apply-req.is-ok > .icon { color: var(--success); }
+.apply-req.is-ok { color: var(--text); }
+.apply-req .btn { margin-left: auto; }
+.apply__tips ul { margin: 0; padding-left: 1.1em; color: var(--muted); font-size: .9rem; display: grid; gap: 6px; }
+.apply__locked { display: grid; justify-items: center; gap: 10px; padding: 64px 24px; }
+.apply__locked > .icon { width: 36px; height: 36px; color: var(--accent-ink); }
+.apply__locked p { margin: 0; }
+
+.apply-form { gap: 26px; padding: 28px; }
+.apply-form fieldset { border: 0; margin: 0; padding: 0; display: grid; gap: 14px; }
+.apply-form legend {
+  display: flex; align-items: center; gap: 10px; padding: 0 0 12px; margin-bottom: 4px; width: 100%;
+  font-weight: 700; font-size: 1.02rem; border-bottom: 1px solid var(--border);
+}
+.apply-form legend .icon { color: var(--accent-ink); }
+.apply-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.apply-form .field > span { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+.apply-form select.input { background: var(--bg); border-radius: 12px; padding: .75em 1em; }
+.apply-form input[readonly] { color: var(--muted); cursor: not-allowed; }
+.apply-form .is-invalid { border-color: var(--danger) !important; }
+.apply-count { font-weight: 600; color: var(--faint); white-space: nowrap; }
+.apply-count.is-ok { color: var(--success); }
+.apply-check { display: flex; gap: 12px; align-items: flex-start; cursor: pointer; color: var(--muted); }
+.apply-check input { width: 20px !important; height: 20px; margin-top: 2px; flex: none; accent-color: var(--accent); }
+.apply-error { margin: 0; padding: 12px 14px; border-radius: 10px; background: var(--danger-soft); color: var(--danger); font-weight: 600; }
+.apply-saved { margin-right: auto; font-size: .82rem; }
+
+.apply-status { display: flex; gap: 24px; padding: 32px; max-width: 760px; }
+.apply-status__icon {
+  width: 60px; height: 60px; flex: none; border-radius: 18px; display: grid; place-items: center;
+  background: var(--info-soft); color: var(--info);
+}
+.apply-status__icon .icon { width: 30px; height: 30px; }
+.apply-status--progress .apply-status__icon { background: var(--accent-soft); color: var(--accent-ink); }
+.apply-status--ok { border-color: color-mix(in srgb, var(--success) 40%, transparent); }
+.apply-status--ok .apply-status__icon { background: var(--success-soft); color: var(--success); }
+.apply-status--no .apply-status__icon { background: var(--danger-soft); color: var(--danger); }
+.apply-status__body { min-width: 0; }
+.apply-status__body h2 { margin: 12px 0 8px; font-size: 1.6rem; }
+.apply-status__body > p { color: var(--muted); margin: 0 0 16px; }
+.apply-status__note {
+  margin: 0 0 16px; padding: 14px 16px; border-left: 3px solid var(--accent); border-radius: 0 10px 10px 0;
+  background: var(--surface-2); white-space: pre-wrap;
+}
+.apply-status__note strong { display: block; font-size: .8rem; color: var(--muted); margin-bottom: 4px; }
+.apply-status__meta { font-size: .85rem; }
+
+@media (max-width: 1023px) {
+  .apply { grid-template-columns: 1fr; }
+  .apply__side { position: static; }
+}
+@media (max-width: 640px) {
+  .apply-grid { grid-template-columns: 1fr; }
+  .apply-form { padding: 20px; }
+  .apply-status { flex-direction: column; padding: 24px; gap: 16px; }
+  .form__actions .btn { width: 100%; justify-content: center; }
+  .apply-saved { margin: 0 auto; }
+}

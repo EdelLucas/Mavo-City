@@ -637,6 +637,88 @@
   });
 
   /* ==========================================================
+     Whitelist-Bewerbungen (supabase/update-5-whitelist.sql)
+     ========================================================== */
+  const WL_STATUS = {
+    offen: ["Offen", "open"], bearbeitung: ["In Prüfung", "progress"],
+    angenommen: ["Angenommen", "ok"], abgelehnt: ["Abgelehnt", "no"],
+  };
+  let wlFilter = "offen";
+  let wlOpenId = null;
+
+  async function loadWhitelist() {
+    const view = $("#whitelistView");
+    if (!canSave) { view.innerHTML = `<div class="empty">Benötigt Supabase und Admin-Rechte.</div>`; return; }
+    view.innerHTML = `<div class="loader">Lädt…</div>`;
+    let q = sb.from("whitelist_applications").select("*").order("created_at", { ascending: wlFilter === "offen" }).limit(300);
+    if (wlFilter !== "alle") q = q.eq("status", wlFilter);
+    const { data, error } = await q;
+    if (error) {
+      view.innerHTML = error.code === "42P01"
+        ? `<div class="notice notice--warn"><strong>Tabelle fehlt.</strong> Führe <code>supabase/update-5-whitelist.sql</code> im Supabase SQL-Editor aus.</div>`
+        : `<div class="empty">Fehler: ${esc(error.message)}</div>`;
+      return;
+    }
+    const chips = ["offen", "bearbeitung", "angenommen", "abgelehnt", "alle"].map((k) =>
+      `<button class="chip ${wlFilter === k ? "is-active" : ""}" data-wlfilter="${k}">${k === "alle" ? "Alle" : WL_STATUS[k][0]}</button>`).join("");
+    const date = (d) => new Date(d).toLocaleString("de-DE", { dateStyle: "short", timeStyle: "short" });
+    view.innerHTML = `
+      <div class="chips">${chips}</div>
+      ${data.length ? `<div class="wl-list">${data.map((a) => `
+        <details class="wl-item panel-card" data-wlid="${a.id}" ${wlOpenId === a.id ? "open" : ""}>
+          <summary>
+            ${a.discord_avatar ? `<img src="${esc(a.discord_avatar)}" alt="" width="36" height="36">` : `<span class="avatar-fallback">${esc(a.discord_name[0] || "?")}</span>`}
+            <div class="wl-item__who"><strong>${esc(a.char_name)}</strong><span class="muted">${esc(a.discord_name)} · ${a.age} J. · ${date(a.created_at)}</span></div>
+            <span class="tag"><span class="dot dot--${WL_STATUS[a.status][1]}"></span>${WL_STATUS[a.status][0]}</span>
+          </summary>
+          <div class="wl-item__body">
+            <dl class="wl-facts">
+              <div><dt>Charakter-Alter</dt><dd>${a.char_age ?? "–"}</dd></div>
+              <div><dt>Gefunden über</dt><dd>${esc(a.source || "–")}</dd></div>
+              ${a.reviewed_by ? `<div><dt>Zuletzt bearbeitet</dt><dd>${esc(a.reviewed_by)} · ${date(a.updated_at)}</dd></div>` : ""}
+            </dl>
+            <h4>RP-Erfahrung</h4><p class="wl-text">${esc(a.experience)}</p>
+            <h4>Hintergrundgeschichte <small class="muted">(${a.story.length} Zeichen)</small></h4><p class="wl-text">${esc(a.story)}</p>
+            <h4>Regelfrage: Grundlos aus dem Auto gezogen</h4><p class="wl-text">${esc(a.scenario)}</p>
+            <label class="field"><span>Rückmeldung an Bewerber (sieht er auf der Website)</span>
+              <textarea data-wlnote maxlength="1000" placeholder="z. B. Willkommen! / Bitte die Geschichte ausführlicher schreiben.">${esc(a.staff_note || "")}</textarea></label>
+            <div class="btn-row">
+              <button class="btn btn--primary btn--sm" data-wlset="angenommen">${icon("check-circle")} Annehmen</button>
+              <button class="btn btn--ghost btn--sm btn--danger" data-wlset="abgelehnt">${icon("x-circle")} Ablehnen</button>
+              <button class="btn btn--ghost btn--sm" data-wlset="bearbeitung">${icon("eye")} In Prüfung</button>
+              <button class="btn btn--ghost btn--sm" data-wlset="note">Nur Notiz speichern</button>
+              <button class="btn btn--ghost btn--sm btn--danger" data-wldel style="margin-left:auto">Löschen</button>
+            </div>
+          </div>
+        </details>`).join("")}</div>` : `<div class="empty">Keine Bewerbungen in dieser Ansicht.</div>`}`;
+  }
+
+  $("#whitelistView").addEventListener("click", async (e) => {
+    const f = e.target.closest("[data-wlfilter]");
+    if (f) { wlFilter = f.dataset.wlfilter; return loadWhitelist(); }
+    const item = e.target.closest("[data-wlid]");
+    if (!item) return;
+    const id = item.dataset.wlid;
+    const set = e.target.closest("[data-wlset]");
+    if (set) {
+      const note = $("[data-wlnote]", item).value.trim() || null;
+      const patch = set.dataset.wlset === "note" ? { staff_note: note } : { status: set.dataset.wlset, staff_note: note };
+      if (patch.status === "abgelehnt" && !note && !confirm("Ohne Begründung ablehnen?")) return;
+      const { error } = await sb.from("whitelist_applications").update(patch).eq("id", id);
+      if (error) return showToast(error.message);
+      showToast(patch.status ? `Status: ${WL_STATUS[patch.status][0]}` : "Notiz gespeichert");
+      wlOpenId = patch.status ? null : id;
+      loadWhitelist(); refreshReportCount();
+    }
+    if (e.target.closest("[data-wldel]")) {
+      if (!confirm("Bewerbung endgültig löschen?")) return;
+      const { error } = await sb.from("whitelist_applications").delete().eq("id", id);
+      if (error) return showToast(error.message);
+      loadWhitelist(); refreshReportCount();
+    }
+  });
+
+  /* ==========================================================
      Übersicht (Dashboard)
      ========================================================== */
   async function loadDashboard() {
@@ -804,14 +886,16 @@
      Navigation (Seitenleiste) & Start
      ========================================================== */
   const COMMUNITY = [
+    ["whitelist", "clipboard", "Whitelist"],
     ["reports", "flag", "Meldungen"],
     ["users", "users", "Nutzer"],
     ["polls", "chart", "Umfragen"],
     ["quiz", "check-circle", "Quiz-Ergebnisse"],
   ];
-  const loaders = { dashboard: loadDashboard, reports: loadReports, users: loadUsers, polls: loadPolls, quiz: loadQuiz };
+  const loaders = { dashboard: loadDashboard, reports: loadReports, users: loadUsers, polls: loadPolls, quiz: loadQuiz, whitelist: loadWhitelist };
   let current = "dashboard";
   let openCount = 0;
+  let wlCount = 0;
 
   function renderNav() {
     const item = (nav, ic, label, extra = "") => `
@@ -823,7 +907,8 @@
         dirty.has(key) ? '<span class="dirty" title="Ungespeichert"></span>' : "")).join("")}
       <span class="admin-nav__label">Community</span>
       ${COMMUNITY.map(([nav, ic, label]) => item(nav, ic, label,
-        nav === "reports" && openCount ? `<span class="count">${openCount}</span>` : "")).join("")}`;
+        nav === "reports" && openCount ? `<span class="count">${openCount}</span>`
+        : nav === "whitelist" && wlCount ? `<span class="count">${wlCount}</span>` : "")).join("")}`;
     const label = current.startsWith("content:") ? SECTIONS[current.slice(8)]?.label
       : current === "dashboard" ? "Übersicht" : COMMUNITY.find(([n]) => n === current)?.[2];
     $("#adminNavCurrent").textContent = label || "";
@@ -859,8 +944,12 @@
 
   async function refreshReportCount() {
     if (!canSave) return;
-    const { count } = await sb.from("forum_reports").select("id", { count: "exact", head: true }).eq("resolved", false);
-    openCount = count || 0;
+    const [rep, wl] = await Promise.all([
+      sb.from("forum_reports").select("id", { count: "exact", head: true }).eq("resolved", false),
+      sb.from("whitelist_applications").select("id", { count: "exact", head: true }).eq("status", "offen"),
+    ]);
+    openCount = rep.count || 0;
+    wlCount = wl.error ? 0 : wl.count || 0;
     renderNav();
   }
 

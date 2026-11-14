@@ -476,3 +476,104 @@ code, kbd {
   .news__item { grid-template-columns: 1fr; gap: 4px; }
   .footer__cols { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* ==========================================================
+   Ergänzungen: Barrierefreiheit, Server-Karte, Schritte, Regelsuche
+   ========================================================== */
+
+/* "Zum Inhalt springen" – nur sichtbar, wenn man mit der Tastatur hinspringt */
+.skip-link {
+  position: fixed; top: 10px; left: 10px; z-index: 200;
+  background: var(--accent); color: var(--on-accent); font-weight: 700;
+  padding: .6em 1.1em; border-radius: 999px;
+  transform: translateY(-150%); transition: transform .2s;
+}
+.skip-link:focus { transform: none; color: var(--on-accent); }
+main:focus { outline: none; }
+
+.btn--block { width: 100%; justify-content: center; }
+
+/* ---------- Startbild: zweispaltig mit Server-Karte ---------- */
+.hero__grid { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 64px; align-items: center; }
+.hero__grid .hero__content { max-width: 680px; }
+
+.server-card {
+  position: relative; display: grid; gap: 18px;
+  padding: 26px; border-radius: 22px;
+  background: linear-gradient(180deg, rgba(28, 28, 31, .82), rgba(16, 16, 18, .82));
+  border: 1px solid rgba(255, 255, 255, .1);
+  box-shadow: 0 30px 80px -20px rgba(0, 0, 0, .7), inset 0 1px 0 rgba(255, 255, 255, .06);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  animation: cardIn .8s .15s cubic-bezier(.2, .7, .2, 1) both;
+}
+/* goldener Lichtrand oben */
+.server-card::before {
+  content: ""; position: absolute; inset: -1px; border-radius: inherit; padding: 1px; pointer-events: none;
+  background: linear-gradient(160deg, rgba(212, 168, 90, .55), transparent 40%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+}
+@keyframes cardIn { from { opacity: 0; transform: translateY(24px) scale(.98); } to { opacity: 1; transform: none; } }
+
+.server-card__head { display: flex; align-items: center; gap: 14px; }
+.server-card__head img { border-radius: 12px; }
+.server-card__head strong { display: block; font-size: 1.1rem; letter-spacing: -.01em; }
+.server-card__head .muted { font-size: .85rem; }
+
+.server-card__players { display: grid; gap: 10px; padding: 16px; border-radius: 14px; background: rgba(255, 255, 255, .04); border: 1px solid var(--border); }
+.server-card__row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-size: .88rem; }
+.server-card__row strong { font-family: var(--font-display); font-size: 1.9rem; line-height: 1; letter-spacing: -.02em; }
+.meter { height: 6px; border-radius: 999px; background: rgba(255, 255, 255, .08); overflow: hidden; }
+.meter span { display: block; height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, var(--accent), var(--accent-2)); transition: width 1s cubic-bezier(.2, .7, .2, 1); }
+.server-card:not(.is-live) .server-card__players { display: none; }
+
+.server-card__connect { display: grid; gap: 6px; }
+.server-card__label { font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--faint); }
+.server-card__cmd {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%;
+  font: inherit; text-align: left; cursor: pointer; color: var(--muted);
+  padding: .7em .9em; border-radius: 12px; background: rgba(0, 0, 0, .35); border: 1px dashed var(--border-strong);
+  transition: border-color .2s, color .2s;
+}
+.server-card__cmd:hover { border-color: var(--accent); color: var(--accent-ink); }
+.server-card__cmd code { background: none; border: 0; padding: 0; color: var(--accent-ink); font-size: .85rem; overflow-wrap: anywhere; }
+
+.server-card__checks { list-style: none; margin: 0; padding: 4px 0 0; display: grid; gap: 8px; font-size: .88rem; color: var(--muted); }
+.server-card__checks li { display: flex; align-items: center; gap: 10px; }
+.server-card__checks .icon { color: var(--accent-ink); width: 1.1em; height: 1.1em; }
+.server-card .playerlist { margin: 0; }
+
+/* ---------- Startseite: "In drei Schritten" ---------- */
+.path { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; counter-reset: path; }
+.path__item { position: relative; display: flex; flex-direction: column; gap: 10px; overflow: hidden; }
+.path__item h3 { font-size: 1.15rem; margin-bottom: 6px; }
+.path__item .more-link { margin-top: auto; padding-top: 8px; }
+.path__num {
+  font-family: var(--font-display); font-size: 3.2rem; line-height: 1; letter-spacing: -.04em;
+  background: linear-gradient(180deg, var(--accent-2), transparent 110%);
+  -webkit-background-clip: text; background-clip: text; color: transparent; opacity: .9;
+}
+.path__item:hover { transform: translateY(-3px); box-shadow: var(--shadow); border-color: var(--accent-soft); }
+/* Verbindungslinie zwischen den Schritten */
+.path__item:not(:last-child)::after {
+  content: ""; position: absolute; top: 52px; right: -21px; width: 22px; height: 1px; background: var(--border-strong);
+}
+
+/* ---------- Regelwerk-Suche ---------- */
+.rules-tools { display: flex; gap: 12px; align-items: center; margin-bottom: 20px; }
+.rules-tools .search-field { flex: 1; max-width: 460px; }
+#rulesEmpty { margin-bottom: 20px; }
+.accordion li.is-hit { color: var(--text); background: var(--accent-soft); border-radius: 6px; box-shadow: -8px 0 0 var(--accent-soft), 8px 0 0 var(--accent-soft); }
+
+@media (max-width: 1023px) {
+  .hero__grid { grid-template-columns: 1fr; gap: 48px; }
+  .server-card { max-width: 520px; }
+  .path { grid-template-columns: 1fr; }
+  .path__item:not(:last-child)::after { display: none; }
+}
+@media (max-width: 640px) {
+  .server-card { padding: 20px; }
+  .rules-tools { flex-direction: column; align-items: stretch; }
+  .rules-tools .search-field { max-width: none; }
+}
+@media (prefers-reduced-motion: reduce) { .server-card { animation: none; } }
