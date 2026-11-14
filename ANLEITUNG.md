@@ -40,6 +40,7 @@ js/wiki.js            Wiki
 js/map.js             Stadtkarte
 js/streamers.js       Streamer + Twitch-Live-Status
 js/quiz.js            Regel-Quiz
+js/apply.js           Whitelist-Bewerbung (Formular + Status)
 js/polls.js           Umfrage auf der Startseite
 js/forum.js           Forum
 js/admin.js           Admin-Bereich
@@ -111,6 +112,18 @@ Danach `supabase/update-4-forum-struktur.sql` genauso im SQL Editor ausführen. 
 Das Forum ist in **Bereiche** gegliedert (Wichtige Informationen, Allgemein, Support & Beschwerden,
 Bewerbungen, Fraktionen & Wirtschaft). Bereiche, Foren, Vorlagen und Status-Präfixe stellst du im
 Admin-Bereich unter **Forum-Kategorien** ein.
+
+## 1d. Update 5 einspielen (Whitelist-Bewerbungen)
+
+`supabase/update-5-whitelist.sql` im SQL Editor ausführen. Damit gibt es:
+
+- **Whitelist-Bewerbung auf der Website** (Tab *Spielen → Whitelist-Bewerbung*, `mavocity.com/#bewerbung`):
+  Voraussetzung sind bestandenes Regel-Quiz und Discord-Login. Pro Person ist nur eine offene Bewerbung möglich.
+- **Prüfen im Admin-Bereich** unter *Community → Whitelist*: Annehmen, Ablehnen, „In Prüfung“ und eine
+  Rückmeldung schreiben. Bewerber sehen Status und Rückmeldung auf ihrer Bewerbungsseite.
+- Prüfen dürfen Admins und Mitglieder mit der Rolle *team* (siehe Update 4).
+
+Ohne Supabase läuft die Bewerbung im Demo-Modus (nur im eigenen Browser gespeichert).
 
 ## 2. Admin-Bereich (`mavocity.com/admin.html`)
 

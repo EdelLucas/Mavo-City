@@ -156,7 +156,12 @@
   document.addEventListener("tabchange", () => requestAnimationFrame(scanReveal));
   requestAnimationFrame(scanReveal);
 
-  /* ---------- Links aus der Config ---------- */
+  /* ---------- Links aus der Config ----------
+     Platzhalter aus der Vorlage ("abc123", "DEIN-INVITE") gelten als "nicht eingetragen". */
+  const isSet = (v, ...placeholders) => !!v && !placeholders.some((p) => String(v).includes(p));
+  const cfxCode = isSet(CONFIG.cfxCode, "abc123", "XXXXXX") ? CONFIG.cfxCode : "";
+  if (!isSet(CONFIG.discordUrl, "DEIN-INVITE")) console.warn("Mavo City: discordUrl in js/config.js ist noch ein Platzhalter.");
+  if (!cfxCode && CONFIG.cfxCode) console.warn("Mavo City: cfxCode in js/config.js ist noch ein Platzhalter – Live-Status deaktiviert.");
   $$(".js-discord").forEach((a) => (a.href = CONFIG.discordUrl));
   $("#year").textContent = new Date().getFullYear();
 
@@ -167,19 +172,42 @@
 
   /* ---------- Verbinden ---------- */
   const connectCmd = `connect ${CONFIG.connectAddress}`;
-  $("#connectCmd").textContent = connectCmd;
+  $$(".js-connect-cmd").forEach((el) => (el.textContent = connectCmd));
   // fivem:// öffnet FiveM direkt und verbindet zum Server
-  $("#joinBtn").href = CONFIG.cfxCode
-    ? `fivem://connect/cfx.re/join/${CONFIG.cfxCode}`
-    : `fivem://connect/${CONFIG.connectAddress}`;
+  $$(".js-join").forEach((a) => (a.href = cfxCode
+    ? `fivem://connect/cfx.re/join/${cfxCode}`
+    : `fivem://connect/${CONFIG.connectAddress}`));
 
-  $("#copyConnect").addEventListener("click", async () => {
+  const copyConnect = async () => {
     try {
       await navigator.clipboard.writeText(connectCmd);
       showToast(t("Befehl kopiert – jetzt in F8 einfügen!"));
     } catch {
       showToast(t("Kopieren nicht möglich – bitte manuell markieren."));
     }
+  };
+  $("#copyConnect").addEventListener("click", copyConnect);
+  $("#heroCopy").addEventListener("click", copyConnect);
+
+  /* ---------- Regelwerk: Suche & alle aufklappen ---------- */
+  const rules = $$("#rulesList > details");
+  const norm = (s) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  $("#rulesSearch").addEventListener("input", (e) => {
+    const q = norm(e.target.value.trim());
+    let hits = 0;
+    rules.forEach((d) => {
+      const match = !q || norm(d.textContent).includes(q);
+      d.hidden = !match;
+      if (match) hits++;
+      // Treffer aufklappen, beim Leeren wieder den Ausgangszustand (§1 offen)
+      d.open = q ? match : d === rules[0];
+      $$("li", d).forEach((li) => li.classList.toggle("is-hit", !!q && norm(li.textContent).includes(q)));
+    });
+    $("#rulesEmpty").hidden = hits > 0;
+  });
+  $("#rulesToggle").addEventListener("click", () => {
+    const open = !rules.every((d) => d.open || d.hidden);
+    rules.forEach((d) => { if (!d.hidden) d.open = open; });
   });
 
   /* ---------- Hintergrund: Video oder Bilder (wechseln alle 7 Sekunden) ---------- */
@@ -213,6 +241,18 @@
   const statusText = $("#statusText");
   $("#statMax").textContent = CONFIG.maxPlayers;
   let status = "loading";
+  let players = null, maxPlayers = CONFIG.maxPlayers;
+
+  // Server-Karte: Spieler / Slots + Balken
+  function renderPlayers() {
+    const online = players !== null;
+    $("#statPlayers").textContent = online ? players : maxPlayers;
+    $("#statPlayersOf").textContent = online ? `/ ${maxPlayers}` : "";
+    $("#statPlayersLabel").textContent = online ? t("Spieler online") : t("Slots");
+    $("#statMeter").style.width = online ? `${Math.min(100, (players / maxPlayers) * 100)}%` : "0%";
+    $(".server-card").classList.toggle("is-live", online);
+  }
+  document.addEventListener("langchange", renderPlayers);
 
   function renderStatusText() {
     statusText.textContent = {
@@ -225,23 +265,27 @@
   document.addEventListener("langchange", renderStatusText);
 
   async function loadStatus() {
-    if (!CONFIG.liveStatus || !CONFIG.cfxCode) { status = "none"; return renderStatusText(); }
+    if (!CONFIG.liveStatus || !cfxCode) { status = "none"; renderPlayers(); return renderStatusText(); }
     try {
       const res = await fetch(`https://servers-frontend.fivem.net/api/servers/single/${encodeURIComponent(CONFIG.cfxCode)}`);
       if (!res.ok) throw new Error(res.status);
       const { Data } = await res.json();
       dot.className = "dot is-online";
       status = "online";
-      $("#statPlayers").textContent = Data.clients ?? 0;
-      $("#statMax").textContent = Data.sv_maxclients ?? CONFIG.maxPlayers;
+      players = Number(Data.clients) || 0;
+      maxPlayers = Number(Data.sv_maxclients) || CONFIG.maxPlayers;
+      $("#statMax").textContent = maxPlayers;
+      renderPlayers();
 
-      const players = (Data.players || []).map((p) => p.name).filter(Boolean).sort((a, b) => a.localeCompare(b));
+      const names = (Data.players || []).map((p) => p.name).filter(Boolean).sort((a, b) => a.localeCompare(b));
       const list = $("#playerList");
-      list.hidden = !CONFIG.showPlayerList || !players.length;
-      $("#playerListItems").innerHTML = players.map((n) => `<li>${esc(n)}</li>`).join("");
+      list.hidden = !CONFIG.showPlayerList || !names.length;
+      $("#playerListItems").innerHTML = names.map((n) => `<li>${esc(n)}</li>`).join("");
     } catch {
       dot.className = "dot";
       status = "unknown";
+      players = null;
+      renderPlayers();
     }
     renderStatusText();
   }

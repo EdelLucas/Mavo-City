@@ -42,7 +42,9 @@
 
   function render() {
     const box = $("#pollBox");
-    if (!poll) { box.innerHTML = `<div class="empty">${t("Gerade läuft keine Umfrage.")}</div>`; return; }
+    // Ohne aktive Umfrage den ganzen Block ausblenden statt eine leere Box zu zeigen
+    $("#pollWrap").hidden = !poll;
+    if (!poll) { box.innerHTML = ""; return; }
     const total = counts.reduce((a, b) => a + b, 0);
     const showResults = myVote !== null;
     const loggedOut = MavoAuth.enabled && !MavoAuth.user;
