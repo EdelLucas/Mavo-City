@@ -13,37 +13,38 @@
   font-display: swap;
 }
 
-/* ---------- Farben: Dunkel (Standard) ---------- */
+/* ---------- Farben: Dunkel (Standard) ----------
+   Akzentfarbe zentral hier ändern (--accent*). */
 :root {
-  --bg: #0a0a0b;
-  --bg-2: #0f0f11;
-  --surface: #141416;
-  --surface-2: #1c1c1f;
-  --border: rgba(255, 255, 255, .08);
-  --border-strong: rgba(255, 255, 255, .16);
-  --text: #f4f4f2;
-  --muted: #a1a1a6;
-  --faint: #6b6b70;
+  --bg: #0b0c10;
+  --bg-2: #0f1116;
+  --surface: #14171e;
+  --surface-2: #1b1f28;
+  --border: rgba(255, 255, 255, .07);
+  --border-strong: rgba(255, 255, 255, .14);
+  --text: #eef0f4;
+  --muted: #9aa1ae;
+  --faint: #626a78;
 
-  --accent: #d4a85a;          /* Champagner-Gold */
-  --accent-2: #e9c98a;
-  --accent-ink: #d4a85a;      /* Gold für Text/Links */
-  --on-accent: #17120a;
-  --accent-soft: rgba(212, 168, 90, .12);
-  --accent-glow: rgba(212, 168, 90, .35);
+  --accent: #3d7cff;          /* Blau */
+  --accent-2: #5c92ff;        /* Hover */
+  --accent-ink: #6b9bff;      /* Akzent für Text/Links */
+  --on-accent: #ffffff;
+  --accent-soft: rgba(61, 124, 255, .12);
+  --accent-glow: transparent;
 
-  --success: #4ade80;
-  --success-soft: rgba(74, 222, 128, .12);
+  --success: #34d399;
+  --success-soft: rgba(52, 211, 153, .12);
   --danger: #f87171;
   --danger-soft: rgba(248, 113, 113, .12);
   --info: #7dd3fc;
   --info-soft: rgba(125, 211, 252, .12);
   --stripe: rgba(255, 255, 255, .02);
-  --header-bg: rgba(10, 10, 11, .72);
+  --header-bg: rgba(11, 12, 16, .85);
 
-  --radius: 16px;
-  --radius-sm: 10px;
-  --shadow: 0 20px 50px rgba(0, 0, 0, .45);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 12px 32px rgba(0, 0, 0, .35);
   --header-h: 72px;
   --bottom-nav-h: 0px;
   --font-display: "Inter Display", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
@@ -53,40 +54,41 @@
 
 /* ---------- Farben: Hell ---------- */
 :root[data-theme="light"] {
-  --bg: #f7f6f3;
-  --bg-2: #efede8;
+  --bg: #f5f6f8;
+  --bg-2: #eceef2;
   --surface: #ffffff;
-  --surface-2: #f2f0eb;
-  --border: rgba(10, 10, 11, .09);
-  --border-strong: rgba(10, 10, 11, .18);
-  --text: #121214;
-  --muted: #5d5d63;
-  --faint: #8d8d92;
-  --accent: #c09445;
-  --accent-2: #a87b33;
-  --accent-ink: #8f6624;
+  --surface-2: #f0f2f5;
+  --border: rgba(15, 20, 30, .09);
+  --border-strong: rgba(15, 20, 30, .18);
+  --text: #11141a;
+  --muted: #565e6c;
+  --faint: #8a919d;
+  --accent: #2563eb;
+  --accent-2: #1d4ed8;
+  --accent-ink: #1d4ed8;
   --on-accent: #ffffff;
-  --accent-soft: rgba(192, 148, 69, .12);
-  --accent-glow: rgba(192, 148, 69, .3);
+  --accent-soft: rgba(37, 99, 235, .1);
+  --accent-glow: transparent;
   --success: #15803d;
   --success-soft: rgba(21, 128, 61, .1);
   --danger: #b91c1c;
   --danger-soft: rgba(185, 28, 28, .08);
   --info: #0369a1;
   --info-soft: rgba(3, 105, 161, .08);
-  --stripe: rgba(10, 10, 11, .025);
-  --header-bg: rgba(247, 246, 243, .8);
-  --shadow: 0 20px 50px rgba(20, 20, 30, .12);
+  --stripe: rgba(15, 20, 30, .025);
+  --header-bg: rgba(245, 246, 248, .9);
+  --shadow: 0 12px 32px rgba(15, 20, 30, .08);
   color-scheme: light;
 }
 
 /* Bereiche, die immer dunkel bleiben (Startbild) */
 .force-dark {
-  --text: #f4f4f2; --muted: #b4b4b8; --faint: #7a7a80;
-  --surface: rgba(20, 20, 22, .6); --surface-2: rgba(255, 255, 255, .06);
-  --border: rgba(255, 255, 255, .12); --border-strong: rgba(255, 255, 255, .22);
-  --accent: #d4a85a; --accent-2: #e9c98a; --accent-ink: #e2bd78; --on-accent: #17120a;
-  --success: #4ade80; --success-soft: rgba(74, 222, 128, .12);
+  --text: #eef0f4; --muted: #a9b0bc; --faint: #6b7280;
+  --surface: #14171e; --surface-2: rgba(255, 255, 255, .06);
+  --border: rgba(255, 255, 255, .1); --border-strong: rgba(255, 255, 255, .2);
+  --accent: #3d7cff; --accent-2: #5c92ff; --accent-ink: #6b9bff; --on-accent: #ffffff;
+  --accent-soft: rgba(61, 124, 255, .14);
+  --success: #34d399; --success-soft: rgba(52, 211, 153, .12);
   color: var(--text);
 }
 
@@ -147,10 +149,7 @@ code, kbd {
 .page-title { font-size: clamp(2.2rem, 5vw, 3.4rem); margin-bottom: .3em; }
 .page-lead { color: var(--muted); margin: 0 0 44px; max-width: 640px; font-size: 1.1rem; }
 .accent { color: var(--accent-ink); }
-.gold-text {
-  background: linear-gradient(120deg, #f1d9a6, #d4a85a 45%, #a87b33);
-  -webkit-background-clip: text; background-clip: text; color: transparent;
-}
+.gold-text { color: var(--accent); } /* alter Name, bleibt für gespeicherte Texte */
 
 /* ---------- Buttons ---------- */
 .btn {

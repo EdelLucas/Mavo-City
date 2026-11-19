@@ -26,7 +26,7 @@
     const light = theme === "light";
     themeBtn.innerHTML = icon(light ? "moon" : "sun");
     themeBtn.title = light ? t("Dunkles Design") : t("Helles Design");
-    document.querySelector('meta[name="theme-color"]').content = light ? "#f7f6f3" : "#0a0a0b";
+    document.querySelector('meta[name="theme-color"]').content = light ? "#f5f6f8" : "#0b0c10";
   }
   const currentTheme = () => (document.documentElement.dataset.theme === "light" ? "light" : "dark");
   themeBtn.addEventListener("click", () => {

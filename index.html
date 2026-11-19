@@ -6,7 +6,7 @@
   <title>Mavo City – FiveM Roleplay</title>
   <meta name="description" content="Mavo City – German FiveM Roleplay Server mit eigener Wirtschaft, aktiven Fraktionen, Forum, Wiki und Events. So kommst du auf den Server.">
   <meta name="keywords" content="FiveM, GTA RP, Roleplay, German Roleplay, FiveM Server, Mavo City, GTA 5 RP">
-  <meta name="theme-color" content="#0a0a0b">
+  <meta name="theme-color" content="#0b0c10">
   <link rel="canonical" href="https://mavocity.com/">
   <link rel="alternate" hreflang="de" href="https://mavocity.com/">
   <link rel="alternate" hreflang="en" href="https://mavocity.com/?lang=en">
@@ -54,6 +54,7 @@
   <link rel="stylesheet" href="css/pages.css">
   <link rel="stylesheet" href="css/features.css">
   <link rel="stylesheet" href="css/forum.css">
+  <link rel="stylesheet" href="css/modern.css">
 </head>
 <body>
   <a class="skip-link" href="#main" data-i18n="a11y.skip">Zum Inhalt springen</a>
@@ -121,8 +122,8 @@
         <div class="container hero__inner hero__grid">
           <div class="hero__content">
             <span class="badge"><span class="dot" id="statusDot"></span><span id="statusText">Status wird geladen…</span></span>
-            <h1 data-i18n="hero.title">Deine Geschichte beginnt in <span class="gold-text">Mavo City</span>.</h1>
-            <p class="hero__lead" data-i18n="hero.lead">Ernsthaftes German Roleplay mit eigener Wirtschaft, aktiven Fraktionen und einem Team, das zuhört.</p>
+            <h1 data-i18n="hero.title">Mavo <span class="gold-text">City</span></h1>
+            <p class="hero__lead" data-i18n="hero.lead">German FiveM Roleplay mit Whitelist. Eigene Wirtschaft, aktive Fraktionen und klare Regeln.</p>
             <div class="hero__actions">
               <a class="btn btn--primary" data-tab-link="verbinden" href="#verbinden"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#gamepad"></use></svg><span data-i18n="hero.howto">So kommst du drauf</span></a>
               <a class="btn btn--ghost js-discord" href="#" target="_blank" rel="noopener"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#discord"></use></svg><span data-i18n="discord.join">Discord beitreten</span></a>
@@ -130,7 +131,7 @@
             <div class="stats">
               <div class="stat"><span class="stat__value" id="statMax">–</span><span class="stat__label">Slots</span></div>
               <div class="stat"><span class="stat__value">18+</span><span class="stat__label" data-i18n="stats.age">Mindestalter</span></div>
-              <div class="stat"><span class="stat__value">0&nbsp;%</span><span class="stat__label">Pay2Win</span></div>
+              <div class="stat"><span class="stat__value">DE</span><span class="stat__label" data-i18n="stats.lang">Sprache</span></div>
             </div>
           </div>
 
@@ -162,11 +163,7 @@
               </button>
             </div>
             <a class="btn btn--primary btn--block js-join" href="#"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#play"></use></svg><span data-i18n="join.direct">Direkt verbinden</span></a>
-            <ul class="server-card__checks">
-              <li><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#check-circle"></use></svg><span data-i18n="card.c1">Eigene Scripts &amp; Wirtschaft</span></li>
-              <li><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#check-circle"></use></svg><span data-i18n="card.c2">Aktives Support-Team</span></li>
-              <li><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#check-circle"></use></svg><span data-i18n="card.c3">Bewerbung direkt auf der Website</span></li>
-            </ul>
+            <a class="server-card__apply" href="#bewerbung" data-tab-link="bewerbung"><span data-i18n="card.apply">Noch keine Whitelist? Jetzt bewerben</span> <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#arrow-right"></use></svg></a>
           </aside>
         </div>
       </div>
@@ -195,7 +192,7 @@
 
       <div class="container section section--flush">
         <span class="eyebrow" data-i18n="start.eyebrowSteps">Dein Weg in die Stadt</span>
-        <h2 class="section__title" data-i18n="start.steps">In drei Schritten dabei</h2>
+        <h2 class="section__title" data-i18n="start.steps">So kommst du rein</h2>
         <ol class="path">
           <li class="path__item card">
             <span class="path__num">01</span>
@@ -254,8 +251,8 @@
       <div class="container section section--flush">
         <div class="cta-banner force-dark">
           <div>
-            <h2 data-i18n="cta.title">Bereit für die Stadt?</h2>
-            <p data-i18n="cta.text">Lies die Regeln, bestehe das Quiz und starte in wenigen Minuten deine Geschichte.</p>
+            <h2 data-i18n="cta.title">Lust mitzuspielen?</h2>
+            <p data-i18n="cta.text">Regeln lesen, Quiz machen, bewerben. Wir freuen uns auf dich.</p>
           </div>
           <div class="btn-row">
             <a class="btn btn--primary" href="#verbinden" data-tab-link="verbinden"><span data-i18n="cta.play">Jetzt spielen</span> <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#arrow-right"></use></svg></a>
